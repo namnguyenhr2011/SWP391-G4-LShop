@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PropTypes from "prop-types";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./Screen/Client/Login";
 import Register from "./Screen/Client/Register";
@@ -11,6 +11,7 @@ import Home from "./Screen/Home";
 import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
+import NotFound from "./Screen/Error/NotFound";
 
 const App = () => {
   return (
@@ -24,6 +25,10 @@ const App = () => {
         <Route path="/verify" element={<VerifyScreen />} />
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
+
+
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
