@@ -23,11 +23,11 @@ app.use(cookieParser())
 app.use(bodyParser.json())
 
 
-
 app.use(cors({
-    origin: ['http://localhost:8081', 'http://localhost:8082'], // URL của frontend
-    credentials: true // Cho phép gửi cookie
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    credentials: true 
 }));
+
 
 routeClient(app)
 routeAdmin(app)

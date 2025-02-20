@@ -11,18 +11,18 @@ module.exports.register = async (req, res) => {
     try {
         const { userName, email, password, phone, address } = req.body;
         const salt = await bcrypt.genSalt(saltRounds);
-        const emailExits = await Users.find({
-            email: email
-        })
-        if (!emailExits) {
-            res.status(409).json({ message: "Email is Exits" })
-            return
+
+        const emailExists = await Users.findOne({ email });
+
+        if (emailExists) {
+            return res.status(409).json({ code: 409, message: "Email already exists" });
         }
         else {
             const hashPassword = await bcrypt.hash(password, salt)
             const user = new Users({ email, userName, password: hashPassword, phone, address });
             await user.save();
             res.status(201).json({
+                code: 201,
                 message: "Register successfully",
                 userId: user.id
             })
@@ -34,7 +34,7 @@ module.exports.register = async (req, res) => {
                 "expireAt": Date.now()
             }
             if (!otp) {
-                res.status(509).json({ message: "Error generate otp" })
+                res.status(509).json({ code: 509, message: "Error generate otp" })
             }
             const vertifyEmail = new VerifyEmail(objVrtify);
             await vertifyEmail.save();
@@ -229,7 +229,7 @@ module.exports.vertifyEmail = async (req, res) => {
             otp: otp
         })
         if (!optCorrect) {
-            return res.status(400).json({ message: "OTP Not Correct" })
+            return res.status(400).json({ code: 400, message: "OTP Not Correct" })
         }
 
 
@@ -244,10 +244,11 @@ module.exports.vertifyEmail = async (req, res) => {
             status: "active"
         })
         res.status(201).json({
+            code: 201,
             message: "Vertify Successfully"
         })
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json({ code: 500, message: "Internal Server Error: " + error })
     }
 }
 
@@ -371,7 +372,7 @@ module.exports.otp = async (req, res) => {
             email: email
         })
         if (!user) {
-            return res.status(401).json({ message: "Email Not Correct" })
+            return res.status(401).json({ code: 401, message: "Email Not Correct" })
         }
 
         const otpExits = await VerifyEmail.findOne({
@@ -379,13 +380,13 @@ module.exports.otp = async (req, res) => {
             otp: otp
         })
         if (!otpExits) {
-            return res.status(400).json({ message: "OTP Not Correct" })
+            return res.status(400).json({ code: 400, message: "OTP Not Correct" })
         }
 
         res.status(200).json({
             code: 200,
             token: user.token,
-            message: "Vertify Successfully"
+            message: "OTP sended successfully"
         })
     } catch (error) {
         res.status(500).json(error)
@@ -464,6 +465,18 @@ module.exports.editProfile = async (req, res) => {
                 message: "Update Successfull."
             })
         }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+module.exports.getAllUser = async (req, res) => {
+    try {
+        const users = await Users.find({})
+        res.json({
+            code: 200,
+            users: users
+        })
     } catch (error) {
         console.log(error)
     }

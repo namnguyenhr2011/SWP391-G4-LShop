@@ -20,6 +20,7 @@ routes.post('/resetPassword', validate.resetPasswordValidate, controller.reset)
 routes.get('/user-profile', authorization.Authorization, controller.profile)
 routes.patch('/edit-profile', authorization.Authorization, controller.editProfile)
 
+routes.get('/getAllUser',  controller.getAllUser)
 
 
 
