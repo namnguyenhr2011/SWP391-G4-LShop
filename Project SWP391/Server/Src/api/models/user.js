@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     userName: String,
     password: String,
     phone: String,
-    address:String, 
+    address: String,
     token: {
         default: randomString.generateString(20),
         type: String
@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'user', 'productManager', 'shipManager','saleManager'],  
-        default: 'user'           
+        enum: ['admin', 'user', 'productManager', 'sale'],
+        default: 'user'
     },
     deletedAt: Date
 },

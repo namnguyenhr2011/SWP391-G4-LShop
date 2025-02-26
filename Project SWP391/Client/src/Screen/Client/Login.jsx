@@ -24,9 +24,7 @@ const Login = () => {
         }
 
         try {
-            console.log("Logging in with:", email, password);
             const res = await userLogin(email.trim(), password.trim());
-            console.log("API Response:", res);
 
             if (!res || typeof res !== "object" || !("code" in res) || !("message" in res)) {
                 throw new Error("Invalid response format from server");
@@ -40,7 +38,18 @@ const Login = () => {
             if (res.code === 200) {
                 toast.success(res.message);
                 dispatch(doLogin({ _id: res.id, token: res.token }));
-                navigate("/");
+                if (res.role == "user") {
+                    navigate("/");
+                }
+                if (res.role == "productManager") {
+                    navigate("/productManager")
+                }
+                if (res.role == "admin") {
+                    navigate("/admin")
+                }
+                if (res.role == "sale") {
+                    navigate("/sale")
+                }
             }
         } catch (error) {
             console.error("Login Error:", error);
@@ -69,7 +78,7 @@ const Login = () => {
                                     />
                                 </Form.Group>
 
-                                 
+
                                 <Form.Group className="mb-3" controlId="password">
                                     <Form.Label>Password</Form.Label>
                                     <InputGroup>
@@ -92,12 +101,12 @@ const Login = () => {
                                     </Link>
                                 </Form.Group>
 
-                    
+
                                 <Button type="submit" variant="primary" className="w-100">
                                     Sign In
                                 </Button>
 
-                                
+
                                 <Button
                                     variant="outline-secondary"
                                     className="w-100 mt-3"

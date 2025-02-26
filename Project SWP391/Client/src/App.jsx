@@ -13,6 +13,16 @@ import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
 import NotFound from "./Screen/Error/NotFound";
 
+import UserProfile from "./Screen/Client/UserProfile";
+
+import Cart from "./Screen/Client/cart/cart";
+
+
+import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
+import SaleScreen from "./Screen/Sale/SaleScreen";
+import AdminScreen from "./Screen/Admin/AdminScreen";
+
+
 const App = () => {
   return (
     <Router>
@@ -26,6 +36,17 @@ const App = () => {
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
 
+
+        <Route path="/userProfile" element={<UserProfile />} />
+
+
+        <Route path="/cart" element={<Cart />} />
+
+
+
+        <Route path="/productManager" element={<ProductManagerScreen />} />
+        <Route path="/admin" element={<AdminScreen />} />
+        <Route path="/sale" element={<SaleScreen />} />
 
 
         <Route path="*" element={<NotFound />} />

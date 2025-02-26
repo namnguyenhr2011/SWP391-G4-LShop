@@ -36,5 +36,6 @@ server/.env
 
 # typescript
 *.tsbuildinfo
+*.json
 
 app-example

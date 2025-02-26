@@ -172,6 +172,7 @@ module.exports.login = async (req, res) => {
                     code: 200,
                     token: user.token,
                     id: user.id,
+                    role: user.role,
                     message: "Login Successful."
                 })
             }
@@ -245,7 +246,7 @@ module.exports.vertifyEmail = async (req, res) => {
         })
         res.status(201).json({
             code: 201,
-            message: "Vertify Successfully"
+            message: "Vertify Successfully",
         })
     } catch (error) {
         res.status(500).json({ code: 500, message: "Internal Server Error: " + error })
@@ -428,24 +429,21 @@ module.exports.reset = async (req, res) => {
 // api/user/user-profile
 module.exports.profile = async (req, res) => {
     try {
-        const authHeader = req.header('Authorization');
+        const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
-        if (token) {
-            const user = await Users.findOne({
-                token: token
-            })
-            if (user) {
-                res.json({
-                    code: 200,
-                    user: user
-                })
-            }
-        } else {
-            res.json({
-                code: 403,
-                message: "Token Found"
-            })
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
         }
+        const user = await Users.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found!' });
+        }
+        res.json({
+            code: 200,
+            user: user,
+            message: "User Founded"
+        })
+
     } catch (error) {
         console.log(error)
     }

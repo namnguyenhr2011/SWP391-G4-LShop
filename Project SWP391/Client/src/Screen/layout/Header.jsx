@@ -1,14 +1,13 @@
-import { Layout, Menu, Space, Avatar, Dropdown, message } from "antd";
+import { Layout, Menu, Space, Avatar, Dropdown, message, Switch, Badge } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
-import { UserOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
+import { UserOutlined, LoginOutlined, LogoutOutlined, MoonOutlined, SunOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 
 import ButtonAntd from "../../Component/ButtonAntd";
-import SwicthAntd from "../../Component/SwicthAntd";
 import InputSearch from "../../Component/InputSearch";
-import { doLogout } from "../../Store/reducer/userReducer";
+import { doLogout, doDarkMode } from "../../Store/reducer/userReducer";
 
 const Header = () => {
     const navigate = useNavigate();
@@ -18,6 +17,11 @@ const Header = () => {
     const { token } = useSelector((state) => state.user?.user);
     const { nameApp, logo } = useSelector((state) => state.admin?.app) || {};
     const isDarkMode = useSelector((state) => state.user.darkMode);
+    const { _id: userId } = useSelector((state) => state.user?.user) || {};
+    const cartItems = useSelector((state) => state.cart.items[userId] || []);
+    const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+
 
     useEffect(() => {
         if (nameApp) {
@@ -42,25 +46,36 @@ const Header = () => {
         navigate("/login");
     };
 
-    const menuItems = [
-        { key: "home", label: "Home", onClick: () => navigate("/") },
-        { key: "features", label: "Features", onClick: () => navigate("/features") },
-        { key: "pricing", label: "Pricing", onClick: () => navigate("/pricing") },
-        { key: "contact", label: "Contact", onClick: () => navigate("/contact") },
-    ];
+    const toggleDarkMode = () => {
+        dispatch(doDarkMode(!isDarkMode));
+    };
+
+    const handleUserProfile = () => {
+        navigate("/userProfile");
+    }
 
     const profileMenu = (
-        <Menu
-            items={[
-                { key: "profile", label: "Profile", icon: <UserOutlined /> },
-                {
-                    key: "logout",
-                    label: "Logout",
-                    icon: <LogoutOutlined />,
-                    onClick: handleLogout,
-                },
-            ]}
-        />
+        <Menu>
+            <Menu.Item key="profile" icon={<UserOutlined />} onClick={handleUserProfile}>
+                Profile
+            </Menu.Item>
+            <Menu.Item key="darkmode">
+                <Space>
+                    <MoonOutlined />
+                    Dark Mode
+                    <Switch
+                        checked={isDarkMode}
+                        onChange={toggleDarkMode}
+                        checkedChildren={<MoonOutlined />}
+                        unCheckedChildren={<SunOutlined />}
+                    />
+                </Space>
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
+                Logout
+            </Menu.Item>
+        </Menu>
     );
 
     return (
@@ -79,7 +94,8 @@ const Header = () => {
                 transition: "background-color 0.3s ease",
             }}
         >
-            <Space>
+            {/* LOGO BÊN TRÁI */}
+            <div>
                 {logo && (
                     <img
                         onClick={() => navigate("/")}
@@ -89,22 +105,17 @@ const Header = () => {
                         style={{ cursor: "pointer", borderRadius: "8px" }}
                     />
                 )}
-                <Menu
-                    theme={isDarkMode ? "dark" : "light"}
-                    mode="horizontal"
-                    items={menuItems}
-                    style={{
-                        backgroundColor: "transparent",
-                        borderBottom: "none",
-                        color: "#ffffff",
-                    }}
-                />
-            </Space>
+            </div>
 
-            <Space size="large">
+            <Space size="large" style={{ marginLeft: "auto" }}>
                 <InputSearch />
 
-                <SwicthAntd />
+                <Badge count={cartCount} offset={[10, 0]} size="small">
+                    <ShoppingCartOutlined
+                        onClick={() => navigate("/cart")}
+                        style={{ fontSize: "24px", cursor: "pointer", color: "#fff" }}
+                    />
+                </Badge>
 
                 <Dropdown overlay={profileMenu} trigger={["click"]}>
                     {token ? (

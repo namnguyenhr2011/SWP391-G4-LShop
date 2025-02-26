@@ -5,31 +5,67 @@ const Product = require('../../models/product')
 
 module.exports.getAllProductsWithSale = async (req, res) => {
     try {
-        const totalProducts = await Product.countDocuments({ deleted: false })
+        const totalProducts = await Product.countDocuments({ deleted: false });
         if (totalProducts === 0) {
-            return res.status(404).json({ message: 'No products found.' })
+            return res.status(404).json({ message: 'No products found.' });
         }
+
         const paginationData = await PaginationHelper({
-            currentPage: 1,
-            limit: 12,
-        },
+                currentPage: req.query.page || 1,
+                limit: req.query.limit || 12,
+            },
             totalProducts,
             req.query
-        )
+        );
+
+        // Get products without populate to avoid schema mismatch errors
         const products = await Product.find({ deleted: false })
-            .populate('category', 'name description')
-            .populate('sale', 'discount startDate endDate')
             .skip(paginationData.skip)
             .limit(paginationData.limit)
             .sort({ createdAt: -1 });
+
+        // Get product IDs to fetch related sales
+        const productIds = products.map(product => product._id);
+
+        // Fetch active sales for these products
+        const now = new Date();
+        const activeSales = await Sale.find({
+            productId: { $in: productIds },
+            startDate: { $lte: now },
+            endDate: { $gte: now }
+        });
+
+        // Create a map of productId to sale for quick lookup
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                discount: sale.discountAmount,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice || 
+                  (sale.discountType === 'percentage' ? null : null) // This would need calculation based on product price
+            };
+        });
+
+        // Add sale information to each product
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
         res.status(200).json({
-            products,
+            products: productsWithSales,
             totalPage: paginationData.totalPage
-        })
+        });
     } catch (error) {
-        res.status(500).json(error)
+        console.error('Error in getAllProductsWithSale:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
+
+
 
 module.exports.addSale = async (req, res) => {
     try {
