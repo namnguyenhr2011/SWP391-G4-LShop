@@ -2,6 +2,8 @@ const Sale = require('../../models/sale')
 const PaginationHelper = require('../../../helper/pagination')
 const User = require('../../models/user')
 const Product = require('../../models/product')
+const Transaction = require('../../models/transaction')
+
 
 module.exports.getAllProductsWithSale = async (req, res) => {
     try {
@@ -11,9 +13,9 @@ module.exports.getAllProductsWithSale = async (req, res) => {
         }
 
         const paginationData = await PaginationHelper({
-                currentPage: req.query.page || 1,
-                limit: req.query.limit || 12,
-            },
+            currentPage: req.query.page || 1,
+            limit: req.query.limit || 12,
+        },
             totalProducts,
             req.query
         );
@@ -43,8 +45,8 @@ module.exports.getAllProductsWithSale = async (req, res) => {
                 discountType: sale.discountType,
                 startDate: sale.startDate,
                 endDate: sale.endDate,
-                salePrice: sale.salePrice || 
-                  (sale.discountType === 'percentage' ? null : null) // This would need calculation based on product price
+                salePrice: sale.salePrice ||
+                    (sale.discountType === 'percentage' ? null : null) // This would need calculation based on product price
             };
         });
 
@@ -67,7 +69,7 @@ module.exports.getAllProductsWithSale = async (req, res) => {
 
 
 
-module.exports.addSale = async (req, res) => {
+module.exports.addSalePrice = async (req, res) => {
     try {
         const isSale = true;
         const { salePrice, startDate, endDate, discountType, discountAmount, minPurchase, productId } = req.body;
@@ -87,6 +89,7 @@ module.exports.addSale = async (req, res) => {
         }
 
         const newSale = new Sale({
+            productId,
             isSale,
             salePrice,
             startDate,
@@ -105,58 +108,43 @@ module.exports.addSale = async (req, res) => {
     }
 }
 
-module.exports.updateSale = async (req, res) => {
+module.exports.updateSalPrice = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { salePrice, startDate, endDate, discountType, discountAmount, minPurchase } = req.body;
+        const { salePrice, startDate, endDate, discountType, discountAmount, minPurchase, productId } = req.body;
+        const saleId = req.params.id; 
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
+
         if (!token) {
             return res.status(401).json({ message: 'Token is missing or invalid!' });
         }
-        const sale = await User.findOne({ token: token });
-        if (!sale || sale.role !== 'sale') {
-            return res.status(401).json({ message: 'User not authorized to update sale or User not found!!!' });
-        }
-    }
-    catch (error) {
-        res.status(500).json('Error updating sale ' + error.message)
-    }
-}
 
-module.exports.deleteSale = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        const saleUser = await User.findOne({ token: token });
+        if (!saleUser || saleUser.role !== 'sale') {
+            return res.status(403).json({ message: 'User not authorized or User not found!' });
         }
-        const sale = await User.findOne({ token: token });
-        if (!sale || sale.role !== 'sale') {
-            return res.status(401).json({ message: 'User not authorized to delete sale or User not found!!!' });
-        }
-        const deletedSale = await Sale.findByIdAndDelete(id);
-        if (!deletedSale) {
-            return res.status(404).json({ message: 'Sale not found.' })
-        }
-        res.status(200).json({ message: 'Sale deleted successfully.' })
-    }
-    catch (error) {
-        res.status(500).json('Error deleting sale ' + error.message)
-    }
-}
 
-module.exports.adminDelete = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedSale = await Sale.findByIdAndDelete(id);
-        if (!deletedSale) {
-            return res.status(404).json({ message: 'Sale not found.' })
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
         }
-        res.status(200).json({ message: 'Sale deleted successfully.' })
+
+        const updateSale = await Sale.findByIdAndUpdate(
+            saleId,
+            { salePrice, startDate, endDate, discountType, discountAmount, minPurchase },
+            { new: true, runValidators: true }
+        );
+
+        if (!updateSale) {
+            return res.status(404).json({ message: 'Sale not found' });
+        }
+
+        res.status(200).json({ message: 'Sale updated successfully.', sale: updateSale });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating sale', error: error.message });
     }
-    catch (error) {
-        res.status(500).json('Error deleting sale ' + error.message)
-    }
-}
+};
+
+
+

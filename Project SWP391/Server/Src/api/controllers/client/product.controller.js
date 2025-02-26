@@ -3,6 +3,7 @@ const PaginationHelper = require('../../../helper/pagination')
 const User = require('../../models/user')
 const Category = require('../../models/category')
 const SubCategory = require('../../models/subCategory')
+const Sale = require('../../models/sale');
 
 
 //[Post] api/products/addProducts
@@ -201,30 +202,46 @@ module.exports.searchProducts = async (req, res) => {
 // [GET] api/products/getAllProducts
 module.exports.getAllProducts = async (req, res) => {
     try {
-        const totalProducts = await Product.countDocuments({ deleted: false })
+        const totalProducts = await Product.countDocuments({ deleted: false });
         if (totalProducts === 0) {
-            return res.status(404).json({ message: 'No products found.' })
+            return res.status(404).json({ message: 'No products found.' });
         }
-        const paginationData = await PaginationHelper({
-            currentPage: 1,
-            limit: 12,
-        },
+
+        const paginationData = await PaginationHelper(
+            { currentPage: 1, limit: 12 },
             totalProducts,
             req.query
-        )
+        );
+
+        // Lấy danh sách sản phẩm và ghép dữ liệu từ bảng Sale
         const products = await Product.find({ deleted: false })
             .skip(paginationData.skip)
             .limit(paginationData.limit)
             .sort({ createdAt: -1 })
+            .lean(); // Dùng lean() để lấy dữ liệu nhanh hơn khi không cần thao tác mongoose document
+
+        // Lấy danh sách sale theo productId
+        const productIds = products.map(p => p._id);
+        const sales = await Sale.find({ productId: { $in: productIds } }).lean();
+
+        // Gộp dữ liệu sale vào danh sách sản phẩm
+        const productsWithSale = products.map(product => {
+            const saleInfo = sales.find(sale => sale.productId.toString() === product._id.toString());
+            return {
+                ...product,
+                sale: saleInfo || null, // Nếu không có khuyến mãi thì để null
+            };
+        });
 
         res.status(200).json({
-            products,
-            totalPage: paginationData.totalPage
-        })
+            products: productsWithSale,
+            totalPage: paginationData.totalPage,
+        });
     } catch (error) {
-        res.status(500).json(error)
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Internal Server Error', error });
     }
-}
+};
 
 
 // [GET] api/products/:id

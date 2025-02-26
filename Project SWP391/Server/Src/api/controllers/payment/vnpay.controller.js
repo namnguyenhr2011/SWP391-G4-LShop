@@ -59,7 +59,7 @@ module.exports.createPaymentUrl = (req, res) => {
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
     res.json({ url: vnpUrl });
-    console.log(vnpUrl)
+    console.log({ orderID: orderId, url: vnpUrl })
 }
 
 module.exports.returnUrl = (req, res) => {
@@ -86,17 +86,20 @@ module.exports.returnUrl = (req, res) => {
 
         if (secureHash === signed) {
             //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+            // console.log("Thanh toán thành công:", vnp_Params);
+            // res.status(200).json({ status: "success", message: "Thanh toán thành công!", code: vnp_Params["vnp_ResponseCode"] });
+            let returnUrl = `http://localhost:8081/ReturnQR?${querystring.stringify(vnp_Params)}`;
             console.log("Thanh toán thành công:", vnp_Params);
-            res.status(200).json({ status: "success", message: "Thanh toán thành công!", code: vnp_Params["vnp_ResponseCode"] });
-
+            return res.redirect(returnUrl);
         } else {
             console.log("Xác thực thất bại!");
-            res.status(400).json({ status: "error", message: "Xác thực thất bại!", code: "97" });
-
+            // res.status(400).json({ status: "error", message: "Xác thực thất bại!", code: "97" });
+            return res.redirect("http://localhost:8081/ReturnQR?error=checksum_failed");
         }
     } catch (error) {
         console.log("VN pay error:", error)
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        // res.status(500).json({ message: 'Internal server error', error: error.message });
+        return res.redirect("http://localhost:8081/ReturnQR?error=server_error");
     }
 
 }
@@ -106,12 +109,12 @@ module.exports.refund = (req, res) => {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
     let date = new Date();
 
-    let config = require('config');
+    let config = require('../../../config/default.json');
     let crypto = require("crypto");
 
-    let vnp_TmnCode = config.get('vnp_TmnCode');
-    let secretKey = config.get('vnp_HashSecret');
-    let vnp_Api = config.get('vnp_Api');
+    let vnp_TmnCode = config.vnp_TmnCode
+    let secretKey = config.vnp_HashSecret
+    let vnp_Api = config.vnp_Api
 
     let vnp_TxnRef = req.body.orderId;
     let vnp_TransactionDate = req.body.transDate;
@@ -168,20 +171,22 @@ module.exports.refund = (req, res) => {
 
 }
 
-
 module.exports.query = (req, res) => {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
     let date = new Date();
+    let moment = require('moment'); // Added missing moment require
 
-    let config = require('config');
+    let config = require('../../../config/default.json');
     let crypto = require("crypto");
+    let request = require('request'); // Added missing request require
 
-    let vnp_TmnCode = config.get('vnp_TmnCode');
-    let secretKey = config.get('vnp_HashSecret');
-    let vnp_Api = config.get('vnp_Api');
+    let vnp_TmnCode = config.vnp_TmnCode;
+    let secretKey = config.vnp_HashSecret;
+    let vnp_Api = config.vnp_Api;
 
     let vnp_TxnRef = req.body.orderId;
-    let vnp_TransactionDate = req.body.transDate;
+    // Use current date formatted as YYYYMMDD instead of requiring transDate
+    let vnp_TransactionDate = moment(date).format('YYYYMMDD');
 
     let vnp_RequestId = moment(date).format('HHmmss');
     let vnp_Version = '2.1.0';
@@ -193,13 +198,12 @@ module.exports.query = (req, res) => {
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
 
-    let currCode = 'VND';
     let vnp_CreateDate = moment(date).format('YYYYMMDDHHmmss');
 
     let data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + vnp_TransactionDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;
 
     let hmac = crypto.createHmac("sha512", secretKey);
-    let vnp_SecureHash = hmac.update(new Buffer(data, 'utf-8')).digest("hex");
+    let vnp_SecureHash = hmac.update(Buffer.from(data, 'utf-8')).digest("hex"); // Fixed new Buffer to Buffer.from
 
     let dataObj = {
         'vnp_RequestId': vnp_RequestId,
@@ -213,16 +217,77 @@ module.exports.query = (req, res) => {
         'vnp_IpAddr': vnp_IpAddr,
         'vnp_SecureHash': vnp_SecureHash
     };
-    // /merchant_webapi/api/transaction
+
     request({
         url: vnp_Api,
         method: "POST",
         json: true,
         body: dataObj
     }, function (error, response, body) {
-        console.log(response);
+        if (error) {
+            console.error('Error:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        console.log('Response:', body);
+        return res.status(200).json(body);
     });
 }
+
+// module.exports.query = (req, res) => {
+//     process.env.TZ = 'Asia/Ho_Chi_Minh';
+//     let date = new Date();
+
+//     let config = require('../../../config/default.json');
+//     let crypto = require("crypto");
+
+//     let vnp_TmnCode = config.vnp_TmnCode
+//     let secretKey = config.vnp_HashSecret
+//     let vnp_Api = config.vnp_Api
+
+//     let vnp_TxnRef = req.body.orderId;
+//     let vnp_TransactionDate = req.body.transDate;
+
+//     let vnp_RequestId = moment(date).format('HHmmss');
+//     let vnp_Version = '2.1.0';
+//     let vnp_Command = 'querydr';
+//     let vnp_OrderInfo = 'Truy van GD ma:' + vnp_TxnRef;
+
+//     let vnp_IpAddr = req.headers['x-forwarded-for'] ||
+//         req.connection.remoteAddress ||
+//         req.socket.remoteAddress ||
+//         req.connection.socket.remoteAddress;
+
+//     let currCode = 'VND';
+//     let vnp_CreateDate = moment(date).format('YYYYMMDDHHmmss');
+
+//     let data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + vnp_TransactionDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;
+
+//     let hmac = crypto.createHmac("sha512", secretKey);
+//     let vnp_SecureHash = hmac.update(new Buffer(data, 'utf-8')).digest("hex");
+
+//     let dataObj = {
+//         'vnp_RequestId': vnp_RequestId,
+//         'vnp_Version': vnp_Version,
+//         'vnp_Command': vnp_Command,
+//         'vnp_TmnCode': vnp_TmnCode,
+//         'vnp_TxnRef': vnp_TxnRef,
+//         'vnp_OrderInfo': vnp_OrderInfo,
+//         'vnp_TransactionDate': vnp_TransactionDate,
+//         'vnp_CreateDate': vnp_CreateDate,
+//         'vnp_IpAddr': vnp_IpAddr,
+//         'vnp_SecureHash': vnp_SecureHash
+//     };
+//     // /merchant_webapi/api/transaction
+//     request({
+//         url: vnp_Api,
+//         method: "POST",
+//         json: true,
+//         body: dataObj
+//     }, function (error, response, body) {
+//         console.log(response);
+//     });
+// }
 
 module.exports.vnpay_ipn = (req, res) => {
     let vnp_Params = req.query;
