@@ -3,7 +3,7 @@ const app = express()
 const routeClient = require('./api/routes/client/index')
 
 const routeAdmin = require('./api/routes/admin/adminIndex')
-
+const routeSale = require('./api/routes/sale/SaleIndex')
 
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -25,12 +25,13 @@ app.use(bodyParser.json())
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
-    credentials: true 
+    credentials: true
 }));
 
 
 routeClient(app)
 routeAdmin(app)
+routeSale(app)
 
 // Error handling middleware (optional but recommended)
 app.use((err, req, res, next) => {

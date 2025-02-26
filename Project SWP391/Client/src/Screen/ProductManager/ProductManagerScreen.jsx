@@ -1,16 +1,19 @@
 import { getAllCategory } from "../../Service/Client/ApiProduct";
 import { useState, useEffect } from "react";
+import { Card, List, Typography, Spin } from "antd";
+import { Container, Row, Col } from "react-bootstrap";
+
+const { Title, Text } = Typography;
 
 const ProductManagerScreen = () => {
     const [category, setCategory] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchCategory = async () => {
             try {
-                //call api
                 const response = await getAllCategory();
                 console.log(response);
-                //neu api co du lieu, set respone = du lieu tra ve tu api
                 if (response && response.categories) {
                     setCategory(response.categories);
                 } else {
@@ -18,6 +21,8 @@ const ProductManagerScreen = () => {
                 }
             } catch (error) {
                 console.error("Error fetching categories:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -25,36 +30,52 @@ const ProductManagerScreen = () => {
     }, []);
 
     return (
-        <div>
-            <h2>Products Manager Screen</h2>
-            {category.length > 0 ? (
-                <ul>
-                    {category.map((item) => (
-                        <li key={item._id}>
-                            <h3>{item.name}</h3>
-                            <p>{item.description}</p>
-                            {item.image && <img src={item.image} alt={item.name} />}
-                            <h4>Sub Categories</h4>
-                            {item.subCategories?.length > 0 ? (
-                                <ul>
-                                    {item.subCategories.map((subItem) => (
-                                        <li key={subItem.id}>
-                                            <p>{subItem.name}</p>
-                                            <p>{subItem.description}</p>
-                                            {subItem.image && <img src={subItem.image} alt={subItem.name} />}
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p>No subcategories available.</p>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+        <Container>
+            <Title level={2} className="my-4 text-center">Products Manager Screen</Title>
+            {loading ? (
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+                    <Spin size="large" />
+                </div>
             ) : (
-                <p>Loading categories...</p>
+                <Row>
+                    {category.map((item) => (
+                        <Col key={item._id} md={6} lg={4} className="mb-4">
+                            <Card
+                                hoverable
+                                cover={<img alt={item.name} src={item.image} style={{ height: 200, objectFit: "cover" }} />}
+                            >
+                                <Title level={4}>{item.name}</Title>
+                                <Text type="secondary">{item.description}</Text>
+                                <Title level={5} className="mt-3">Sub Categories</Title>
+                                {item.subCategories?.length > 0 ? (
+                                    <List
+                                        size="small"
+                                        bordered
+                                        dataSource={item.subCategories}
+                                        renderItem={(subItem) => (
+                                            <List.Item key={subItem.id}>
+                                                <img
+                                                    src={subItem.image}
+                                                    alt={subItem.name}
+                                                    style={{ width: 40, height: 40, marginRight: 10, borderRadius: 5 }}
+                                                />
+                                                <div>
+                                                    <Text strong>{subItem.name}</Text>
+                                                    <br />
+                                                    <Text type="secondary">{subItem.description}</Text>
+                                                </div>
+                                            </List.Item>
+                                        )}
+                                    />
+                                ) : (
+                                    <Text type="danger">No subcategories available.</Text>
+                                )}
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
             )}
-        </div>
+        </Container>
     );
 };
 

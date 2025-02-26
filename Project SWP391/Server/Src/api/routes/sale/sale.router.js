@@ -2,7 +2,7 @@ const express = require('express')
 const routes = express.Router()
 const authorization = require('../../../middleware/user.middleware')
 
-const controller = require('../../controllers/client/sale.controller')
+const controller = require('../../controllers/Sale/sale.controller')
 
 
 

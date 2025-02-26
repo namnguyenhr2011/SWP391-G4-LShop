@@ -8,7 +8,6 @@ const SaleScreen = () => {
     useEffect(() => {
         const fetchData = async () => {
             const response = await getAllProductBySale()
-            console.log(response)
             setProduct(response)
         }
         fetchData()
