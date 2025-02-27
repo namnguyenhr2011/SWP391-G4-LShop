@@ -1,24 +1,53 @@
-import { Layout, Typography, Button, Card, Row, Col, Carousel } from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Typography, Row, Col, Carousel } from "antd";
 import { useSelector } from "react-redux";
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
-import ProductCart from "../Component/ProductCart";
+import ProductCard from "../Component/ProductCart";
+import SidebarMenuAntd from "../Component/SidebarMenuAntd";
+import { getTop8 } from "../Service/Client/ApiProduct";
+import { getTopSold } from "../Service/Client/ApiProduct";
 
 const { Content } = Layout;
-const { Paragraph, Title } = Typography;
-
-const contentStyle = {
-    height: '100%',
-    width: '100%',
-    objectFit: 'cover',
-    color: '#fff',
-    lineHeight: '160px',
-    textAlign: 'center',
-    background: '#364d79',
-};
-
+const { Title } = Typography;
 
 const Home = () => {
+    const [products, setProducts] = useState([]);
+    const [topSaleProducts, setTopSaleProduct] = useState([])
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await getTop8();
+                setProducts(response.products);
+            } catch (error) {
+                console.error("Lỗi khi lấy sản phẩm:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await getTopSold();
+                setTopSaleProduct(response.products);
+            } catch (error) {
+                console.error("Lỗi khi lấy sản phẩm:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+
     const isDarkMode = useSelector((state) => state.user.darkMode);
 
     return (
@@ -31,116 +60,52 @@ const Home = () => {
             }}
         >
             <Header />
-
             <Content style={{ padding: "60px 20px", maxWidth: "1200px", margin: "auto" }}>
-
-                <Carousel
-                    autoplay={{
-                        dotDuration: true,
-                    }}
-                    autoplaySpeed={5000}
-                >
-                    <div>
-                        <img src="https://file.hstatic.net/200000722513/file/thang_01_laptop_gaming_banner_web_slider_800x400.png" style={contentStyle} />
-                    </div>
-                    <div>
-                        <img src="https://file.hstatic.net/200000722513/file/banner_web_slider_800x400_1199a3adfc23489798d4163a97f3bc62.jpg" style={contentStyle} />
-                    </div>
-                    <div>
-                        <img src="https://file.hstatic.net/200000722513/file/thang_01_laptop_acer_800x400.png" style={contentStyle} />
-                    </div>
-                    <div>
-                        <img src="https://file.hstatic.net/200000722513/file/thang_12_thu_cu_ve_sinh_banner_web_slider_800x400.png" alt="Content 4" style={contentStyle} />
-                    </div>
-                </Carousel>
-
+                <Row gutter={0} style={{ paddingTop: "10px" }}>
+                    <Col xs={24} sm={4}>
+                        <SidebarMenuAntd />
+                    </Col>
+                    <Col xs={24} sm={20} style={{ paddingLeft: "5px" }}>
+                        <Carousel autoplay autoplaySpeed={5000}>
+                            <div>
+                                <img
+                                    src="https://file.hstatic.net/200000722513/file/thang_01_laptop_gaming_banner_web_slider_800x400.png"
+                                    style={{ width: "100%", borderRadius: "10px" }}
+                                />
+                            </div>
+                            <div>
+                                <img
+                                    src="https://file.hstatic.net/200000722513/file/banner_web_slider_800x400_1199a3adfc23489798d4163a97f3bc62.jpg"
+                                    style={{ width: "100%", borderRadius: "10px" }}
+                                />
+                            </div>
+                        </Carousel>
+                    </Col>
+                </Row>
 
                 <Title
                     level={2}
                     style={{
                         textAlign: "center",
                         color: isDarkMode ? "#e6edf3" : "#1c1e21",
-                        marginBottom: "40px",
+                        margin: "40px",
                     }}
                 >
                     Welcome to Our Platform
                 </Title>
-                <ProductCart />
-                <Row gutter={[24, 24]} justify="center">
-                    <Col xs={24} sm={12} md={8}>
-                        <Card
-                            title="Feature 1"
-                            bordered={false}
-                            hoverable
-                            style={{
-                                backgroundColor: isDarkMode ? "#161b22" : "#ffffff",
-                                color: isDarkMode ? "#e6edf3" : "#1c1e21",
-                                borderRadius: "12px",
-                                boxShadow: isDarkMode
-                                    ? "0 4px 10px rgba(255, 255, 255, 0.1)"
-                                    : "0 4px 10px rgba(0, 0, 0, 0.1)",
-                                transition: "all 0.3s ease",
-                            }}
-                        >
-                            <Paragraph>
-                                Discover amazing features with our app that enhance your productivity.
-                            </Paragraph>
-                            <Button type="primary" block>
-                                Learn More
-                            </Button>
-                        </Card>
-                    </Col>
 
-                    <Col xs={24} sm={12} md={8}>
-                        <Card
-                            title="Feature 2"
-                            bordered={false}
-                            hoverable
-                            style={{
-                                backgroundColor: isDarkMode ? "#161b22" : "#ffffff",
-                                color: isDarkMode ? "#e6edf3" : "#1c1e21",
-                                borderRadius: "12px",
-                                boxShadow: isDarkMode
-                                    ? "0 4px 10px rgba(255, 255, 255, 0.1)"
-                                    : "0 4px 10px rgba(0, 0, 0, 0.1)",
-                                transition: "all 0.3s ease",
-                            }}
-                        >
-                            <Paragraph>
-                                Experience a seamless, fast, and secure way to manage your tasks.
-                            </Paragraph>
-                            <Button type="primary" block>
-                                Explore
-                            </Button>
-                        </Card>
-                    </Col>
+                <ProductCard products={products} loading={loading} />
+                <Title
+                    level={4}
+                    style={{
+                        color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                    }}
+                >
+                    Top sale
+                </Title>
+                <ProductCard products={topSaleProducts} loading={loading} />
 
-                    <Col xs={24} sm={12} md={8}>
-                        <Card
-                            title="Feature 3"
-                            bordered={false}
-                            hoverable
-                            style={{
-                                backgroundColor: isDarkMode ? "#161b22" : "#ffffff",
-                                color: isDarkMode ? "#e6edf3" : "#1c1e21",
-                                borderRadius: "12px",
-                                boxShadow: isDarkMode
-                                    ? "0 4px 10px rgba(255, 255, 255, 0.1)"
-                                    : "0 4px 10px rgba(0, 0, 0, 0.1)",
-                                transition: "all 0.3s ease",
-                            }}
-                        >
-                            <Paragraph>
-                                Stay connected and collaborate with your team effortlessly.
-                            </Paragraph>
-                            <Button type="primary" block>
-                                Get Started
-                            </Button>
-                        </Card>
-                    </Col>
-                </Row>
             </Content>
-
             <Footer />
         </Layout>
     );

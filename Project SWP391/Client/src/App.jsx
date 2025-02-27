@@ -16,7 +16,7 @@ import NotFound from "./Screen/Error/NotFound";
 import UserProfile from "./Screen/Client/UserProfile";
 
 import Cart from "./Screen/Client/cart/cart";
-
+import Checkout from "./Screen/Client/cart/checkout";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
@@ -40,7 +40,10 @@ const App = () => {
         <Route path="/userProfile" element={<UserProfile />} />
 
 
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/cart">
+          <Route index element={<Cart />} /> 
+          <Route path="checkout" element={<Checkout />} /> 
+        </Route>
 
 
 
@@ -51,7 +54,7 @@ const App = () => {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+    </Router >
   );
 };
 
