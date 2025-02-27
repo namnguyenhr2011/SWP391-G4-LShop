@@ -19,6 +19,8 @@ import Cart from "./Screen/Client/cart/cart";
 
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
+import AddProduct from "./Screen/ProductManager/AddProduct";
+import AddCategory from "./Screen/ProductManager/AddCategory";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
 
@@ -45,6 +47,8 @@ const App = () => {
 
 
         <Route path="/productManager" element={<ProductManagerScreen />} />
+        <Route path="/addProduct" element={<AddProduct />} />
+        <Route path="/addCategory" element={<AddCategory />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
 

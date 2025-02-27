@@ -62,7 +62,7 @@ module.exports.addProduct = async (req, res) => {
 module.exports.updateProduct = async (req, res) => {
     try {
         const { productId } = req.params;
-        const { name, price, image, description, subCategory, quantity, sold, saleOf, salePrice } = req.body;
+        const { name, price, image, description, subCategory, quantity, sold, saleOf } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -76,6 +76,7 @@ module.exports.updateProduct = async (req, res) => {
         }
 
         const product = await Product.findById(productId);
+        console.log(productId)
         if (!product) {
             return res.status(404).json({ message: 'Product not found!' });
         }
@@ -93,7 +94,6 @@ module.exports.updateProduct = async (req, res) => {
         product.quantity = quantity || product.quantity;
         product.sold = sold || product.sold;
         product.saleOf = saleOf || product.saleOf;
-        product.salePrice = salePrice || product.salePrice;
 
         await product.save();
 

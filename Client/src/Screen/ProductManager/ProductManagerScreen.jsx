@@ -1,6 +1,7 @@
 import { getAllCategory } from "../../Service/Client/ApiProduct";
 import { useState, useEffect } from "react";
 import Header from "../../Screen/layout/ProductManageHeader";
+import Sidebar from "./Sidebar";
 
 const ProductManagerScreen = () => {
     const [category, setCategory] = useState([]);
@@ -26,8 +27,8 @@ const ProductManagerScreen = () => {
     }, []);
 
     return (
-        <>
-            <Header />
+        <>       
+            <Sidebar />
             <div>
                 {category.length > 0 ? (
                     <ul>
@@ -58,6 +59,7 @@ const ProductManagerScreen = () => {
                 )}
             </div>
         </>
+
     );
 };
 
