@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 
 
 const Cart = () => {
+    const isDarkMode = useSelector((state) => state.user.darkMode);
     const navigate = useNavigate()
     const { _id: userId } = useSelector((state) => state.user?.user) || {};
     const cartItems = useSelector((state) => state.cart.items[userId] || []);
@@ -40,7 +41,6 @@ const Cart = () => {
             totalAmount: totalPrice,
         };
 
-        console.log("Dữ liệu gửi sang trang checkout:", orderData); 
 
         navigate("/cart/checkout", { state: orderData });
     };
@@ -51,10 +51,17 @@ const Cart = () => {
         <>
             <Header />
 
-            <Layout style={{ minHeight: "100vh", padding: "50px", backgroundColor: "#f8f9fa", marginTop: "120px" }}>
+            <Layout style={{
+
+                minHeight: "100vh",
+                width: "100%",
+                backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
+                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                transition: "background-color 0.3s ease, color 0.3s ease",
+            }}>
                 <Container>
-                    <Content>
-                        <Row align="middle" style={{ marginBottom: "20px" }}>
+                    <Content style={{ marginTop: "100px" }}>
+                        <Row align="middle" style={{ marginBottom: "50px" }}>
                             <Col span={12}>
                                 <Link to="/">
                                     <Button

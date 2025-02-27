@@ -6,11 +6,14 @@ import { ShoppingOutlined, CreditCardOutlined, HomeOutlined, PhoneOutlined, Comm
 import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
 import { userProfile } from '../../../Service/Client/ApiServices';
+import { createOrder } from '../../../Service/Client/ApiOrder';
+
 
 const { TextArea } = Input;
 const { Text } = Typography;
 
 const CheckoutPage = () => {
+    const isDarkMode = useSelector((state) => state.user.darkMode);
     const token = useSelector((state) => state.user?.user?.token) || "";
     const [profile, setProfile] = useState(null);
 
@@ -68,7 +71,7 @@ const CheckoutPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!formData.address) {
@@ -81,28 +84,55 @@ const CheckoutPage = () => {
             return;
         }
 
+        if (cartItems.length === 0) {
+            notification.error({ message: 'Lỗi', description: 'Giỏ hàng trống!' });
+            return;
+        }
+
+
         const finalOrderData = {
-            products: cartItems,
-            paymentMethod: formData.paymentMethod,
+            products: cartItems.map(item => ({
+                productId: item.productId || "", 
+                quantity: item.quantity || 1, 
+                price: item.price || 0 
+            })),
+            totalAmount: cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0),
+            paymentMethod: formData.paymentMethod || "COD", 
             paymentStatus: "Pending",
             address: formData.address,
             phone: formData.phone,
-            note: formData.note,
-            totalAmount
+            note: formData.note || "",
         };
 
-        console.log('Dữ liệu đơn hàng:', finalOrderData);
+        console.log("Final Order Data:", finalOrderData);
 
-        notification.success({
-            message: 'Thành công',
-            description: 'Đặt hàng thành công!',
-        });
-    };
+        try {
+            const createOrderRequest = await createOrder(finalOrderData);
+            console.log("API Response:", createOrderRequest);
+
+            notification.success({
+                message: 'Thành công',
+                description: 'Đặt hàng thành công!',
+            });
+        } catch (error) {
+            console.error(error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!',
+            });
+        }
+    }
 
     return (
         <>
             <Header />
-            <Container className="py-5" style={{ marginTop: "100px", marginBottom: "100px" }}>
+            <Container className="py-5" style={{
+
+                minHeight: "100vh",
+                backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
+                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                transition: "background-color 0.3s ease, color 0.3s ease",
+            }}>
                 <h2 className="mb-4 text-center">Thanh toán đơn hàng</h2>
 
                 <Row>
