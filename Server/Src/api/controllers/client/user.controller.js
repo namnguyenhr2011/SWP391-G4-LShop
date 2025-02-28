@@ -453,20 +453,27 @@ module.exports.editProfile = async (req, res) => {
     try {
         const authHeader = req.header('Authorization');
         const token = authHeader && authHeader.split(' ')[1];
-        const userName = req.body.userName;
+        const { userName, phone, address } = req.body;
+
         if (token) {
-            const user = await Users.updateOne({
+            const user = await Users.findOneAndUpdate({
                 token: token
-            }, { userName: userName })
+            }, {
+                userName: userName,
+                phone: phone,
+                address: address
+            })
             res.json({
                 code: 200,
-                message: "Update Successfull."
+                message: "Update Successfull.",
+                user: user
             })
         }
     } catch (error) {
         console.log(error)
     }
 }
+
 
 module.exports.getAllUser = async (req, res) => {
     try {

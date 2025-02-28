@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Card, Typography, Avatar, Tag, Spin, Layout } from "antd";
+import { Table, Card, Typography, Avatar, Tag, Spin, Layout, Button } from "antd";
 import { Container, Row, Col } from "react-bootstrap";
 import { UserOutlined } from "@ant-design/icons";
 import { userProfile } from "../../Service/Client/ApiServices";
@@ -7,13 +7,15 @@ import { useSelector } from "react-redux";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 
+import { useNavigate } from "react-router-dom";
+
 const { Title, Text } = Typography;
 const { Content } = Layout;
 
 const UserProfile = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const isDarkMode = useSelector((state) => state.user.darkMode);
 
     useEffect(() => {
@@ -28,7 +30,6 @@ const UserProfile = () => {
                 setLoading(false);
             }
         };
-
         fetchUserProfile();
     }, []);
 
@@ -78,14 +79,17 @@ const UserProfile = () => {
                                         <Text type="danger">User data not found!</Text>
                                     )}
                                 </div>
+
                                 {!loading && user && (
-                                    <Table
-                                        columns={columns}
-                                        dataSource={userData}
-                                        pagination={false}
-                                        bordered
-                                    />
+                                    <Table columns={columns} dataSource={userData} pagination={false} bordered />
                                 )}
+
+                                {/* Nút Update Profile */}
+                                <div className="text-center mt-4">
+                                    <Button type="primary" size="large" onClick={() => navigate("/update-profile")}>
+                                        Update Profile
+                                    </Button>
+                                </div>
                             </Card>
                         </Col>
                     </Row>

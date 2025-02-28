@@ -22,6 +22,8 @@ import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
 
+import OrderScreen from "./Screen/Client/Order/Order";
+
 
 const App = () => {
   return (
@@ -48,6 +50,7 @@ const App = () => {
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
 
+        <Route path="/order" element={<OrderScreen/>} /> 
 
         <Route path="*" element={<NotFound />} />
       </Routes>
