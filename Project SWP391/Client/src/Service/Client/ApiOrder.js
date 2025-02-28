@@ -20,3 +20,9 @@ export const updatePayment = async (id, data) => {
     const response = await axios.put(`order/updatePaymentStatus/${id}`, data, { withCredentials: true });
     return response.data;
 };
+
+
+export const create_VnPay = async (data) => {
+    const response = await axios.post('payment/create_payment_url', data, { withCredentials: true });
+    return response.data;
+};

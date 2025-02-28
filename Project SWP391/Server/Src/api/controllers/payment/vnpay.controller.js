@@ -62,13 +62,12 @@ module.exports.createPaymentUrl = (req, res) => {
     console.log({ orderID: orderId, url: vnpUrl })
 }
 
-module.exports.returnUrl = (req, res) => {
+module.exports.returnUrl = async (req, res) => {
     try {
-
         let vnp_Params = req.query;
-
         let secureHash = vnp_Params['vnp_SecureHash'];
 
+        // Xóa hash để tạo hash mới và so sánh
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
 
@@ -77,32 +76,51 @@ module.exports.returnUrl = (req, res) => {
         let config = require('../../../config/default.json');
         let tmnCode = config.vnp_TmnCode;
         let secretKey = config.vnp_HashSecret;
+        let frontendUrl = config.frontend_url || 'http://localhost:5173';
 
         let querystring = require('qs');
         let signData = querystring.stringify(vnp_Params, { encode: false });
         let crypto = require("crypto");
         let hmac = crypto.createHmac("sha512", secretKey);
-        let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
+        // Lấy responseCode từ query params
+        let responseCode = vnp_Params['vnp_ResponseCode'];
+        let orderId = vnp_Params['vnp_TxnRef']; // Mã đơn hàng
+        let amount = vnp_Params['vnp_Amount']; // Số tiền thanh toán
+        let transactionId = vnp_Params['vnp_TransactionNo']; // Mã giao dịch VNPay
+
+        // Kiểm tra hash để xác thực dữ liệu
         if (secureHash === signed) {
-            //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-            // console.log("Thanh toán thành công:", vnp_Params);
-            // res.status(200).json({ status: "success", message: "Thanh toán thành công!", code: vnp_Params["vnp_ResponseCode"] });
-            let returnUrl = `http://localhost:8081/ReturnQR?${querystring.stringify(vnp_Params)}`;
-            console.log("Thanh toán thành công:", vnp_Params);
+            // Cập nhật trạng thái đơn hàng trong database (nếu cần)
+            // Ví dụ: await OrderModel.findOneAndUpdate({ orderId }, { paymentStatus: responseCode === '00' ? 'completed' : 'failed', transactionId });
+
+            // Chuyển hướng về trang kết quả với thông tin thanh toán
+            const paymentResult = {
+                status: responseCode === '00' ? 'success' : 'failed',
+                message: responseCode === '00' ? 'Thanh toán thành công' : 'Thanh toán thất bại',
+                orderId,
+                amount,
+                transactionId,
+                responseCode,
+                ...vnp_Params
+            };
+
+            const returnUrl = `${frontendUrl}/cart/returnQR?${querystring.stringify(paymentResult)}`;
+            console.log("Kết quả thanh toán:", paymentResult);
+
             return res.redirect(returnUrl);
         } else {
-            console.log("Xác thực thất bại!");
-            // res.status(400).json({ status: "error", message: "Xác thực thất bại!", code: "97" });
-            return res.redirect("http://localhost:8081/ReturnQR?error=checksum_failed");
+            // Xác thực thất bại
+            console.log("Xác thực dữ liệu thất bại!");
+            return res.redirect(`${frontendUrl}/cart/returnQR?status=error&message=Xác thực dữ liệu thất bại`);
         }
     } catch (error) {
-        console.log("VN pay error:", error)
-        // res.status(500).json({ message: 'Internal server error', error: error.message });
-        return res.redirect("http://localhost:8081/ReturnQR?error=server_error");
+        console.error("Lỗi xử lý callback VNPay:", error);
+        const frontendUrl = require('../../../config/default.json').frontend_url || 'http://localhost:5173';
+        return res.redirect(`${frontendUrl}/cart/returnQR?status=error&message=Lỗi server`);
     }
-
-}
+};
 
 
 module.exports.refund = (req, res) => {

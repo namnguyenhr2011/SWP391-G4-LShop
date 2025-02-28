@@ -17,6 +17,7 @@ import UserProfile from "./Screen/Client/UserProfile";
 
 import Cart from "./Screen/Client/cart/cart";
 import Checkout from "./Screen/Client/cart/checkout";
+import ReturnQR from "./Screen/Client/cart/ReturnQe";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
@@ -41,8 +42,9 @@ const App = () => {
 
 
         <Route path="/cart">
-          <Route index element={<Cart />} /> 
-          <Route path="checkout" element={<Checkout />} /> 
+          <Route index element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="returnQR" element={<ReturnQR />} />
         </Route>
 
 

@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from "react-redux";
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
-import { Radio, Input, notification, Divider, List, Typography } from 'antd';
-import { ShoppingOutlined, CreditCardOutlined, HomeOutlined, PhoneOutlined, CommentOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
+import { Radio, Input, notification, Divider, List, Typography, Select } from 'antd';
+import { ShoppingOutlined, CreditCardOutlined, HomeOutlined, PhoneOutlined, CommentOutlined, UserOutlined, MailOutlined, BankOutlined } from '@ant-design/icons';
 import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
 import { userProfile } from '../../../Service/Client/ApiServices';
-import { createOrder } from '../../../Service/Client/ApiOrder';
-
+import { createOrder, create_VnPay } from '../../../Service/Client/ApiOrder';
 
 const { TextArea } = Input;
 const { Text } = Typography;
+const { Option } = Select;
 
 const CheckoutPage = () => {
     const isDarkMode = useSelector((state) => state.user.darkMode);
     const token = useSelector((state) => state.user?.user?.token) || "";
     const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -39,7 +40,6 @@ const CheckoutPage = () => {
         fetchUserProfile();
     }, [token]);
 
-
     const { _id: userId } = useSelector((state) => state.user?.user) || {};
     const cartItems = useSelector((state) => state.cart.items[userId] || []);
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -48,8 +48,25 @@ const CheckoutPage = () => {
         paymentMethod: "",
         address: "",
         phone: "",
-        note: ""
+        note: "",
+        bankCode: "NCB"
     });
+
+    const bankOptions = [
+        { value: "NCB", label: "NCB - Ngân hàng Quốc Dân" },
+        { value: "VISA", label: "VISA (No 3DS)" },
+        { value: "VISA_3DS", label: "VISA (3DS)" },
+        { value: "MASTERCARD", label: "MasterCard (No 3DS)" },
+        { value: "JCB", label: "JCB (No 3DS)" },
+        { value: "NAPAS", label: "Nhóm Bank qua NAPAS" },
+        { value: "EXIMBANK", label: "EXIMBANK" },
+        { value: "VPBANK", label: "VPBank" },
+        { value: "MBBANK", label: "MBBank" },
+        { value: "VIETCOMBANK", label: "Vietcombank" },
+        { value: "AGRIBANK", label: "Agribank" },
+        { value: "BIDV", label: "BIDV" },
+        { value: "TECHCOMBANK", label: "Techcombank" },
+    ];
 
     if (cartItems.length === 0) {
         return (
@@ -71,63 +88,92 @@ const CheckoutPage = () => {
         });
     };
 
+    const handleBankChange = (value) => {
+        setFormData({
+            ...formData,
+            bankCode: value
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!formData.address) {
-            notification.error({ message: 'Lỗi', description: 'Vui lòng nhập địa chỉ giao hàng' });
-            return;
-        }
-
-        if (!formData.phone) {
-            notification.error({ message: 'Lỗi', description: 'Vui lòng nhập số điện thoại' });
-            return;
-        }
-
-        if (cartItems.length === 0) {
-            notification.error({ message: 'Lỗi', description: 'Giỏ hàng trống!' });
-            return;
-        }
-
-
-        const finalOrderData = {
-            products: cartItems.map(item => ({
-                productId: item.productId || "", 
-                quantity: item.quantity || 1, 
-                price: item.price || 0 
-            })),
-            totalAmount: cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0),
-            paymentMethod: formData.paymentMethod || "COD", 
-            paymentStatus: "Pending",
-            address: formData.address,
-            phone: formData.phone,
-            note: formData.note || "",
-        };
-
-        console.log("Final Order Data:", finalOrderData);
+        setLoading(true);
 
         try {
-            const createOrderRequest = await createOrder(finalOrderData);
-            console.log("API Response:", createOrderRequest);
+            if (!formData.address) {
+                notification.error({ message: 'Lỗi', description: 'Vui lòng nhập địa chỉ giao hàng' });
+                return;
+            }
 
+            if (!formData.phone) {
+                notification.error({ message: 'Lỗi', description: 'Vui lòng nhập số điện thoại' });
+                return;
+            }
+
+            if (cartItems.length === 0) {
+                notification.error({ message: 'Lỗi', description: 'Giỏ hàng trống!' });
+                return;
+            }
+
+            if (formData.paymentMethod === "Wallet" && !formData.bankCode) {
+                notification.error({ message: 'Lỗi', description: 'Vui lòng chọn ngân hàng thanh toán' });
+                return;
+            }
+
+            const finalOrderData = {
+                products: cartItems.map(item => ({
+                    productId: item.productId || "",
+                    quantity: item.quantity || 1,
+                    price: item.price || 0
+                })),
+                totalAmount: cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0),
+                paymentMethod: formData.paymentMethod || "COD",
+                paymentStatus: "Pending",
+                address: formData.address,
+                phone: formData.phone,
+                note: formData.note || "",
+            };
+
+            console.log("Final Order Data:", finalOrderData);
+
+            const createOrderResponse = await createOrder(finalOrderData);
+            console.log("API Response:", createOrderResponse);
+
+            if (formData.paymentMethod === "Wallet") {
+                const vnpayData = {
+                    "amount": totalAmount,
+                    "bankCode": formData.bankCode,
+                    "language": "vn"
+                };
+
+                const vnPayResponse = await create_VnPay(vnpayData);
+                console.log("VnPay Response:", vnPayResponse);
+
+                if (vnPayResponse && vnPayResponse.url) {
+                    window.location.href = vnPayResponse.url;
+                    return;
+                }
+            }
             notification.success({
                 message: 'Thành công',
                 description: 'Đặt hàng thành công!',
             });
+
         } catch (error) {
             console.error(error);
             notification.error({
                 message: 'Lỗi',
                 description: 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!',
             });
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <>
             <Header />
             <Container className="py-5" style={{
-
                 minHeight: "100vh",
                 backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
                 color: isDarkMode ? "#e6edf3" : "#1c1e21",
@@ -205,6 +251,24 @@ const CheckoutPage = () => {
                                         </div>
                                     </Form.Group>
 
+                                    {formData.paymentMethod === "Wallet" && (
+                                        <Form.Group className="mb-3">
+                                            <Form.Label><BankOutlined /> Chọn ngân hàng thanh toán</Form.Label>
+                                            <Select
+                                                style={{ width: '100%' }}
+                                                placeholder="Chọn ngân hàng"
+                                                onChange={handleBankChange}
+                                                value={formData.bankCode}
+                                            >
+                                                {bankOptions.map(bank => (
+                                                    <Option key={bank.value} value={bank.value}>
+                                                        {bank.label}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Group>
+                                    )}
+
                                     <Form.Group className="mb-3">
                                         <Form.Label><HomeOutlined /> Địa chỉ giao hàng</Form.Label>
                                         <Input
@@ -237,8 +301,13 @@ const CheckoutPage = () => {
                                     </Form.Group>
 
                                     <div className="d-grid gap-2">
-                                        <Button type="submit" variant="primary" size="lg">
-                                            Đặt hàng
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            size="lg"
+                                            disabled={loading}
+                                        >
+                                            {loading ? "Đang xử lý..." : "Đặt hàng"}
                                         </Button>
                                     </div>
                                 </Form>
