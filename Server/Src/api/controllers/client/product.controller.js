@@ -61,8 +61,7 @@ module.exports.addProduct = async (req, res) => {
 //[Put] api/products/updateProduct/:id
 module.exports.updateProduct = async (req, res) => {
     try {
-        const { productId } = req.params;
-        const { name, price, image, description, subCategory, quantity, sold, saleOf } = req.body;
+        const { productId, name, price, image, description, subCategory, quantity, sold, saleOf } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -72,28 +71,40 @@ module.exports.updateProduct = async (req, res) => {
 
         const productManager = await User.findOne({ token });
         if (!productManager || productManager.role !== 'productManager') {
-            return res.status(401).json({ message: 'User not authorized to update product or User not found!' });
+            return res.status(403).json({ message: 'User not authorized to update product!' });
+        }
+
+        // Kiểm tra xem productId có hợp lệ không
+        if (!productId) {
+            return res.status(400).json({ message: 'Invalid product ID!' });
         }
 
         const product = await Product.findById(productId);
-        console.log(productId)
         if (!product) {
             return res.status(404).json({ message: 'Product not found!' });
         }
 
-        const subCategoryDoc = await SubCategory.findById(subCategory);
-        if (!subCategoryDoc) {
-            return res.status(400).json({ message: 'SubCategory not found!' });
+        // Kiểm tra subCategory nếu được gửi
+        if (subCategory) {
+            return res.status(400).json({ message: 'Invalid subCategory ID!' });
         }
 
+        if (subCategory) {
+            const subCategoryDoc = await SubCategory.findById(subCategory);
+            if (!subCategoryDoc) {
+                return res.status(400).json({ message: 'SubCategory not found!' });
+            }
+        }
+
+        // Cập nhật chỉ những trường có thay đổi
         product.name = name || product.name;
         product.price = price || product.price;
         product.image = image || product.image;
         product.description = description || product.description;
         product.subCategory = subCategory || product.subCategory;
-        product.quantity = quantity || product.quantity;
-        product.sold = sold || product.sold;
-        product.saleOf = saleOf || product.saleOf;
+        product.quantity = quantity !== undefined ? quantity : product.quantity;
+        product.sold = sold !== undefined ? sold : product.sold;
+        product.saleOf = saleOf !== undefined ? saleOf : product.saleOf;
 
         await product.save();
 

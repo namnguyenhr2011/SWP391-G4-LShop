@@ -21,7 +21,7 @@ routes.get('/getTopView', controller.getTopView)
 routes.post('/addProduct/:subcategoryId', authorization.Authorization, controller.addProduct)
 
 
-routes.put('/updateProduct/:id', authorization.Authorization, controller.updateProduct)
+routes.put('/updateProduct', authorization.Authorization, controller.updateProduct)
 routes.delete('/managerDelete/:id', authorization.Authorization, controller.managerDeleteProduct)
 routes.delete('/adminDelete/:id', authorization.Authorization, controller.adminDeleteProduct)
 

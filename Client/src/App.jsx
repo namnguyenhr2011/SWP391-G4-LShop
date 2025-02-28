@@ -18,11 +18,12 @@ import UserProfile from "./Screen/Client/UserProfile";
 import Cart from "./Screen/Client/cart/cart";
 
 
-import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
+import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";
 import AddCategory from "./Screen/ProductManager/AddCategory";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
+import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 
 
 const App = () => {
@@ -46,9 +47,10 @@ const App = () => {
 
 
 
-        <Route path="/productManager" element={<ProductManagerScreen />} />
+        <Route path="/Productdashboard" element={<DashBoard />} />
         <Route path="/addProduct" element={<AddProduct />} />
         <Route path="/addCategory" element={<AddCategory />} />
+        <Route path="/deleteproduct" element={<DeleteProduct />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
 

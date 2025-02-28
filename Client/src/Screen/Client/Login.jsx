@@ -42,7 +42,7 @@ const Login = () => {
                     navigate("/");
                 }
                 if (res.role == "productManager") {
-                    navigate("/productManager")
+                    navigate("/Productdashboard")
                 }
                 if (res.role == "admin") {
                     navigate("/admin")
