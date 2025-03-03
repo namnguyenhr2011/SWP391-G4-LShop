@@ -40,9 +40,11 @@ const ProductCard = ({}) => {
                 src={product.image}
                 style={{
                   height: "200px",
-                  objectFit: "cover",
+                  width: "100%",
+                  objectFit: "contain", // Thay vì cover
                   borderTopLeftRadius: "10px",
                   borderTopRightRadius: "10px",
+                  padding: "10px",
                 }}
               />
             }
@@ -60,9 +62,6 @@ const ProductCard = ({}) => {
             <Text strong style={{ fontSize: "16px", color: "#ff4d4f" }}>
               ${product.price}
             </Text>
-            <div style={{ marginTop: "8px" }}>
-              <Rate disabled defaultValue={product.rating} />
-            </div>
           </Card>
         </Col>
       ))}

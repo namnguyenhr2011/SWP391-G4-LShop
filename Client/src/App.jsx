@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 import PropTypes from "prop-types";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,11 +22,15 @@ import UserProfile from "./Screen/Client/UserProfile";
 
 import Cart from "./Screen/Client/cart/cart";
 
-
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
-import AdminScreen from "./Screen/Admin/AdminScreen";
 
+import AdminLayout from "./Screen/Admin/AdminLayout";
+import AdminDashboard from "./Screen/Admin/AdminDashboard";
+import UserManagement from "./Screen/Admin/UserManagement";
+import SaleManagement from "./Screen/Admin/SaleManagement";
+
+import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
 const App = () => {
   return (
@@ -36,18 +45,20 @@ const App = () => {
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
 
-
         <Route path="/userProfile" element={<UserProfile />} />
-
 
         <Route path="/cart" element={<Cart />} />
 
-
-
         <Route path="/productManager" element={<ProductManagerScreen />} />
-        <Route path="/admin" element={<AdminScreen />} />
-        <Route path="/sale" element={<SaleScreen />} />
 
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="manage-user" element={<UserManagement />} />
+          <Route path="manage-sale" element={<SaleManagement />} />
+          <Route path="manage-feedback" element={<FeedbackManagement />} />
+        </Route>
+
+        <Route path="/sale" element={<SaleScreen />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
