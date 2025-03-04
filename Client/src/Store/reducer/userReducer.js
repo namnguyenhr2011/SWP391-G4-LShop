@@ -1,7 +1,7 @@
 import { createAction, createReducer } from '@reduxjs/toolkit';
 
 const initialState = {
-    user: { _id: "", token: "" },
+    user: { _id: "", token: "", role: "" },
     darkMode: false,
     notification: 0
 };
@@ -28,3 +28,4 @@ const userReducer = createReducer(initialState, (builder) => {
 });
 
 export default userReducer;
+

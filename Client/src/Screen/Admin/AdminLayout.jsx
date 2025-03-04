@@ -10,42 +10,59 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = () => {
-  const location = useLocation(); // Lấy đường dẫn hiện tại
+  const location = useLocation();
+
+  const menuItems = [
+    {
+      key: "logo",
+      label: (
+        <Link
+          to="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            src="../L.png"
+            alt="Logo"
+            style={{ width: "30px", height: "30px", objectFit: "contain" }}
+          />
+        </Link>
+      ),
+    },
+    {
+      key: "/admin",
+      icon: <DashboardOutlined />,
+      label: <Link to="/admin">Dashboard</Link>,
+    },
+    {
+      key: "/admin/manage-user",
+      icon: <UserOutlined />,
+      label: <Link to="/admin/manage-user">Manage Users</Link>,
+    },
+    {
+      key: "/admin/manage-sale",
+      icon: <ShopOutlined />,
+      label: <Link to="/admin/manage-sale">Manage Sales</Link>,
+    },
+    {
+      key: "/admin/manage-feedback",
+      icon: <MessageOutlined />,
+      label: <Link to="/admin/manage-feedback">Manage Feedback</Link>,
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider collapsible>
-        <Menu theme="dark" mode="inline" selectedKeys={[location.pathname]}>
-          <Menu.Item>
-            <Link
-              to="/admin"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src="../L.png"
-                alt="Logo"
-                style={{ width: "30px", height: "30px", objectFit: "contain" }}
-              />
-            </Link>
-          </Menu.Item>
-
-          <Menu.Item key="/admin" icon={<DashboardOutlined />}>
-            <Link to="/admin">Dashboard</Link>
-          </Menu.Item>
-          <Menu.Item key="/admin/manage-user" icon={<UserOutlined />}>
-            <Link to="/admin/manage-user">Manage Users</Link>
-          </Menu.Item>
-          <Menu.Item key="/admin/manage-sale" icon={<ShopOutlined />}>
-            <Link to="/admin/manage-sale">Manage Sales</Link>
-          </Menu.Item>
-          <Menu.Item key="/admin/manage-feedback" icon={<MessageOutlined />}>
-            <Link to="/admin/manage-feedback">Manage Feedback</Link>
-          </Menu.Item>
-        </Menu>
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          items={menuItems} // Sử dụng items thay vì children
+        />
       </Sider>
       <Layout>
         <Header style={{ background: "#fff", padding: 0, textAlign: "center" }}>

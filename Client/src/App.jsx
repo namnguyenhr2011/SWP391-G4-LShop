@@ -7,6 +7,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import PropTypes from "prop-types";
 import { ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./Screen/Client/Login";
@@ -51,7 +52,14 @@ const App = () => {
 
         <Route path="/productManager" element={<ProductManagerScreen />} />
 
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          path="/admin/*"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="manage-user" element={<UserManagement />} />
           <Route path="manage-sale" element={<SaleManagement />} />
@@ -72,6 +80,20 @@ const ProtectedRoute = ({ children }) => {
 };
 
 ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+const AdminProtectedRoute = ({ children }) => {
+  const user = useSelector((state) => state.user.user);
+
+  if (!user || user.role !== "admin") {
+    return <NotFound />;
+  }
+
+  return children;
+};
+
+AdminProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
