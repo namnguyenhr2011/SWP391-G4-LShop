@@ -453,11 +453,38 @@ module.exports.editProfile = async (req, res) => {
     try {
         const authHeader = req.header('Authorization');
         const token = authHeader && authHeader.split(' ')[1];
-        const userName = req.body.userName;
+        const { userName, phone, address } = req.body;
+
+        if (token) {
+            const user = await Users.findOneAndUpdate({
+                token: token
+            }, {
+                userName: userName,
+                phone: phone,
+                address: address
+            })
+            res.json({
+                code: 200,
+                message: "Update Successfull.",
+                user: user
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+module.exports.addImage = async (req, res) => {
+    try {
+        const authHeader = req.header('Authorization');
+        const token = authHeader && authHeader.split(' ')[1];
+        const { image } = req.body;
         if (token) {
             const user = await Users.updateOne({
                 token: token
-            }, { userName: userName })
+            }, { image: image })
             res.json({
                 code: 200,
                 message: "Update Successfull."
@@ -467,6 +494,7 @@ module.exports.editProfile = async (req, res) => {
         console.log(error)
     }
 }
+
 
 module.exports.getAllUser = async (req, res) => {
     try {

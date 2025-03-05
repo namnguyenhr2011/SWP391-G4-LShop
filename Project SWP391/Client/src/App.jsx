@@ -17,7 +17,7 @@ import UserProfile from "./Screen/Client/UserProfile";
 
 import Cart from "./Screen/Client/cart/cart";
 import Checkout from "./Screen/Client/cart/checkout";
-import ReturnQR from "./Screen/Client/cart/ReturnQe";
+import ReturnQR from "./Screen/Client/cart/ReturnQR";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
