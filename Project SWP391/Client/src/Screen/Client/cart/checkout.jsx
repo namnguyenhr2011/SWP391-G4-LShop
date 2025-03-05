@@ -80,7 +80,9 @@ const CheckoutPage = () => {
             <Container className="py-5 text-center">
                 <h2>Giỏ hàng trống</h2>
                 <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
+                <Button onClick={navigate("/")} />
             </Container>
+
         );
     }
 
@@ -212,7 +214,7 @@ const CheckoutPage = () => {
                                                         width: "100%"
                                                     }}
                                                 >
-                                                    
+
                                                     <Col xs={6} md={4}>
                                                         <div style={{ position: 'relative', width: "80px" }}>
                                                             <img

@@ -66,7 +66,6 @@ const Login = () => {
                         <Card.Body>
                             <h3 className="text-center text-primary mb-4">Sign In</h3>
                             <Form onSubmit={handleLogin}>
-                                {/* Email Field */}
                                 <Form.Group className="mb-3" controlId="email">
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control

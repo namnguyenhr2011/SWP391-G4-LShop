@@ -18,14 +18,11 @@ const ReturnQR = () => {
     useEffect(() => {
         const processPaymentResult = async () => {
             try {
-                // Get query parameters from URL
                 const queryParams = new URLSearchParams(location.search);
-
-                // Extract relevant parameters
                 const responseCode = queryParams.get('vnp_ResponseCode');
                 const transactionStatus = queryParams.get('vnp_TransactionStatus');
                 const amount = queryParams.get('vnp_Amount')
-                    ? parseInt(queryParams.get('vnp_Amount')) / 100 // VnPay multiplies by 100
+                    ? parseInt(queryParams.get('vnp_Amount')) / 100 
                     : 0;
                 const bankCode = queryParams.get('vnp_BankCode') || '';
                 const bankTranNo = queryParams.get('vnp_BankTranNo') || '';
@@ -34,8 +31,6 @@ const ReturnQR = () => {
                 const payDate = queryParams.get('vnp_PayDate') || '';
                 const transactionNo = queryParams.get('vnp_TransactionNo') || '';
                 const txnRef = queryParams.get('vnp_TxnRef') || '';
-
-                // Store payment details
                 const details = {
                     responseCode,
                     transactionStatus,
@@ -51,11 +46,8 @@ const ReturnQR = () => {
 
                 setPaymentDetails(details);
 
-                // Check if payment was successful
                 const isSuccess = responseCode === '00' && transactionStatus === '00';
                 setPaymentStatus(isSuccess);
-
-                // Call API to update order status
                 if (isSuccess) {
                     // Assuming txnRef is your order ID or can be used to identify the order
                     // await updateOrderPaymentStatus({
@@ -91,8 +83,6 @@ const ReturnQR = () => {
 
     const formatDateTime = (payDateStr) => {
         if (!payDateStr || payDateStr.length < 14) return 'N/A';
-
-        // Format from yyyyMMddHHmmss to readable date
         const year = payDateStr.substring(0, 4);
         const month = payDateStr.substring(4, 6);
         const day = payDateStr.substring(6, 8);

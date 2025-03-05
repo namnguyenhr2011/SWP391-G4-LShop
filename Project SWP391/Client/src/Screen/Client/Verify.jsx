@@ -31,8 +31,7 @@ const VerifyScreen = () => {
                 navigate('/login');
             }
         } catch (error) {
-            toast.error('An error occurred during verification.');
-            console.log(error);
+            toast.error('An error occurred during verification: ' + error);
         }
     };
 

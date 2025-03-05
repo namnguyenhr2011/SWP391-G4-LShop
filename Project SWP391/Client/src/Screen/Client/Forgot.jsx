@@ -74,7 +74,7 @@ const Forgot = () => {
                         htmlType="submit"
                         loading={loading}
                     >
-                        Send OTP
+                        Send OTP To Email
                     </Button>
                 </Form>
             </Card>

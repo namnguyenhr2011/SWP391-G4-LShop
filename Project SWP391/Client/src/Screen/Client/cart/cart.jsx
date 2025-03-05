@@ -88,7 +88,7 @@ const Cart = () => {
                         </Row>
 
                         {cartItems.length === 0 ? (
-                            <Card style={{ padding: "40px", borderRadius: "10px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", textAlign: "center" }}>
+                            <Card style={{ padding: "40px", borderRadius: "20px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", textAlign: "center" }}>
                                 <Text strong style={{ display: "block", fontSize: "18px", marginBottom: "20px" }}>
                                     Giỏ hàng của bạn đang trống! 🛍️
                                 </Text>

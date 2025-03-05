@@ -176,6 +176,9 @@ const Register = () => {
                                             {showConfirmPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                                         </Button>
                                     </InputGroup>
+                                    <Form.Text className="text-muted">
+                                        Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.
+                                    </Form.Text>
                                 </Form.Group>
 
                                 <Button type="submit" variant="primary" className="w-100">
