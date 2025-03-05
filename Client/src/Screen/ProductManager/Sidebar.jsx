@@ -15,9 +15,9 @@ const Sidebar = () => {
     } else if (e.key === "deleteProduct") {
       navigate("/deleteproduct");
     } else if (e.key === "updateProduct") {
-      navigate("/update-product");
+      navigate("/updateproduct");
     } else if (e.key === "updateQuantity") {
-      navigate("/update-quantity");
+      navigate("/updatequantity");
     } else if("/addCategory") {
       navigate("/addCategory");
     }

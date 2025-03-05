@@ -1,37 +1,91 @@
-import React, { useState } from "react";
-import { Button, Form, Input, Select, Upload, Layout, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Input, Select, Layout, message } from "antd";
+import { Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Sidebar from "./Sidebar";
-import { addProduct } from "../../Service/Client/ApiProduct";
 import Header from "../layout/ProductManageHeader";
+import { getAllCategory, addProduct } from "../../Service/Client/ApiProduct";
+import { useNavigate } from "react-router-dom"; 
 
 const { Content } = Layout;
 const { Option } = Select;
 
 const AddProduct = () => {
-    const subCategory = "67b8261f68f190b3ee102ef9"
+    const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
     const [product, setProduct] = useState({
         name: "",
         price: "",
         image: "",
         description: "",
         quantity: "",
-        sold: 0,
-        saleOf: false,
-        salePrice: "",
     });
 
-    const handleChange = (e) => {
-        setProduct({ ...product, [e.target.name]: e.target.value });
+    useEffect(() => {
+        getAllCategory()
+            .then((response) => {
+                setCategories(response.categories);
+            })
+            .catch((error) => {
+                console.error("Error fetching categories:", error);
+                message.error("Failed to load categories!");
+            });
+    }, []);
+
+    // Xử lý khi chọn Category
+    const handleCategoryChange = (categoryId) => {
+        setSelectedCategory(categoryId);
+        const selectedCat = categories.find(cat => cat._id === categoryId);
+
+        if (selectedCat && selectedCat.subCategories.length > 0) {
+            setSubCategories(selectedCat.subCategories);
+        } else {
+            setSubCategories([]);
+        }
+        setSelectedSubCategory(null);  // Reset SubCategory khi đổi Category
+    };
+
+    // Xử lý khi chọn SubCategory
+    const handleSubCategoryChange = (subCategoryId) => {
+        setSelectedSubCategory(subCategoryId);
     };
 
     const handleSubmit = async () => {
+        if (!selectedCategory || !selectedSubCategory) {
+            message.error("Please select Category and SubCategory!");
+            return;
+        }
+
+        setLoading(true);
+
         try {
-            await addProduct(subCategory, product);
-            message.success("Product added successfully");
+            const newProduct = { ...product };
+            await addProduct(selectedSubCategory, newProduct);
+            message.success("Product added successfully!");
+
+            // Reset form sau khi thêm thành công
+            setProduct({
+                name: "",
+                price: "",
+                image: "",
+                description: "",
+                quantity: "",
+            });
+            setSelectedCategory(null);
+            setSelectedSubCategory(null);
+            setSubCategories([]);
+
+            navigate("/Productdashboard"); // Chuyển hướng về trang Dashboard
         } catch (error) {
-            message.error("Failed to add product");
+            message.error("Failed to add product!");
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -42,33 +96,53 @@ const AddProduct = () => {
                 <Sidebar />
                 <Layout style={{ padding: "20px", marginLeft: 200 }}>
                     <Content style={{ background: "#fff", padding: "20px", borderRadius: "8px", paddingTop: 80 }}>
-                        <h3>ADD PRODUCT</h3>
-                        <Form layout="vertical" onFinish={handleSubmit}>
-                            <Form.Item label="Product Name">
-                                <Input name="name" placeholder="Product Name" onChange={handleChange} />
-                            </Form.Item>
-                            <Form.Item label="Price">
-                                <Input name="price" placeholder="Enter Price" onChange={handleChange} />
-                            </Form.Item>
-                            <Form.Item label="Quantity">
-                                <Input name="quantity" placeholder="Enter Quantity" onChange={handleChange} />
-                            </Form.Item>
-                            <Form.Item label="Category">
-                                <Select placeholder="Choose Category" onChange={(value) => setProduct({ ...product, category: value })}>
-                                    <Option value="laptop">Laptop</Option>
-                                    <Option value="accessory">Accessory</Option>
-                                </Select>
-                            </Form.Item>
-                            <Form.Item label="Image">
-                                <Input name="image" placeholder="Image URL" onChange={handleChange} />
-                            </Form.Item>
-                            <Form.Item label="Description">
-                                <Input name="description" placeholder="Description" onChange={handleChange} />
-                            </Form.Item>
-                            <Button type="primary" block htmlType="submit">
-                                Add Product
-                            </Button>
-                        </Form>
+                        <Container>
+                            <h3>ADD PRODUCT</h3>
+                            <Form layout="vertical" onFinish={handleSubmit}>
+                                <Form.Item label="Category" required>
+                                    <Select
+                                        placeholder="Choose Category"
+                                        value={selectedCategory}
+                                        onChange={handleCategoryChange}>
+                                        {categories.map((cat) => (
+                                            <Option key={cat._id} value={cat._id}>{cat.name}</Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+
+                                {selectedCategory && subCategories.length > 0 && (
+                                    <Form.Item label="SubCategory" required>
+                                        <Select
+                                            placeholder="Choose SubCategory"
+                                            value={selectedSubCategory}
+                                            onChange={handleSubCategoryChange}>
+                                            {subCategories.map((sub) => (
+                                                <Option key={sub.id} value={sub.id}>{sub.name}</Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                )}
+
+                                <Form.Item label="Product Name" required>
+                                    <Input value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
+                                </Form.Item>
+                                <Form.Item label="Price" required>
+                                    <Input value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
+                                </Form.Item>
+                                <Form.Item label="Quantity" required>
+                                    <Input value={product.quantity} onChange={(e) => setProduct({ ...product, quantity: e.target.value })} />
+                                </Form.Item>
+                                <Form.Item label="Image URL">
+                                    <Input value={product.image} onChange={(e) => setProduct({ ...product, image: e.target.value })} />
+                                </Form.Item>
+                                <Form.Item label="Description">
+                                    <Input.TextArea value={product.description} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
+                                </Form.Item>
+                                <Button type="primary" block htmlType="submit" loading={loading}>
+                                    {loading ? "Adding..." : "Add Product"}
+                                </Button>
+                            </Form>
+                        </Container>
                     </Content>
                 </Layout>
             </Layout>

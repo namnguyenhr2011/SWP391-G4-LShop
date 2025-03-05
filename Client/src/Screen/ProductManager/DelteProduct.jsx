@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
 import { managerDeleteProduct } from "../../Service/Client/ApiProduct";
 import { getAllCategory } from "../../Service/Client/ApiProduct";
-import { getAllProductBySubCategory } from "../../Service/Client/ApiProduct"; 
+import { getAllProductBySubCategory } from "../../Service/Client/ApiProduct";
 
 const { Content } = Layout;
 const { Option } = Select;
