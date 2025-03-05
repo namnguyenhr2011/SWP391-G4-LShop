@@ -66,7 +66,6 @@ export const getProductById = async (id) => {
 };
 
 
-
 export const searchProduct = async (data, page) => {
     return await axios.post(`product/search`, data, { params: { page }, withCredentials: true });
 };

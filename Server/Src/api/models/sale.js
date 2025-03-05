@@ -32,6 +32,14 @@ const saleSchema = new mongoose.Schema({
         enum: ['percentage', 'fixed'],
         required: true
     },
+    discountAmount: {
+        type: Number,
+        required: true
+    },
+    minPurchaseAmount: {
+        type: Number,
+        default: 0
+    }
 
 }, {
     timestamps: true

@@ -216,6 +216,7 @@ module.exports.query = (req, res) => {
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
 
+    let currCode = 'VND';
     let vnp_CreateDate = moment(date).format('YYYYMMDDHHmmss');
 
     let data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + vnp_TransactionDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;
@@ -235,7 +236,6 @@ module.exports.query = (req, res) => {
         'vnp_IpAddr': vnp_IpAddr,
         'vnp_SecureHash': vnp_SecureHash
     };
-
     request({
         url: vnp_Api,
         method: "POST",

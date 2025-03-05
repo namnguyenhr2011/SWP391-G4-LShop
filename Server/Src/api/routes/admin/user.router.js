@@ -9,7 +9,7 @@ routes.get('/getAllUser', controller.getAllUser);
 routes.post('/changeRole/:id', authorization.Authorization, controller.changeRoleById);
 routes.put('/changeStatus/:id', authorization.Authorization, controller.changeStatus);
 
-
+routes.delete('/delete/:id', authorization.Authorization, controller.deleteUser);
 routes.put('/adminChangePass/:id', authorization.Authorization, controller.adminResetPassword)
 
 module.exports = routes;

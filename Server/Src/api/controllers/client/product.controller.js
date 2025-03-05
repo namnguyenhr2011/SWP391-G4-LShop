@@ -202,18 +202,17 @@ module.exports.searchProducts = async (req, res) => {
 // [GET] api/products/getAllProducts
 module.exports.getAllProducts = async (req, res) => {
     try {
-        const totalProducts = await Product.countDocuments({ deleted: false });
+        const totalProducts = await Product.countDocuments({ deleted: false })
         if (totalProducts === 0) {
-            return res.status(404).json({ message: 'No products found.' });
+            return res.status(404).json({ message: 'No products found.' })
         }
-
-        const paginationData = await PaginationHelper(
-            { currentPage: 1, limit: 12 },
+        const paginationData = await PaginationHelper({
+            currentPage: 1,
+            limit: 12,
+        },
             totalProducts,
             req.query
-        );
-
-        // Lấy danh sách sản phẩm và ghép dữ liệu từ bảng Sale
+        )
         const products = await Product.find({ deleted: false })
             .skip(paginationData.skip)
             .limit(paginationData.limit)

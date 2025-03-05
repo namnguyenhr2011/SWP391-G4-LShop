@@ -1,7 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 import PropTypes from "prop-types";
 import { ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./Screen/Client/Login";
@@ -21,7 +27,13 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
-import AdminScreen from "./Screen/Admin/AdminScreen";
+
+import AdminLayout from "./Screen/Admin/AdminLayout";
+import AdminDashboard from "./Screen/Admin/AdminDashboard";
+import UserManagement from "./Screen/Admin/UserManagement";
+import SaleManagement from "./Screen/Admin/SaleManagement";
+
+import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
 
 const App = () => {
@@ -37,9 +49,7 @@ const App = () => {
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
 
-
         <Route path="/userProfile" element={<UserProfile />} />
-
 
         <Route path="/cart">
           <Route index element={<Cart />} />
@@ -47,10 +57,20 @@ const App = () => {
           <Route path="returnQR" element={<ReturnQR />} />
         </Route>
 
-
-
         <Route path="/productManager" element={<ProductManagerScreen />} />
-        <Route path="/admin" element={<AdminScreen />} />
+        <Route
+          path="/admin/*"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="manage-user" element={<UserManagement />} />
+          <Route path="manage-sale" element={<SaleManagement />} />
+          <Route path="manage-feedback" element={<FeedbackManagement />} />
+        </Route>
         <Route path="/sale" element={<SaleScreen />} />
 
 
@@ -66,6 +86,20 @@ const ProtectedRoute = ({ children }) => {
 };
 
 ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+const AdminProtectedRoute = ({ children }) => {
+  const user = useSelector((state) => state.user.user);
+
+  if (!user || user.role !== "admin") {
+    return <NotFound />;
+  }
+
+  return children;
+};
+
+AdminProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
