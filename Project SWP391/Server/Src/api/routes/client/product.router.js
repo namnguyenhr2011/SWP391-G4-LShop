@@ -3,7 +3,7 @@ const routes = express.Router()
 const authorization = require('../../../middleware/user.middleware')
 
 const controller = require('../../controllers/client/product.controller')
-
+const saleController = require('../../controllers/Sale/sale.controller')
 
 routes.get('/getAllProduct', controller.getAllProducts)
 routes.get('/getProductBySubCategory/:subcategoryId', controller.getProductBySubCategory)
@@ -17,6 +17,10 @@ routes.get('/getTopSold', controller.getTopSold)
 
 //Get top 8 prroduct with most view
 routes.get('/getTopView', controller.getTopView)
+
+//Get all products with sale    
+routes.get('/getAllProductsWithSale', saleController.getAllProductsWithSale)
+
 
 routes.post('/addProduct/:subcategoryId', authorization.Authorization, controller.addProduct)
 

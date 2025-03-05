@@ -20,39 +20,32 @@ module.exports.getAllProductsWithSale = async (req, res) => {
             req.query
         );
 
-        // Get products without populate to avoid schema mismatch errors
         const products = await Product.find({ deleted: false })
             .skip(paginationData.skip)
             .limit(paginationData.limit)
             .sort({ createdAt: -1 });
-
-        // Get product IDs to fetch related sales
-        const productIds = products.map(product => product._id);
-
-        // Fetch active sales for these products
-        const now = new Date();
+       
         const activeSales = await Sale.find({
-            productId: { $in: productIds },
-            startDate: { $lte: now },
-            endDate: { $gte: now }
+            productId: { $in: products.map(product => product._id) }, // Dùng mảng _id để tìm kiếm
         });
 
-        // Create a map of productId to sale for quick lookup
         const salesMap = {};
         activeSales.forEach(sale => {
+            
             salesMap[sale.productId.toString()] = {
-                discount: sale.discountAmount,
+                isSale: sale.isSale,
+                discount: sale.salePrice,
                 discountType: sale.discountType,
                 startDate: sale.startDate,
                 endDate: sale.endDate,
-                salePrice: sale.salePrice ||
-                    (sale.discountType === 'percentage' ? null : null) // This would need calculation based on product price
+                salePrice: sale.salePrice,
             };
         });
 
         // Add sale information to each product
         const productsWithSales = products.map(product => {
             const productObj = product.toObject();
+            // Assign sale information to product if exists
             productObj.sale = salesMap[product._id.toString()] || null;
             return productObj;
         });
@@ -72,12 +65,14 @@ module.exports.getAllProductsWithSale = async (req, res) => {
 module.exports.addSalePrice = async (req, res) => {
     try {
         const isSale = true;
-        const { salePrice, startDate, endDate, discountType, discountAmount, minPurchase, productId } = req.body;
+        const { salePrice, startDate, endDate, discountType, productId } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
+
         if (!token) {
             return res.status(401).json({ message: 'Token is missing or invalid!' });
         }
+
         const sale = await User.findOne({ token: token });
         if (!sale || sale.role !== 'sale') {
             return res.status(401).json({ message: 'User not authorized to add sale or User not found!!!' });
@@ -88,30 +83,55 @@ module.exports.addSalePrice = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        let finalSalePrice = salePrice;
+
+        if (discountType === "percentage") {
+            if (salePrice <= 0 || salePrice > 100) {
+                return res.status(400).json({ message: 'Discount percentage must be between 1 and 100' });
+            }
+            finalSalePrice = product.price - (product.price * (salePrice / 100));
+        }
+
         const newSale = new Sale({
             productId,
             isSale,
-            salePrice,
+            salePrice: finalSalePrice,
             startDate,
             endDate,
             discountType,
-            discountAmount,
-            minPurchase,
             saleManager: sale._id
-        })
-        await newSale.save();
-        res.status(200).json({ message: 'Sale created successfully.' })
+        });
 
+        await newSale.save();
+
+        // Cập nhật giá sản phẩm tạm thời
+        await Product.updateOne({ _id: productId }, { $set: { salePrice: finalSalePrice, isSale: true } });
+
+        // Tính thời gian chờ để xóa sale
+        const timeUntilDeletion = new Date(endDate).getTime() - Date.now();
+        if (timeUntilDeletion > 0) {
+            setTimeout(async () => {
+                await Sale.deleteOne({ _id: newSale._id });
+                await Product.updateOne({ _id: productId }, { $unset: { salePrice: "" }, $set: { isSale: false } });
+                console.log(`Sale ${newSale._id} has expired and removed from product.`);
+            }, timeUntilDeletion);
+        }
+
+        res.status(200).json({
+            message: 'Sale created successfully, will expire at ' + new Date(endDate).toLocaleString("vi-VN"),
+            salePrice: finalSalePrice
+        });
 
     } catch (error) {
-        res.status(500).json('Error creating new sale ' + error.message)
+        res.status(500).json('Error creating new sale ' + error.message);
     }
-}
+};
+
 
 module.exports.updateSalPrice = async (req, res) => {
     try {
-        const { salePrice, startDate, endDate, discountType, discountAmount, minPurchase, productId } = req.body;
-        const saleId = req.params.id; 
+        const { salePrice, startDate, endDate, discountType, productId } = req.body;
+        const saleId = req.params.id;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -131,7 +151,7 @@ module.exports.updateSalPrice = async (req, res) => {
 
         const updateSale = await Sale.findByIdAndUpdate(
             saleId,
-            { salePrice, startDate, endDate, discountType, discountAmount, minPurchase },
+            { salePrice, startDate, endDate, discountType, },
             { new: true, runValidators: true }
         );
 

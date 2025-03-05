@@ -13,6 +13,8 @@ const ReturnQR = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+
+    
     useEffect(() => {
         const processPaymentResult = async () => {
             try {

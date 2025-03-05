@@ -345,18 +345,75 @@ module.exports.getProductBySubCategory = async (req, res) => {
 //[GET] api/product/getTop8
 module.exports.getTop8 = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ rating: -1 }).limit(8);
-        res.status(200).json({ products });
+
+        const products = await Product.find({ deleted: false })
+            .sort({ rating: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
-        res.status(500).json(error);
+        console.error('Error in getTop8:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
+
 
 //[GET] api/getTopView
 module.exports.getTopView = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ numReviews: -1 }).limit(8);
-        res.status(200).json({ products });
+        const products = await Product.find({ deleted: false })
+            .sort({ numReviews: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -366,8 +423,35 @@ module.exports.getTopView = async (req, res) => {
 //[GET] api/products/getTopSold
 module.exports.getTopSold = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ numSold: -1 }).limit(8);
-        res.status(200).json({ products });
+        const products = await Product.find({ deleted: false })
+            .sort({ sold: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
         res.status(500).json(error);
     }

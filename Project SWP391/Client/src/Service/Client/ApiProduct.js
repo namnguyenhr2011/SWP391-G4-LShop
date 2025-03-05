@@ -107,3 +107,8 @@ export const getTopView = async () => {
     const response = await axios.get(`product/getTopView`, { withCredentials: true });
     return response.data;
 };
+
+export const getAllProductsWithSale = async () => {
+    const response = await axios.get(`product/getAllProductsWithSale`, { withCredentials: true });
+    return response.data;
+};
