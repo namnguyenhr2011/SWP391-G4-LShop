@@ -14,16 +14,14 @@ import ResetPassword from "./Screen/Client/ResetPassword";
 import NotFound from "./Screen/Error/NotFound";
 
 import UserProfile from "./Screen/Client/UserProfile";
+import UpdateProfile from "./Screen/Client/UpdateProfile";
+import ChangePassword from "./Screen/Client/ChangePassword"; // Thêm import
 
 import Cart from "./Screen/Client/cart/cart";
-
-
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
-
 import OrderScreen from "./Screen/Client/Order/Order";
-
 
 const App = () => {
   return (
@@ -38,19 +36,16 @@ const App = () => {
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
 
-
         <Route path="/userProfile" element={<UserProfile />} />
-
+        <Route path="/update-profile" element={<UpdateProfile />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/change-password" element={<ChangePassword />} /> {/* Thêm route */}
 
         <Route path="/cart" element={<Cart />} />
-
-
-
         <Route path="/productManager" element={<ProductManagerScreen />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
-
-        <Route path="/order" element={<OrderScreen/>} /> 
+        <Route path="/order" element={<OrderScreen />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -68,3 +63,4 @@ ProtectedRoute.propTypes = {
 };
 
 export default App;
+

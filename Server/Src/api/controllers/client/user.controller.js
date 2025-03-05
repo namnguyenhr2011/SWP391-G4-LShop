@@ -486,3 +486,47 @@ module.exports.getAllUser = async (req, res) => {
         console.log(error)
     }
 }
+
+
+// [POST] api/user/change-password
+module.exports.changePassword = async (req, res) => {
+    try {
+        const authHeader = req.header('Authorization');
+        const token = authHeader && authHeader.split(' ')[1];
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+
+        if (!token) {
+            return res.status(401).json({ code: 401, message: 'Unauthorized! Token is missing' });
+        }
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ code: 400, message: 'All fields are required!' });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ code: 400, message: 'New password and confirm password do not match!' });
+        }
+
+        const user = await Users.findOne({ token: token });
+
+        if (!user) {
+            return res.status(404).json({ code: 404, message: 'User not found!' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({ code: 400, message: 'Old password is incorrect!' });
+        }
+
+        const salt = await bcrypt.genSalt(saltRounds);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await Users.updateOne({ token: token }, { password: hashedPassword });
+
+        res.status(200).json({ code: 200, message: 'Password changed successfully!' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ code: 500, message: 'Internal Server Error', error });
+    }
+};
