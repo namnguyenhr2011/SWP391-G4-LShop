@@ -5,23 +5,34 @@ import {
   ShopOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { doLogout, doDarkMode } from "../../Store/reducer/userReducer";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(doLogout()); // Thực hiện logout
+    dispatch(doDarkMode(false)); // Đặt lại dark mode về false (light mode)
+    navigate("/");
+  };
 
   const menuItems = [
     {
       key: "logo",
       label: (
-        <Link
-          to="/"
+        <div
+          onClick={handleLogout}
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            cursor: "pointer",
           }}
         >
           <img
@@ -29,7 +40,7 @@ const AdminLayout = () => {
             alt="Logo"
             style={{ width: "30px", height: "30px", objectFit: "contain" }}
           />
-        </Link>
+        </div>
       ),
     },
     {

@@ -14,7 +14,11 @@ import {
   Card,
   InputGroup,
 } from "react-bootstrap";
-import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -79,8 +83,19 @@ const Login = () => {
   return (
     <Container
       fluid
-      className="d-flex justify-content-center align-items-center min-vh-100 bg-light"
+      className="d-flex justify-content-center align-items-center min-vh-100 bg-light position-relative"
     >
+      {/* Nút Home ở góc trên bên trái */}
+      <Button
+        variant="link"
+        onClick={() => navigate("/")}
+        className="position-absolute top-0 start-0 mt-3 ms-3 p-0"
+        style={{ zIndex: 1000 }}
+        aria-label="Back to home"
+      >
+        <HomeOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
+      </Button>
+
       <ToastContainer position="top-right" autoClose={3000} />
       <Row className="w-100">
         <Col md={6} lg={5} className="mx-auto">

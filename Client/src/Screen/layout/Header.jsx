@@ -52,9 +52,10 @@ const Header = () => {
   const handleLogin = () => navigate("/login");
 
   const handleLogout = () => {
-    dispatch(doLogout());
-    message.success(t("logout_success"));
-    navigate("/login");
+    dispatch(doLogout()); // Thực hiện logout
+    dispatch(doDarkMode(false)); // Đặt lại dark mode về false (light mode)
+    message.success(t("Logout success!"));
+    navigate("/");
   };
 
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
