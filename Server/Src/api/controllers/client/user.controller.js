@@ -488,7 +488,7 @@ module.exports.getAllUser = async (req, res) => {
 }
 
 
-// [POST] api/user/change-password
+// api/user/change-password
 module.exports.changePassword = async (req, res) => {
     try {
         const authHeader = req.header('Authorization');

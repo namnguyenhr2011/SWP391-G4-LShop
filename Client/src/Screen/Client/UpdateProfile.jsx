@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, Form, Card, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { editProfile } from "../../Service/Client/ApiServices";
 
 const ProfileEditor = () => {
     const navigate = useNavigate();
@@ -18,10 +19,22 @@ const ProfileEditor = () => {
         }
     };
 
-    const onFinish = (values) => {
-        console.log("Profile Updated:", values);
-        message.success("Profile updated successfully!");
+    const onFinish = async (values) => {
+        try {
+            setLoading(true);
+            const { name, phone, address } = values;
+            const res = await editProfile(name, phone, address);
+            console.log("Response:", res.data);
+            message.success("Profile updated successfully!");
+            navigate("/");
+        } catch (error) {
+            console.error("Profile update failed:", error);
+            message.error("Profile update failed! " + (error.message || ""));
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     return (
         <div className="container mt-4">

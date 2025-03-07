@@ -2,18 +2,19 @@ import { useState } from "react";
 import { Form, Button, Card, Container, Row, Col } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-
+import { changePasswordApi } from "../../Service/Client/ApiServices";
 
 const ChangePassword = () => {
     const navigate = useNavigate();
-    const [currentPassword, setCurrentPassword] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
 
-        if (!currentPassword || !newPassword || !confirmPassword) {
+        if (!oldPassword || !newPassword || !confirmPassword) {
             toast.error("Please fill in all fields");
             return;
         }
@@ -23,17 +24,15 @@ const ChangePassword = () => {
             return;
         }
 
+        setLoading(true);
         try {
-            const res = await changePasswordApi(currentPassword, newPassword);
-
-            if (res.code === 200) {
-                toast.success("Password changed successfully!");
-                navigate("/profile"); // Quay về trang profile
-            } else {
-                toast.error(res.message);
-            }
+            const res = await changePasswordApi(oldPassword, newPassword, confirmPassword);
+            toast.success("Password changed successfully!");
+            navigate("/");
         } catch (error) {
-            toast.error("Failed to change password");
+            toast.error(error.message || "Failed to change password");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,8 +49,8 @@ const ChangePassword = () => {
                                     <Form.Control
                                         type="password"
                                         placeholder="Enter current password"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
                                         required
                                     />
                                 </Form.Group>
@@ -75,8 +74,8 @@ const ChangePassword = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Button type="submit" variant="primary" className="w-100">
-                                    Update Password
+                                <Button type="submit" variant="primary" className="w-100" disabled={loading}>
+                                    {loading ? "Updating..." : "Update Password"}
                                 </Button>
                             </Form>
                         </Card.Body>

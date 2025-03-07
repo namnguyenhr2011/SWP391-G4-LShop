@@ -33,6 +33,18 @@ export const userProfile = async () => {
     }
 };
 
+export const editProfile = async (userName, phone, address) => {
+    try {
+        const response = await axios.put('/user/edit-profile', { userName, phone, address });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Failed to edit profile");
+    }
+};
+
+
+
+
 export const verifyEmail = async (otp, email) => {
     try {
         const response = await axios.post('/user/verify', { otp, email }, { withCredentials: true });
@@ -69,11 +81,12 @@ export const resetPassword = async (password, confirmPassword, token) => {
     }
 };
 
-export const changePasswordApi = async (oldPassword, newPassword) => {
+export const changePasswordApi = async (oldPassword, newPassword, confirmPassword) => {
     try {
-        const response = await axios.post('/user/change-password', 
-            { oldPassword, newPassword },
-            { withCredentials: true } 
+        const response = await axios.put(
+            '/user/change-password',
+            { oldPassword, newPassword, confirmPassword },
+            { withCredentials: true }
         );
         return response.data;
     } catch (error) {
