@@ -90,8 +90,8 @@ export const addProduct = async (subCategoryId, data) => {
     return response.data;
 };
 
-export const updateProduct = async (id, data) => {
-    const response = await axios.put(`product/updateProduct/${id}`, data);
+export const updateProduct = async (data) => {
+    const response = await axios.put(`product/updateProduct`, data);
     return response.data;
 };
 
@@ -103,4 +103,21 @@ export const managerDeleteProduct = async (id) => {
 export const adminDeleteProduct = async (id) => {
     const response = await axios.delete(`product/adminDelete/${id}`);
     return response.data;
+};
+
+
+
+export const uploadImage = async (id, base64Image) => {
+    try {
+        const base64String = base64Image.split(',')[1];
+
+        const response = await axios.put(
+            `product/updateImage/${id}`,
+            { image: base64Image },
+        );
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error uploading image:", error.response?.data || error.message);
+        throw error;
+    }
 };

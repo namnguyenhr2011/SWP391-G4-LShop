@@ -61,7 +61,7 @@ module.exports.addProduct = async (req, res) => {
 //[Put] api/products/updateProduct/:id
 module.exports.updateProduct = async (req, res) => {
     try {
-        const { productId, name, price, image, description, subCategory, quantity, sold, saleOf } = req.body;
+        const { productId, name, price, description, subCategory } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -78,7 +78,6 @@ module.exports.updateProduct = async (req, res) => {
         if (!productId) {
             return res.status(400).json({ message: 'Invalid product ID!' });
         }
-
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: 'Product not found!' });
@@ -99,12 +98,8 @@ module.exports.updateProduct = async (req, res) => {
         // Cập nhật chỉ những trường có thay đổi
         product.name = name || product.name;
         product.price = price || product.price;
-        product.image = image || product.image;
         product.description = description || product.description;
         product.subCategory = subCategory || product.subCategory;
-        product.quantity = quantity !== undefined ? quantity : product.quantity;
-        product.sold = sold !== undefined ? sold : product.sold;
-        product.saleOf = saleOf !== undefined ? saleOf : product.saleOf;
 
         await product.save();
 
@@ -367,3 +362,42 @@ module.exports.getTopSold = async (req, res) => {
     }
 }
 
+
+module.exports.updateImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let { image } = req.body;
+
+        if (!image) {
+            return res.status(400).json({ message: 'Image is required!' });
+        }
+
+        // Kiểm tra xem chuỗi đã có tiền tố chưa
+        if (!image.startsWith('data:image/')) {
+            return res.status(400).json({ message: 'Invalid image format! Missing Base64 prefix.' });
+        }
+
+        // Xác thực người dùng
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const productManager = await User.findOne({ token: token });
+        if (!productManager || productManager.role !== 'productManager') {
+            return res.status(401).json({ message: 'User not authorized to update product image!' });
+        }
+
+        // Cập nhật ảnh sản phẩm
+        const product = await Product.findByIdAndUpdate(id, { image: image }, { new: true });
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+
+        res.status(200).json({ message: 'Product image updated successfully.', product });
+    } catch (error) {
+        console.error("❌ Lỗi trong updateImage:", error);
+        res.status(500).json({ error: error.message + ': update product image error' });
+    }
+};

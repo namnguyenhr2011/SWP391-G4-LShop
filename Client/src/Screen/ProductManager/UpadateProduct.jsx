@@ -4,6 +4,9 @@ import { UploadOutlined } from "@ant-design/icons";
 import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
 import { getAllCategory, getSubCategory, updateProduct, getAllProductBySubCategory } from "../../Service/Client/ApiProduct";
+import UploadProductImage from "./uploadImage/uploadImage";
+
+
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -18,7 +21,6 @@ const UpdateProduct = () => {
   const [productDetails, setProductDetails] = useState({
     name: "",
     price: "",
-    image: null,
     description: "",
   });
   const [loading, setLoading] = useState(false);
@@ -63,15 +65,7 @@ const UpdateProduct = () => {
     }
   };
 
-  // Hàm chuyển đổi ảnh thành Base64
-  const convertImageToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
+
 
   const handleUpdateProduct = async () => {
     if (!selectedProduct) {
@@ -80,12 +74,15 @@ const UpdateProduct = () => {
     }
 
     setLoading(true);
+
+    const productId = selectedProduct;
     try {
       const updatedProduct = {
+        productId,
         ...productDetails,
-        image: productDetails.image ? await convertImageToBase64(productDetails.image) : null,  // Chuyển ảnh thành Base64
       };
-      await updateProduct(selectedProduct, updatedProduct);
+      console.log(updatedProduct);
+      await updateProduct(updatedProduct);
       message.success("Product updated successfully");
     } catch (error) {
       message.error("Failed to update product");
@@ -167,7 +164,7 @@ const UpdateProduct = () => {
                 {selectedProduct && (
                   <>
                     <div className="mb-3">
-                      <label className="form-label">Product Name:</label>
+                      <label className="form-label">New Product Name:</label>
                       <Input
                         value={productDetails.name}
                         onChange={(e) =>
@@ -196,20 +193,7 @@ const UpdateProduct = () => {
                         }
                       />
                     </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">Product Image:</label>
-                      <Upload
-                        beforeUpload={async (file) => {
-                          const base64Image = await convertImageToBase64(file); // Chuyển file thành Base64
-                          setProductDetails({ ...productDetails, image: base64Image });
-                          return false; // Prevent auto upload
-                        }}
-                        fileList={productDetails.image ? [{ uid: "-1", name: "image.png", url: productDetails.image }] : []}
-                      >
-                        <Button icon={<UploadOutlined />}>Upload Image</Button>
-                      </Upload>
-                    </div>
+                    <UploadProductImage productId={selectedProduct} />
                   </>
                 )}
 

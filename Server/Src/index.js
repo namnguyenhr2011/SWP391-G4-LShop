@@ -19,8 +19,9 @@ const port = process.env.PORT
 
 app.use(cookieParser())
 
-// Body
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '10mb' })); 
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 
 
 app.use(cors({

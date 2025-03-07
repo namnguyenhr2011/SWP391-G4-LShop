@@ -24,6 +24,7 @@ routes.post('/addProduct/:subcategoryId', authorization.Authorization, controlle
 routes.put('/updateProduct', authorization.Authorization, controller.updateProduct)
 routes.delete('/managerDelete/:id', authorization.Authorization, controller.managerDeleteProduct)
 routes.delete('/adminDelete/:id', authorization.Authorization, controller.adminDeleteProduct)
+routes.put('/updateImage/:id', authorization.Authorization, controller.updateImage)
 
 
 routes.post('/search', controller.searchProducts)
