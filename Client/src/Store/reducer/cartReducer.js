@@ -20,11 +20,11 @@ const cartSlice = createSlice({
             if (existingItem) {
                 existingItem.quantity += item.quantity || 1;
             } else {
-                state.items[userId].push({ 
-                    ...item, 
+                state.items[userId].push({
+                    ...item,
                     quantity: item.quantity || 1,
-                    originalPrice: item.originalPrice || item.price, // Store original price
-                    isSale: item.isSale || false // Store sale status
+                    originalPrice: item.originalPrice || item.price,
+                    isSale: item.isSale || false
                 });
             }
         },
