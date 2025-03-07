@@ -75,7 +75,7 @@ const UserProfile = () => {
                                             <Text type="secondary">{user.email}</Text>
                                         </>
                                     ) : (
-                                        <Text type="danger">User data not found!</Text>
+                                        <Text type="danger">User not found!</Text>
                                     )}
                                 </div>
                                 {!loading && user && (

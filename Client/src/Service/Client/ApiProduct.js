@@ -65,20 +65,6 @@ export const getProductById = async (id) => {
     return response.data;
 };
 
-export const getTop8 = async () => {
-    const response = await axios.get(`product/getTop8`, { withCredentials: true });
-    return response.data;
-};
-
-export const getTopSold = async () => {
-    const response = await axios.get(`product/getTopSold`, { withCredentials: true });
-    return response.data;
-};
-
-export const getTopView = async () => {
-    const response = await axios.get(`product/getTopView`, { withCredentials: true });
-    return response.data;
-};
 
 export const searchProduct = async (data, page) => {
     return await axios.post(`product/search`, data, { params: { page }, withCredentials: true });
@@ -101,5 +87,27 @@ export const managerDeleteProduct = async (id) => {
 
 export const adminDeleteProduct = async (id) => {
     const response = await axios.delete(`product/adminDelete/${id}`);
+    return response.data;
+};
+
+
+
+export const getTop8 = async () => {
+    const response = await axios.get(`product/getTop8`, { withCredentials: true });
+    return response.data;
+};
+
+export const getTopSold = async () => {
+    const response = await axios.get(`product/getTopSold`, { withCredentials: true });
+    return response.data;
+};
+
+export const getTopView = async () => {
+    const response = await axios.get(`product/getTopView`, { withCredentials: true });
+    return response.data;
+};
+
+export const getAllProductsWithSale = async () => {
+    const response = await axios.get(`product/getAllProductsWithSale`, { withCredentials: true });
     return response.data;
 };

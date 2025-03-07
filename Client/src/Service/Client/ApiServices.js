@@ -24,14 +24,6 @@ export const userLogin = async (email, password) => {
     }
 };
 
-export const userProfile = async () => {
-    try {
-        const response = await axios.get('/user/user-profile', { withCredentials: true });
-        return response.data;
-    } catch (error) {
-        throw new Error(error.response?.data?.message || "Failed to fetch profile");
-    }
-};
 
 export const verifyEmail = async (otp, email) => {
     try {
@@ -68,4 +60,14 @@ export const resetPassword = async (password, confirmPassword, token) => {
         throw new Error(error.response?.data?.message || "Password reset failed");
     }
 };
+
+export const userProfile = async () => {
+    try {
+        const response = await axios.get('/user/user-profile', { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Failed to fetch profile");
+    }
+};
+
 

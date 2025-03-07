@@ -99,7 +99,7 @@ const Otp = () => {
                     </Row>
 
                     <Button type="primary" block size="large" htmlType="submit" loading={loading}>
-                        Verify OTP
+                        Verify OTP Code
                     </Button>
                 </Form>
             </Card>

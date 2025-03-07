@@ -5,7 +5,7 @@ const orderModel = new Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Users", 
+            ref: "Users",
             required: true,
         },
         products: [
@@ -41,11 +41,11 @@ const orderModel = new Schema(
         },
         phone: {
             type: String,
-            required: true,
+            required: true
         },
         address: {
             type: String,
-            required: true,
+            required: true
         },
     },
     {

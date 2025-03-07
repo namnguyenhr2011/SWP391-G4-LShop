@@ -45,34 +45,34 @@ const SaleScreen = () => {
             message.warning("Vui lòng nhập giá hợp lệ.");
             return;
         }
-    
+
         try {
             const priceValue = parseInt(salePrice, 10);
-            const data = { 
-                salePrice: priceValue, 
-                startDate, 
-                endDate, 
+            const data = {
+                salePrice: priceValue,
+                startDate,
+                endDate,
                 discountType: "percentage", // Hoặc "fixed" tùy vào logic backend
                 productId: selectedProduct._id
             };
-    
+
             console.log("Gửi dữ liệu:", data); // Kiểm tra dữ liệu gửi lên
-    
+
             let response;
             if (isUpdating) {
                 response = await updateSalePrice(selectedProduct.sale._id, data);
             } else {
                 response = await addSalePrice(selectedProduct._id, data);
             }
-    
+
             console.log("Phản hồi từ API:", response); // Kiểm tra phản hồi từ API
-    
+
             if (response.message) {
                 message.success(response.message);
             } else {
                 message.error("Lỗi không xác định từ API.");
             }
-    
+
             setProducts(prev =>
                 prev.map(p => (p._id === selectedProduct._id ? { ...p, sale: data } : p))
             );
@@ -82,8 +82,8 @@ const SaleScreen = () => {
             message.error("Có lỗi xảy ra khi cập nhật dữ liệu: " + (error.response?.data?.message || error.message));
         }
     };
-    
-    
+
+
 
     const filteredProducts = products
         .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))

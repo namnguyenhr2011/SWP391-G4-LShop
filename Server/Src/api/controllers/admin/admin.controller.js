@@ -57,7 +57,7 @@ module.exports.changeRoleById = async (req, res) => {
 
         const { id } = req.params
         const { newRole } = req.body
-        const validRoles = ['admin', 'user', 'productManager', 'shipManager', 'saleManager'];
+        const validRoles = ['admin', 'user', 'productManager', 'sale'];
         if (!newRole || !validRoles.includes(newRole)) {
             return res.status(400).json({ message: `Invalid role! Allowed roles are: ${validRoles.join(', ')}` });
         }
@@ -109,7 +109,6 @@ module.exports.changeStatus = async (req, res) => {
 
 module.exports.adminResetPassword = async (req, res) => {
     try {
-
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
@@ -184,7 +183,6 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 //[search]/api/admin/searchUser
-// [search]/api/admin/searchUser
 module.exports.searchUser = async (req, res) => {
     try {
         const { search } = req.query;
@@ -225,7 +223,6 @@ module.exports.searchUser = async (req, res) => {
 module.exports.getUserByRole = async (req, res) => {
     try {
         const role = req.query.role;
-        
         const users = await User.find({ role: role });
         if (!users) {
             return res.status(404).json({ message: 'No users found.' });
