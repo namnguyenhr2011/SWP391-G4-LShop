@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PropTypes from "prop-types";
+import { ConfigProvider } from "antd";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import "react-toastify/dist/ReactToastify.css";
@@ -35,48 +36,65 @@ import SaleManagement from "./Screen/Admin/SaleManagement";
 
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
-
 const App = () => {
+  const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
-    <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot" element={<Forgot />} />
-        <Route path="/verify" element={<VerifyScreen />} />
-        <Route path="/otp/:email" element={<Otp />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
+    <ConfigProvider
+      theme={{
+        token: {
+          colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Chữ trắng trong dark mode
+          colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền phù hợp
+          colorBorder: isDarkMode ? "#3a3f44" : "#d9d9d9", // Viền phù hợp
+          colorTextPlaceholder: isDarkMode ? "#b0c4de" : "#8c8c8c", // Placeholder
+        },
+        components: {
+          Menu: {
+            colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Đảm bảo chữ trong Menu là trắng
+            colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền của Menu
+          },
+        },
+      }}
+    >
+      <Router>
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot" element={<Forgot />} />
+          <Route path="/verify" element={<VerifyScreen />} />
+          <Route path="/otp/:email" element={<Otp />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
 
-        <Route path="/userProfile" element={<UserProfile />} />
+          <Route path="/userProfile" element={<UserProfile />} />
 
-        <Route path="/cart">
-          <Route index element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="returnQR" element={<ReturnQR />} />
-        </Route>
+          <Route path="/cart">
+            <Route index element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="returnQR" element={<ReturnQR />} />
+          </Route>
 
-        <Route path="/productManager" element={<ProductManagerScreen />} />
-        <Route
-          path="/admin/*"
-          element={
-            <AdminProtectedRoute>
-              <AdminLayout />
-            </AdminProtectedRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="manage-user" element={<UserManagement />} />
-          <Route path="manage-sale" element={<SaleManagement />} />
-          <Route path="manage-feedback" element={<FeedbackManagement />} />
-        </Route>
-        <Route path="/sale" element={<SaleScreen />} />
+          <Route path="/productManager" element={<ProductManagerScreen />} />
 
+          <Route
+            path="/admin/*"
+            element={
+              <AdminProtectedRoute>
+                <AdminLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="manage-user" element={<UserManagement />} />
+            <Route path="manage-sale" element={<SaleManagement />} />
+            <Route path="manage-feedback" element={<FeedbackManagement />} />
+          </Route>
+          <Route path="/sale" element={<SaleScreen />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router >
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </ConfigProvider>
   );
 };
 

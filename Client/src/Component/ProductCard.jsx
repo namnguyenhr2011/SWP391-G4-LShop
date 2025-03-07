@@ -1,53 +1,66 @@
-import { useEffect, useState } from "react";
-import { Row, Col, Card, Rate, Typography, Spin, Button, message } from "antd";
-import { getTop8 } from "../Service/Client/ApiProduct";
-
+import { Row, Col, Card, Typography, Spin, Button } from "antd";
+import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../Store/reducer/cartReducer";
+import { toast } from "react-toastify";
 const { Title, Text } = Typography;
 
-const ProductCard = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await getTop8();
-        setProducts(response.products || []); // Đảm bảo không bị lỗi nếu response không có products
-      } catch (error) {
-        console.error("Lỗi khi lấy sản phẩm:", error);
-        message.error(
-          "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau!"
-        ); // Thông báo lỗi cho người dùng
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+const ProductCard = ({ products, loading, isDarkMode }) => {
+  const dispatch = useDispatch();
+  const userId = useSelector((state) => state.user.user._id);
 
   if (loading) {
     return (
       <Spin
         size="large"
-        tip="Đang tải sản phẩm..."
-        style={{ display: "block", margin: "50px auto", textAlign: "center" }}
+        style={{
+          display: "block",
+          margin: "50px auto",
+          color: isDarkMode ? "#e6edf3" : "#1c1e21",
+        }}
       />
     );
   }
 
-  if (!products.length) {
-    return (
-      <Text style={{ display: "block", textAlign: "center", margin: "50px 0" }}>
-        Không có sản phẩm nào để hiển thị.
-      </Text>
+  const handleAddToCart = (product) => {
+    if (!userId) {
+      toast.error("Vui lòng đăng nhập để mua hàng.");
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        userId: userId,
+        item: {
+          productId: product._id,
+          name: product.name,
+          price: product.price ? Number(product.price) : 0,
+          image: product.image,
+          quantity: 1,
+        },
+      })
     );
-  }
+
+    toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
+  };
+
+  const themeStyles = {
+    cardBackground: isDarkMode ? "#2b2e34" : "#fff",
+    cardBorder: isDarkMode ? "1px solid #444" : "1px solid #e8e8e8",
+    cardShadow: isDarkMode
+      ? "0 4px 12px rgba(0, 0, 0, 0.3)"
+      : "0 4px 10px rgba(0, 0, 0, 0.1)",
+    textColor: isDarkMode ? "#e6edf3" : "#1c1e21",
+    priceColor: isDarkMode ? "#ff6b6b" : "#ff4d4f",
+    buttonBg: isDarkMode ? "#1a73e8" : "#1677ff",
+    buttonHoverBg: isDarkMode ? "#4285f4" : "#0958d9",
+    imageBg: isDarkMode ? "#21252b" : "#f5f5f5",
+  };
 
   return (
     <Row gutter={[24, 24]} justify="center">
       {products.map((product) => (
-        <Col key={product._id} xs={24} sm={12} md={8} lg={6}>
+        <Col key={product._id} xs={24} sm={12} md={6}>
           <Card
             hoverable
             cover={
@@ -57,70 +70,97 @@ const ProductCard = () => {
                 style={{
                   height: "200px",
                   width: "100%",
-                  objectFit: "contain",
+                  padding: "15px",
+                  objectFit: "contain", // Hiển thị toàn bộ ảnh mà không bị cắt
                   borderTopLeftRadius: "10px",
                   borderTopRightRadius: "10px",
-                  padding: "10px",
-                  backgroundColor: "#f5f5f5", // Nền nhẹ để nổi bật sản phẩm
                 }}
               />
             }
             style={{
               borderRadius: "10px",
               overflow: "hidden",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              backgroundColor: "#fff",
+              backgroundColor: themeStyles.cardBackground,
+              border: themeStyles.cardBorder,
+              boxShadow: themeStyles.cardShadow,
+              transition: "transform 0.2s ease",
             }}
-            bodyStyle={{ padding: "16px", textAlign: "center" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-5px)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.15)";
+            bodyStyle={{
+              padding: "16px",
+              textAlign: "center",
+              color: themeStyles.textColor,
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
-            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.03)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <Title
               level={5}
-              ellipsis={{ rows: 1, expandable: false }}
-              style={{ marginBottom: "8px", fontSize: "16px" }}
+              style={{
+                marginBottom: "8px",
+                color: themeStyles.textColor,
+              }}
             >
               {product.name}
             </Title>
             <Text
-              type="secondary"
-              ellipsis={{ rows: 2 }}
+              strong
               style={{
-                fontSize: "12px",
-                marginBottom: "8px",
-                display: "block",
+                fontSize: "16px",
+                color: themeStyles.priceColor,
               }}
             >
-              {product.description || "Sản phẩm chất lượng cao"}{" "}
-              {/* Giả định có description */}
+              {product.price.toLocaleString()} VND
             </Text>
-            <Text
-              strong
-              style={{ fontSize: "16px", color: "#ff4d4f", display: "block" }}
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                justifyContent: "center",
+                gap: "10px",
+              }}
             >
-              ${product.price.toFixed(2)} {/* Định dạng giá */}
-            </Text>
-            <Button
-              type="link"
-              style={{ marginTop: "10px", padding: "0" }}
-              onClick={() =>
-                console.log(`Xem chi tiết sản phẩm: ${product._id}`)
-              } // Thay bằng logic thật
-            >
-              Xem chi tiết
-            </Button>
+              <Button
+                type="primary"
+                onClick={() => handleAddToCart(product)}
+                style={{
+                  backgroundColor: themeStyles.buttonBg,
+                  borderColor: themeStyles.buttonBg,
+                  color: "#fff",
+                  transition: "all 0.3s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    themeStyles.buttonHoverBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonHoverBg;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = themeStyles.buttonBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonBg;
+                }}
+              >
+                Thêm vào giỏ
+              </Button>
+            </div>
           </Card>
         </Col>
       ))}
     </Row>
   );
+};
+
+ProductCard.propTypes = {
+  products: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      image: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  loading: PropTypes.bool.isRequired,
+  isDarkMode: PropTypes.bool.isRequired,
 };
 
 export default ProductCard;

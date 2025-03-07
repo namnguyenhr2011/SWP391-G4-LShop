@@ -21,7 +21,7 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 
-import ButtonAntd from "../../Component/ButtonAntd";
+import ButtonAntd from "../../Component/Button";
 import InputSearch from "../../Component/InputSearch";
 import { doLogout, doDarkMode } from "../../Store/reducer/userReducer";
 
@@ -32,12 +32,14 @@ const Header = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation("header");
 
+  // Redux state selectors
   const { token, _id: userId } = useSelector((state) => state.user?.user || {});
   const { nameApp, logo } = useSelector((state) => state.admin?.app || {});
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const cartItems = useSelector((state) => state.cart.items[userId] || []);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  // Effects
   useEffect(() => {
     document.title = nameApp || "My App";
     const iconLink = document.querySelector("link[rel='icon']");
@@ -46,6 +48,7 @@ const Header = () => {
     }
   }, [logo, nameApp]);
 
+  // Event handlers
   const handleLogin = () => navigate("/login");
 
   const handleLogout = () => {
@@ -58,11 +61,12 @@ const Header = () => {
 
   const handleUserProfile = () => navigate("/userProfile");
 
+  // Profile dropdown menu
   const profileMenu = (
     <Menu
       style={{
         borderRadius: "8px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
         backgroundColor: isDarkMode ? "#1e2a3c" : "#fff",
       }}
     >
@@ -71,12 +75,13 @@ const Header = () => {
         icon={<UserOutlined />}
         onClick={handleUserProfile}
       >
-        {t("profile")}
+        {t("Profile")}
       </Menu.Item>
+
       <Menu.Item key="darkmode">
         <Space>
           {isDarkMode ? <MoonOutlined /> : <SunOutlined />}
-          {t("dark_mode")}
+          {t("DarkMode")}
           <Switch
             checked={isDarkMode}
             onChange={toggleDarkMode}
@@ -86,9 +91,11 @@ const Header = () => {
           />
         </Space>
       </Menu.Item>
+
       <Menu.Divider />
+
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        {t("logout")}
+        {t("Logout")}
       </Menu.Item>
     </Menu>
   );
@@ -105,17 +112,17 @@ const Header = () => {
         justifyContent: "space-between",
         backgroundColor: isDarkMode ? "#161b22" : "#001529",
         padding: "0 20px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
         transition: "background-color 0.3s ease, padding 0.3s ease",
         height: 64,
       }}
     >
-      {/* Logo */}
+      {/* Logo Section */}
       <div style={{ display: "flex", alignItems: "center" }}>
         <img
           onClick={() => navigate("/")}
           src={logo || DEFAULT_LOGO}
-          width={50}
+          width={40}
           alt={nameApp || "Logo"}
           style={{
             cursor: "pointer",
@@ -131,7 +138,7 @@ const Header = () => {
 
       {/* Right Section */}
       <Space
-        size="middle"
+        size="large"
         style={{
           marginLeft: "auto",
           display: "flex",
