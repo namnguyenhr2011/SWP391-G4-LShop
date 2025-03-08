@@ -24,6 +24,10 @@ import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
 
 
+import OrderScreen from "./Screen/Client/order/OrderScreen";
+import OrderDetail from "./Screen/Client/order/OrderDetail";
+import OrderHistory from "./Screen/Client/order/OrderHistory";
+
 const App = () => {
   return (
     <Router>
@@ -47,6 +51,11 @@ const App = () => {
           <Route path="returnQR" element={<ReturnQR />} />
         </Route>
 
+        <Route path="/order">
+          <Route index element={<OrderScreen />} />
+          <Route path=":id" element={<OrderDetail />} />
+          <Route path="history" element={<OrderHistory />} />
+        </Route>
 
 
         <Route path="/productManager" element={<ProductManagerScreen />} />

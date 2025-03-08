@@ -1,10 +1,10 @@
 const Transaction = require("../../models/transaction");
+const Order = require("../../models/order");
 const moment = require("moment");
 const crypto = require("crypto");
 const request = require("request");
 const config = require("../../../config/default.json");
 const User = require("../../models/user");
-
 
 // Tạo giao dịch mới
 module.exports.createTransaction = async (req, res) => {
@@ -30,7 +30,6 @@ module.exports.createTransaction = async (req, res) => {
 };
 
 // Lấy danh sách giao dịch
-
 module.exports.getTransactionsByUserID = async (req, res) => {
     try {
         const authHeader = req.headers['authorization'];
@@ -50,7 +49,6 @@ module.exports.getTransactionsByUserID = async (req, res) => {
             .populate({ path: "orderId", model: "Order" })
             .exec();
 
-
         res.status(200).json({ code: 200, transactions });
     } catch (error) {
         res.status(500).json({ code: 500, error: error.message });
@@ -58,7 +56,6 @@ module.exports.getTransactionsByUserID = async (req, res) => {
 };
 
 // Lấy giao dịch theo ID và truy vấn VNPay
-
 module.exports.getTransactionById = async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id)
@@ -127,3 +124,41 @@ module.exports.getTransactionById = async (req, res) => {
         res.status(500).json({ code: 500, error: error.message });
     }
 };
+
+// Function to update order and transaction status
+const updateOrderAndTransactionStatus = async (orderId, orderStatus, transactionStatus) => {
+    console.log(`Updating order and transaction status for orderId: ${orderId}`);
+    
+    const order = await Order.findByIdAndUpdate(orderId, { status: orderStatus }, { new: true });
+    if (!order) {
+        console.error(`Order not found for orderId: ${orderId}`);
+        throw new Error('Order not found!');
+    }
+
+    const transaction = await Transaction.findOneAndUpdate({ orderId }, { status: transactionStatus }, { new: true });
+    if (!transaction) {
+        console.error(`Transaction not found for orderId: ${orderId}`);
+        throw new Error('Transaction not found!');
+    }
+
+    return { order, transaction };
+};
+
+// Cập nhật trạng thái đơn hàng và giao dịch
+module.exports.updateOrderAndTransactionStatus = async (req, res) => {
+    try {
+        const { orderId, orderStatus, transactionStatus } = req.body;
+        console.log(`Received request to update order and transaction status for orderId: ${orderId}`);
+        if (!orderId) {
+            throw new Error('Order ID is missing in the request');
+        }
+        const result = await updateOrderAndTransactionStatus(orderId, orderStatus, transactionStatus);
+        res.status(200).json({ code: 200, ...result });
+    } catch (error) {
+        console.error(`Error updating order and transaction status: ${error.message}`);
+        res.status(500).json({ code: 500, error: error.message });
+    }
+};
+
+// Export the function for use in other controllers
+module.exports.updateOrderAndTransactionStatusLogic = updateOrderAndTransactionStatus;

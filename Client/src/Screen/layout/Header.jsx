@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
-import { UserOutlined, LoginOutlined, LogoutOutlined, MoonOutlined, SunOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { UserOutlined, LoginOutlined, LogoutOutlined, MoonOutlined, SunOutlined, ShoppingCartOutlined, OrderedListOutlined } from "@ant-design/icons";
 
 import ButtonAntd from "../../Component/ButtonAntd";
 import InputSearch from "../../Component/InputSearch";
@@ -54,10 +54,17 @@ const Header = () => {
         navigate("/userProfile");
     }
 
+    const handleOrder = () => {
+        navigate("/order");
+    }
+
     const profileMenu = (
         <Menu>
             <Menu.Item key="profile" icon={<UserOutlined />} onClick={handleUserProfile}>
                 Profile
+            </Menu.Item>
+            <Menu.Item key="order" icon={<OrderedListOutlined />} onClick={handleOrder}>
+                Your Order
             </Menu.Item>
             <Menu.Item key="darkmode">
                 <Space>

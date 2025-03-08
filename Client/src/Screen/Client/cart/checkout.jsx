@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
-import { Radio, Input, notification, Divider, List, Typography, Select } from 'antd';
+import { Radio, Input, Divider, List, Typography, Select } from 'antd';
 import { ShoppingOutlined, CreditCardOutlined, HomeOutlined, PhoneOutlined, CommentOutlined, UserOutlined, MailOutlined, BankOutlined, FireOutlined } from '@ant-design/icons';
 import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
@@ -9,6 +9,7 @@ import { createOrder, create_VnPay } from '../../../Service/Client/ApiOrder';
 import { clearCart } from '../../../Store/reducer/cartReducer';
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -110,22 +111,22 @@ const CheckoutPage = () => {
 
         try {
             if (!formData.address) {
-                notification.error({ message: 'Lỗi', description: 'Vui lòng nhập địa chỉ giao hàng' });
+                toast.error('Vui lòng nhập địa chỉ giao hàng');
                 return;
             }
 
             if (!formData.phone) {
-                notification.error({ message: 'Lỗi', description: 'Vui lòng nhập số điện thoại' });
+                toast.error('Vui lòng nhập số điện thoại');
                 return;
             }
 
             if (cartItems.length === 0) {
-                notification.error({ message: 'Lỗi', description: 'Giỏ hàng trống!' });
+                toast.error('Giỏ hàng trống!');
                 return;
             }
 
             if (formData.paymentMethod === "Wallet" && !formData.bankCode) {
-                notification.error({ message: 'Lỗi', description: 'Vui lòng chọn ngân hàng thanh toán' });
+                toast.error('Vui lòng chọn ngân hàng thanh toán');
                 return;
             }
 
@@ -164,17 +165,11 @@ const CheckoutPage = () => {
 
             dispatch(clearCart({ userId }));
             navigate("/")
-            notification.success({
-                message: 'Thành công',
-                description: 'Đặt hàng thành công!',
-            });
+            toast.success('Đặt hàng thành công!');
 
         } catch (error) {
             console.error(error);
-            notification.error({
-                message: 'Lỗi',
-                description: 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!',
-            });
+            toast.error('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!');
         } finally {
             setLoading(false);
         }
