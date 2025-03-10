@@ -8,7 +8,7 @@ const controller = require('../../controllers/Sale/sale.controller')
 
 routes.get('/getAllProductsWithSale', controller.getAllProductsWithSale)
 routes.post('/addSalePrice', authorization.Authorization, controller.addSalePrice)
-routes.put('/updateSalePrice/:id', authorization.Authorization, controller.updateSalePrice)
-// routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteSale)
+routes.put('/updateSalePrice/:id', authorization.Authorization, controller.updateSalePrice);
+routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteSale)
 
 module.exports = routes

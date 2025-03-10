@@ -96,11 +96,13 @@ module.exports.addSalePrice = async (req, res) => {
             productId,
             isSale,
             salePrice: finalSalePrice,
+            discountAmount: discountType === "percentage" ? (product.price * (salePrice / 100)) : salePrice, // Thêm discountAmount
             startDate,
             endDate,
             discountType,
             saleManager: sale._id
         });
+
 
         await newSale.save();
 
@@ -130,8 +132,13 @@ module.exports.addSalePrice = async (req, res) => {
 
 module.exports.updateSalePrice = async (req, res) => {
     try {
-        const { salePrice, startDate, endDate, discountType, productId } = req.body;
-        const saleId = req.params.id;
+        const { saleId } = req.params; // Lấy saleId từ param
+        const { productId, salePrice, startDate, endDate, discountType } = req.body; // Lấy các trường khác từ body
+
+        console.log('Sale ID from param:', saleId); // Kiểm tra saleId
+        console.log('Request body:', req.body); // Kiểm tra dữ liệu body
+
+        // Kiểm tra token và quyền truy cập
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -141,30 +148,108 @@ module.exports.updateSalePrice = async (req, res) => {
 
         const saleUser = await User.findOne({ token: token });
         if (!saleUser || saleUser.role !== 'sale') {
-            return res.status(403).json({ message: 'User not authorized or User not found!' });
+            return res.status(401).json({ message: 'User not authorized to update sale or User not found!!!' });
         }
 
-        const product = await Product.findById(productId);
+        // Kiểm tra sản phẩm
+        const product = await Product.findOne({ _id: productId });
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        const updateSale = await Sale.findByIdAndUpdate(
-            saleId,
-            { salePrice, startDate, endDate, discountType, },
-            { new: true, runValidators: true }
-        );
-
-        if (!updateSale) {
-            return res.status(404).json({ message: 'Sale not found' });
+        // Kiểm tra sale có tồn tại không
+        const existingSale = await Sale.findOne({ _id: saleId, productId });
+        if (!existingSale) {
+            return res.status(404).json({ message: 'Sale not found for this product' });
         }
 
-        res.status(200).json({ message: 'Sale updated successfully.', sale: updateSale });
+        // Tính toán giá sale cuối cùng
+        let finalSalePrice = salePrice;
+        if (discountType === "percentage") {
+            if (salePrice <= 0 || salePrice > 100) {
+                return res.status(400).json({ message: 'Discount percentage must be between 1 and 100' });
+            }
+            finalSalePrice = product.price - (product.price * (salePrice / 100));
+        }
 
+        // Cập nhật sale
+        const updatedSale = await Sale.updateOne(
+            { _id: saleId },
+            {
+                $set: {
+                    salePrice: finalSalePrice,
+                    startDate,
+                    endDate,
+                    discountType,
+                    discountAmount: discountType === "percentage" ? (product.price * (salePrice / 100)) : salePrice,
+                },
+            }
+        );
+
+        if (updatedSale.nModified === 0) {
+            return res.status(400).json({ message: 'No changes were made to the sale' });
+        }
+
+        // Cập nhật sản phẩm
+        await Product.updateOne(
+            { _id: productId },
+            { $set: { salePrice: finalSalePrice, isSale: true } }
+        );
+
+        // Đặt lịch xóa sale khi hết hạn
+        const timeUntilDeletion = new Date(endDate).getTime() - Date.now();
+        if (timeUntilDeletion > 0) {
+            setTimeout(async () => {
+                await Sale.deleteOne({ _id: saleId });
+                await Product.updateOne(
+                    { _id: productId },
+                    { $unset: { salePrice: "" }, $set: { isSale: false } }
+                );
+                console.log(`Sale ${saleId} has expired and removed from product.`);
+            }, timeUntilDeletion);
+        }
+
+        // Trả về kết quả
+        res.status(200).json({
+            message: 'Sale updated successfully, will expire at ' + new Date(endDate).toLocaleString("vi-VN"),
+            salePrice: finalSalePrice,
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating sale', error: error.message });
+        console.error('Error updating sale:', error);
+        res.status(500).json({ message: 'Error updating sale: ' + error.message });
     }
 };
 
+module.exports.deleteSale = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
 
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
 
+        const saleUser = await User.findOne({ token: token });
+        if (!saleUser || saleUser.role !== 'sale') {
+            return res.status(401).json({ message: 'User not authorized to delete sale or User not found!!!' });
+        }
+
+        const sale = await Sale.findById(id);
+        if (!sale) {
+            return res.status(404).json({ message: 'Sale not found' });
+        }
+
+        await Sale.deleteOne({ _id: id });
+        await Product.updateOne(
+            { _id: sale.productId },
+            { $unset: { salePrice: "" }, $set: { isSale: false } }
+        );
+
+        res.status(200).json({
+            message: `Sale with ID ${id} has been deleted successfully`,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting sale: ' + error.message });
+    }
+};
