@@ -15,4 +15,6 @@ routes.put('/updatePaymentStatus/:id', authorization.Authorization, controller.u
 routes.put('/userCancelOrder/:id', authorization.Authorization, controller.userCancelOrder);
 
 
+routes.put('/transaction/:orderId', authorization.Authorization, controller.updateStatus);
+
 module.exports = routes;

@@ -28,7 +28,6 @@ const CheckoutPage = () => {
 
             try {
                 const userData = await userProfile(token);
-                console.log(userData);
                 setProfile(userData.user);
 
                 setFormData((prev) => ({
@@ -125,7 +124,7 @@ const CheckoutPage = () => {
                 return;
             }
 
-            if (formData.paymentMethod === "Wallet" && !formData.bankCode) {
+            if (formData.paymentMethod === "Bank Transfer" && !formData.bankCode) {
                 toast.error('Vui lòng chọn ngân hàng thanh toán');
                 return;
             }
@@ -145,19 +144,22 @@ const CheckoutPage = () => {
             };
 
             const createOrderResponse = await createOrder(finalOrderData);
-            console.log("API Response:", createOrderResponse);
+            console.log("Create Order Response:", createOrderResponse.order._id);
+            const orderId = createOrderResponse.order._id;
 
-            if (formData.paymentMethod === "Wallet") {
+            if (formData.paymentMethod === "Bank Transfer") {
                 const vnpayData = {
                     "amount": totalAmount,
                     "bankCode": formData.bankCode,
-                    "language": "vn"
+                    "language": "vn",
+                    "orderId": orderId,
                 };
 
                 const vnPayResponse = await create_VnPay(vnpayData);
                 console.log("VnPay Response:", vnPayResponse);
 
                 if (vnPayResponse && vnPayResponse.url) {
+                    localStorage.setItem('pendingOrderId', orderId);
                     window.location.href = vnPayResponse.url;
                     return;
                 }
@@ -315,13 +317,12 @@ const CheckoutPage = () => {
                                             <div>
                                                 <Radio.Group onChange={handlePaymentMethodChange} value={formData.paymentMethod}>
                                                     <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
-                                                    <Radio value="Wallet">Ví điện tử (VN Pay)</Radio>
-                                                    <Radio value="Bank Transfer">Chuyển khoản ngân hàng</Radio>
+                                                    <Radio value="Bank Transfer">Ví điện tử (VN Pay)</Radio>
                                                 </Radio.Group>
                                             </div>
                                         </Form.Group>
 
-                                        {formData.paymentMethod === "Wallet" && (
+                                        {formData.paymentMethod === "Bank Transfer" && (
                                             <Form.Group className="mb-3">
                                                 <Form.Label><BankOutlined /> Chọn ngân hàng thanh toán</Form.Label>
                                                 <Select

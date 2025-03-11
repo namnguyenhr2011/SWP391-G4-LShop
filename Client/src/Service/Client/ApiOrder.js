@@ -55,7 +55,7 @@ export const vnpay_ipn = async () => {
     return response.data;
 };
 
-export const updateOrderAndTransactionStatus = async (orderId, orderStatus, transactionStatus) => {
-    const response = await axios.put(`order/updateOrderAndTransactionStatus/${orderId}`, { orderStatus, transactionStatus }, { withCredentials: true });
+export const updateOrderStatus = async (orderID) => {
+    const response = await axios.put(`order/transaction/${orderID}`, { withCredentials: true });
     return response.data;
-};
+}

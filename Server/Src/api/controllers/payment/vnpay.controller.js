@@ -4,7 +4,6 @@ const moment = require('moment');
 const Transaction = require("../../models/transaction");
 const Order = require("../../models/order");
 const User = require("../../models/user");
-const { updateOrderAndTransactionStatus, updateOrderAndTransactionStatusLogic } = require('./transaction.controller');
 
 module.exports.createPaymentUrl = async (req, res) => {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
@@ -18,42 +17,49 @@ module.exports.createPaymentUrl = async (req, res) => {
         req.connection.socket.remoteAddress;
 
     let config = require('../../../config/default.json');
-
     let tmnCode = config.vnp_TmnCode;
     let secretKey = config.vnp_HashSecret;
     let vnpUrl = config.vnp_Url;
     let returnUrl = config.vnp_ReturnUrl;
-    let orderId = moment(date).format('DDHHmmss');
 
-    // Ensure orderId is a valid ObjectId by converting it to a string of 24 characters
-    orderId = orderId.padStart(24, '0');
+    // Ensure orderId is passed in the request body
+    let orderId = req.body.orderId;
+
+    if (!orderId) {
+        return res.status(400).json({ message: 'OrderId is required' });
+    }
+
+    // Ensure orderId is a valid ObjectId (optional step if you need to ensure this)
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ message: 'Invalid orderId format' });
+    }
 
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
 
-    let locale = req.body.language;
-    if (locale === null || locale === '') {
-        locale = 'vn';
-    }
+    let locale = req.body.language || 'vn';  // Default to 'vn' if no language is provided
     let currCode = 'VND';
+
     let vnp_Params = {};
     vnp_Params['vnp_Version'] = '2.1.0';
     vnp_Params['vnp_Command'] = 'pay';
     vnp_Params['vnp_TmnCode'] = tmnCode;
     vnp_Params['vnp_Locale'] = locale;
     vnp_Params['vnp_CurrCode'] = currCode;
-    vnp_Params['vnp_TxnRef'] = orderId;
+    vnp_Params['vnp_TxnRef'] = orderId;  // Use the passed orderId
     vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho ma GD:' + orderId;
     vnp_Params['vnp_OrderType'] = 'other';
-    vnp_Params['vnp_Amount'] = amount * 100;
+    vnp_Params['vnp_Amount'] = amount * 100;  // Amount in VND, so multiply by 100
     vnp_Params['vnp_ReturnUrl'] = returnUrl;
     vnp_Params['vnp_IpAddr'] = ipAddr;
     vnp_Params['vnp_CreateDate'] = createDate;
-    if (bankCode !== null && bankCode !== '') {
-        vnp_Params['vnp_BankCode'] = bankCode;
+
+    if (bankCode) {
+        vnp_Params['vnp_BankCode'] = bankCode;  // Optional: Bank code if provided
     }
 
-    vnp_Params = sortObject(vnp_Params);
+    vnp_Params = sortObject(vnp_Params);  // Sort the parameters
 
     let querystring = require('qs');
     let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -61,8 +67,10 @@ module.exports.createPaymentUrl = async (req, res) => {
     let hmac = crypto.createHmac("sha512", secretKey);
     let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
     vnp_Params['vnp_SecureHash'] = signed;
+
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
+    // Authentication and user validation
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
@@ -73,9 +81,11 @@ module.exports.createPaymentUrl = async (req, res) => {
     if (!user) {
         return res.status(401).json({ message: 'User not found!' });
     }
+
+    // Create a transaction record linked to the actual order
     const transaction = new Transaction({
         userId: user._id,
-        orderId: orderId,
+        orderId: orderId,  // Ensure orderId is valid
         amount: amount,
         paymentMethod: 'Bank Transfer',
         status: 'Pending',
@@ -83,24 +93,22 @@ module.exports.createPaymentUrl = async (req, res) => {
     });
     await transaction.save();
 
-
     res.json({ url: vnpUrl });
-    console.log({ orderID: orderId, url: vnpUrl })
+    console.log({ orderID: orderId, url: vnpUrl });
 }
+
 
 module.exports.returnUrl = async (req, res) => {
     try {
         let vnp_Params = req.query;
         let secureHash = vnp_Params['vnp_SecureHash'];
 
-        // Xóa hash để tạo hash mới và so sánh
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
 
         vnp_Params = sortObject(vnp_Params);
 
         let config = require('../../../config/default.json');
-        let tmnCode = config.vnp_TmnCode;
         let secretKey = config.vnp_HashSecret;
         let frontendUrl = config.frontend_url || 'http://localhost:5173';
 
@@ -110,20 +118,41 @@ module.exports.returnUrl = async (req, res) => {
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
-        // Lấy responseCode từ query params
+        // Get response data
         let responseCode = vnp_Params['vnp_ResponseCode'];
-        let orderId = vnp_Params['vnp_TxnRef']; // Mã đơn hàng
-        let amount = vnp_Params['vnp_Amount']; // Số tiền thanh toán
-        let transactionId = vnp_Params['vnp_TransactionNo']; // Mã giao dịch VNPay
+        let orderId = vnp_Params['vnp_TxnRef']; // The order ID
+        let amount = vnp_Params['vnp_Amount'] / 100; // Convert back from VND cents
+        let transactionId = vnp_Params['vnp_TransactionNo']; // VNPay transaction ID
 
         console.log(`Received returnUrl callback with orderId: ${orderId}`);
 
-        // Kiểm tra hash để xác thực dữ liệu
+        // Verify the hash to authenticate data
         if (secureHash === signed) {
             const paymentStatus = responseCode === '00' ? 'Completed' : 'Failed';
-            await updateOrderAndTransactionStatusLogic(orderId, paymentStatus, paymentStatus);
+            
 
-            // Chuyển hướng về trang kết quả với thông tin thanh toán
+            // Update order status
+            const order = await Order.findById(orderId);
+            if (order) {
+                order.paymentStatus = paymentStatus;
+                await order.save();
+                console.log(`Updated order ${orderId} status to ${paymentStatus}`);
+            } else {
+                console.log(`Order ${orderId} not found`);
+            }
+
+            // Update transaction status
+            const transaction = await Transaction.findOne({ orderId: orderId });
+            if (transaction) {
+                transaction.status = paymentStatus;
+                transaction.transactionId = transactionId; // Store VNPay's transaction ID
+                await transaction.save();
+                console.log(`Updated transaction for order ${orderId} to ${paymentStatus}`);
+            } else {
+                console.log(`Transaction for order ${orderId} not found`);
+            }
+
+            // Prepare result for frontend
             const paymentResult = {
                 status: responseCode === '00' ? 'success' : 'failed',
                 message: responseCode === '00' ? 'Thanh toán thành công' : 'Thanh toán thất bại',
@@ -134,22 +163,22 @@ module.exports.returnUrl = async (req, res) => {
                 ...vnp_Params
             };
 
+            // Redirect to frontend with payment result
             const returnUrl = `${frontendUrl}/cart/returnQR?${querystring.stringify(paymentResult)}`;
-            console.log("Kết quả thanh toán:", paymentResult);
+            console.log("Payment result:", paymentResult);
 
             return res.redirect(returnUrl);
         } else {
-            // Xác thực thất bại
-            console.log("Xác thực dữ liệu thất bại!");
+            // Authentication failed
+            console.log("Data authentication failed!");
             return res.redirect(`${frontendUrl}/cart/returnQR?status=error&message=Xác thực dữ liệu thất bại`);
         }
     } catch (error) {
-        console.error("Lỗi xử lý callback VNPay:", error);
+        console.error("Error processing VNPay callback:", error);
         const frontendUrl = require('../../../config/default.json').frontend_url || 'http://localhost:5173';
         return res.redirect(`${frontendUrl}/cart/returnQR?status=error&message=Lỗi server`);
     }
 };
-
 
 module.exports.refund = (req, res) => {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
@@ -249,7 +278,7 @@ module.exports.query = (req, res) => {
     let data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + vnp_TransactionDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;
 
     let hmac = crypto.createHmac("sha512", secretKey);
-    let vnp_SecureHash = hmac.update(Buffer.from(data, 'utf-8')).digest("hex"); // Fixed new Buffer to Buffer.from
+    let vnp_SecureHash = hmac.update(Buffer.from(data, 'utf-8')).digest("hex");
 
     let dataObj = {
         'vnp_RequestId': vnp_RequestId,
