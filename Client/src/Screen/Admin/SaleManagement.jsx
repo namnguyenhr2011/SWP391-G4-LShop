@@ -43,6 +43,7 @@ const SaleManagement = () => {
       render: (_, __, index) => index + 1,
     },
     { title: "Username", dataIndex: "userName", key: "userName" },
+    { title: "Email", dataIndex: "email", key: "email" },
     {
       title: "Role",
       dataIndex: "role",

@@ -24,14 +24,14 @@ module.exports.getAllProductsWithSale = async (req, res) => {
             .skip(paginationData.skip)
             .limit(paginationData.limit)
             .sort({ createdAt: -1 });
-       
+
         const activeSales = await Sale.find({
             productId: { $in: products.map(product => product._id) }, // Dùng mảng _id để tìm kiếm
         });
 
         const salesMap = {};
         activeSales.forEach(sale => {
-            
+
             salesMap[sale.productId.toString()] = {
                 isSale: sale.isSale,
                 discount: sale.salePrice,
