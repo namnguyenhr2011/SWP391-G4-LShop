@@ -15,7 +15,7 @@ const ProductView = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -28,7 +28,6 @@ const ProductView = () => {
     };
     fetchCategories();
   }, []);
-
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -75,12 +74,21 @@ const ProductView = () => {
   const handleSearchChange = (e) => {
     const keyword = e.target.value;
     setSearchKeyword(keyword);
-
     const filtered = products.filter((product) =>
       product.name.toLowerCase().includes(keyword.toLowerCase())
     );
     setFilteredProducts(filtered);
+    setPagination({ ...pagination, current: 1 });
   };
+
+  const handlePaginationChange = (page, pageSize) => {
+    setPagination({ current: page, pageSize: pageSize });
+  };
+
+  const paginatedProducts = filteredProducts.slice(
+    (pagination.current - 1) * pagination.pageSize,
+    pagination.current * pagination.pageSize
+  );
 
   const columns = [
     {
@@ -156,9 +164,14 @@ const ProductView = () => {
 
             <Table
               columns={columns}
-              dataSource={filteredProducts}
+              dataSource={paginatedProducts}
               rowKey="_id"
-              pagination={false}
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                total: filteredProducts.length,
+                onChange: handlePaginationChange,
+              }}
             />
           </Content>
         </Layout>
