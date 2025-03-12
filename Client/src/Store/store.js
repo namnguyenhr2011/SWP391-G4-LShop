@@ -6,7 +6,11 @@ import cartReducer from './reducer/cartReducer';
 
 const persistConfig = {
     key: 'root',
+<<<<<<< HEAD
     storage: storageSession, // Sử dụng sessionStorage thay vì localStorage
+=======
+    storage,
+>>>>>>> duc
 };
 
 const rootReducer = combineReducers({
@@ -25,3 +29,4 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+

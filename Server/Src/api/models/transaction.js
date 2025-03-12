@@ -5,34 +5,34 @@ const transactionModel = new Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User", // Tham chiếu tới bảng User
+            ref: "User", 
             required: true,
         },
         orderId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Order", // Tham chiếu tới bảng Order
-            required: true, // Giao dịch liên quan đến đơn hàng
+            ref: "Order", 
+            required: true, 
         },
         amount: {
             type: Number,
-            required: true, // Số tiền giao dịch
+            required: true, 
         },
         paymentMethod: {
             type: String,
             enum: ["Wallet", "COD", "Bank Transfer"],
-            required: true, // Phương thức thanh toán
+            required: true, 
         },
         status: {
             type: String,
             enum: ["Pending", "Completed", "Failed", "Cancelled"],
-            default: "Pending", // Trạng thái giao dịch
+            default: "Pending", 
         },
         transactionDate: {
             type: Date,
-            default: Date.now, // Ngày giao dịch
+            default: Date.now, 
         },
         description: {
-            type: String, // Mô tả thêm về giao dịch
+            type: String, 
             default: "",
         },
     },

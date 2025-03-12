@@ -1,4 +1,5 @@
 const Transaction = require("../../models/transaction");
+<<<<<<< HEAD
 const moment = require("moment");
 const crypto = require("crypto");
 const request = require("request");
@@ -6,6 +7,11 @@ const config = require("../../../config/default.json");
 const User = require("../../models/user");
 
 
+=======
+const Order = require("../../models/order");
+const User = require("../../models/user");
+
+>>>>>>> duc
 // Tạo giao dịch mới
 module.exports.createTransaction = async (req, res) => {
     try {
@@ -30,7 +36,10 @@ module.exports.createTransaction = async (req, res) => {
 };
 
 // Lấy danh sách giao dịch
+<<<<<<< HEAD
 
+=======
+>>>>>>> duc
 module.exports.getTransactionsByUserID = async (req, res) => {
     try {
         const authHeader = req.headers['authorization'];
@@ -50,13 +59,17 @@ module.exports.getTransactionsByUserID = async (req, res) => {
             .populate({ path: "orderId", model: "Order" })
             .exec();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> duc
         res.status(200).json({ code: 200, transactions });
     } catch (error) {
         res.status(500).json({ code: 500, error: error.message });
     }
 };
 
+<<<<<<< HEAD
 // Lấy giao dịch theo ID và truy vấn VNPay
 
 module.exports.getTransactionById = async (req, res) => {
@@ -127,3 +140,29 @@ module.exports.getTransactionById = async (req, res) => {
         res.status(500).json({ code: 500, error: error.message });
     }
 };
+=======
+module.exports.updateTransactionStatus = async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found!' });
+        }
+        const { transactionId } = req.params;
+        const transaction = await Transaction.findById(transactionId);
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found!' });
+        }
+        transaction.status = "Completed";
+        await transaction.save();
+        res.status(200).json({ code: 200, transaction });
+    } catch (error) {
+        res.status(500).json({ code: 500, error: error.message });
+    }
+}
+
+>>>>>>> duc

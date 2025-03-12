@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { notification, Result, Spin } from 'antd';
 import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
-// import { updateOrderPaymentStatus } from '../../../Service/Client/ApiOrder'; 
+
 
 const ReturnQR = () => {
     const [loading, setLoading] = useState(true);
@@ -49,18 +49,13 @@ const ReturnQR = () => {
                 const isSuccess = responseCode === '00' && transactionStatus === '00';
                 setPaymentStatus(isSuccess);
                 if (isSuccess) {
-                    // Assuming txnRef is your order ID or can be used to identify the order
-                    // await updateOrderPaymentStatus({
-                    //     orderReference: txnRef,
-                    //     paymentStatus: 'Paid',
-                    //     transactionDetails: details
-                    // });
-
+                  
                     notification.success({
                         message: 'Thanh toán thành công',
                         description: `Giao dịch ${transactionNo} đã được xác nhận.`
                     });
                 } else {
+                    
                     notification.error({
                         message: 'Thanh toán thất bại',
                         description: 'Giao dịch không thành công hoặc đã bị hủy.'

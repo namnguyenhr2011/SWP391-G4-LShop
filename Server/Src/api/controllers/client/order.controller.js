@@ -208,3 +208,42 @@ module.exports.getOrderDetails = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+module.exports.updateStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+
+        const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found!' });
+        }
+        console.log('orderId:', orderId);
+
+        const order = await Order.findOne({ _id: orderId, userId: user._id });
+        if (order) {
+            order.paymentStatus = "Completed";
+            await order.save();
+        } else {
+            return res.status(404).json({ message: 'Order not found or not belonging to the user!' });
+        }
+
+        const transaction = await Transaction.findOne({ orderId: orderId, userId: user._id });
+        if (transaction) {
+            transaction.status = "Completed";
+            await transaction.save();
+        } else {
+            return res.status(404).json({ message: 'Transaction not found for the given order!' });
+        }
+
+        return res.status(200).json({ message: 'Order and transaction status updated successfully!' });
+        
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+}
