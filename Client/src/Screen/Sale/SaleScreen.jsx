@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { addSalePrice, updateSalePrice, deleteSale, getProductWithSaleID } from "../../Service/sale/ApiSale";
-import { Button, Input, Table, Modal, Select, message, Spin, DatePicker, App } from "antd";
-import { Container } from "react-bootstrap";
+import { Button, Input, Table, Modal, Select, message, Spin, DatePicker } from "antd";
+import { Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { doLogout } from "../../Store/reducer/userReducer";
@@ -30,7 +30,7 @@ const SaleScreen = () => {
                 const response = await getProductWithSaleID();
                 const updatedProducts = response.products.map(product => ({
                     ...product,
-                    saleId: product.sale?.saleID || null  // Gán saleId nếu có
+                    saleId: product.sale?.saleID || null
                 }));
                 setProducts(updatedProducts);
             } catch {
@@ -149,7 +149,7 @@ const SaleScreen = () => {
                 setProducts(prevProducts =>
                     prevProducts.map(product =>
                         product.sale?.saleID === saleId
-                            ? { ...product, sale: null, saleId: null } // Xóa thông tin sale
+                            ? { ...product, sale: null, saleId: null }
                             : product
                     )
                 );
@@ -168,26 +168,51 @@ const SaleScreen = () => {
         .sort((a, b) => sortOrder === "desc" ? b.price - a.price : sortOrder === "asc" ? a.price - b.price : 0);
 
     const columns = [
-        { title: "Hình ảnh", dataIndex: "image", key: "image", render: image => <img src={image} alt="product" style={{ width: 70, height: 70 }} /> },
-        { title: "Tên sản phẩm", dataIndex: "name", key: "name", className: "font-bold" },
-        { title: "Giá gốc", dataIndex: "price", key: "price", render: price => `${price.toLocaleString()} VND` },
-        { title: "Giá sale", dataIndex: "sale", key: "salePrice", render: sale => sale?.salePrice ? `${sale.salePrice.toLocaleString()} VND` : "Chưa có" },
         {
-            title: "Hành động", key: "action", render: (_, record) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <Button type="primary" onClick={() => handleOpenModal(record, false)}>
+            title: "Hình ảnh",
+            dataIndex: "image",
+            key: "image",
+            render: image => <img src={image} alt="product" style={{ width: 60, height: 60, borderRadius: "8px", objectFit: "cover" }} />
+        },
+        { title: "Tên sản phẩm", dataIndex: "name", key: "name", className: "fw-bold" },
+        { title: "Giá gốc", dataIndex: "price", key: "price", render: price => `${price.toLocaleString()} VND` },
+        {
+            title: "Giá sale",
+            dataIndex: "sale",
+            key: "salePrice",
+            render: sale => sale?.salePrice ? `${sale.salePrice.toLocaleString()} VND` : <span style={{ color: "#999" }}>Chưa có</span>
+        },
+        {
+            title: "Hành động",
+            key: "action",
+            render: (_, record) => (
+                <div className="d-flex gap-2">
+                    <Button
+                        type="primary"
+                        size="middle"
+                        style={{ borderRadius: "8px" }}
+                        onClick={() => handleOpenModal(record, false)}
+                    >
                         Thêm giá sale
                     </Button>
-                    <Button type="primary" onClick={() => handleOpenModal(record, true)} disabled={!record.sale}>
-                        Cập nhật giá sale
+                    <Button
+                        type="primary"
+                        size="middle"
+                        style={{ borderRadius: "8px", backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+                        onClick={() => handleOpenModal(record, true)}
+                        disabled={!record.sale}
+                    >
+                        Cập nhật
                     </Button>
                     <Button
                         type="primary"
                         danger
+                        size="middle"
+                        style={{ borderRadius: "8px" }}
                         onClick={() => handleDelete(record.sale?.saleID)}
                         disabled={!record.sale}
                     >
-                        Xóa sale
+                        Xóa
                     </Button>
                 </div>
             )
@@ -195,62 +220,131 @@ const SaleScreen = () => {
     ];
 
     return (
-        <App>
-            <Container className="mt-4 p-4" style={{ background: "linear-gradient(to right, #6a11cb, #2575fc)", borderRadius: "10px", color: "white" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                    <h2 className="text-center mb-0">Sale Manager</h2>
-                    <Button type="primary" danger onClick={handleLogout} style={{ borderRadius: "5px", fontWeight: "bold" }}>
+        <Container
+            className="mt-4 p-4"
+            style={{
+                background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+                borderRadius: "16px",
+                boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+                color: "white"
+            }}
+        >
+            <Row className="justify-content-between align-items-center mb-4">
+                <Col>
+                    <h2 className="mb-0 text-center" style={{ fontSize: "1.8rem", fontWeight: 600, textShadow: "1px 1px 4px rgba(0, 0, 0, 0.2)" }}>
+                        Sale Manager
+                    </h2>
+                </Col>
+                <Col xs="auto">
+                    <Button
+                        type="primary"
+                        danger
+                        size="large"
+                        style={{ borderRadius: "8px", fontWeight: 500 }}
+                        onClick={handleLogout}
+                    >
                         Đăng xuất
                     </Button>
-                </div>
-                <div className="d-flex gap-2 my-3">
-                    <Input placeholder="🔍 Tìm kiếm sản phẩm..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ flex: 1 }} />
-                    <Select defaultValue="default" onChange={setSortOrder} style={{ width: 200 }}>
+                </Col>
+            </Row>
+            <Row className="mb-4">
+                <Col md={9} xs={12}>
+                    <Input
+                        placeholder="🔍 Tìm kiếm sản phẩm..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="rounded"
+                        style={{ padding: "0.5rem" }}
+                    />
+                </Col>
+                <Col md={3} xs={12} className="mt-2 mt-md-0">
+                    <Select
+                        defaultValue="default"
+                        onChange={setSortOrder}
+                        className="w-100 rounded"
+                        style={{ borderRadius: "8px" }}
+                    >
                         <Option value="default">Mặc định</Option>
                         <Option value="desc">Giá giảm dần</Option>
                         <Option value="asc">Giá tăng dần</Option>
                     </Select>
+                </Col>
+            </Row>
+            {loading ? (
+                <div className="text-center py-4">
+                    <Spin size="large" />
                 </div>
-                {loading ? (
-                    <div className="text-center my-4">
-                        <Spin size="large" />
-                    </div>
-                ) : (
-                    <Table columns={columns} dataSource={filteredProducts} rowKey="_id" bordered style={{ background: "white", borderRadius: "10px", color: "black" }} />
-                )}
-                <Modal
-                    title={isUpdating ? "Cập nhật giá sale" : "Thêm giá sale"}
-                    open={modalVisible}
-                    onOk={handleSubmit}
-                    onCancel={() => setModalVisible(false)}
-                    style={{ borderRadius: "10px" }}
-                >
-                    <div style={{ padding: "10px", background: "#f8f9fa", borderRadius: "8px" }}>
-                        <p><strong>Tên sản phẩm:</strong></p>
-                        <Input value={selectedProduct?.name || ""} disabled style={{ marginBottom: "10px", fontWeight: "bold" }} />
-                        <p><strong>Nhập giá sale mới:</strong></p>
-                        <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder="Nhập giá sale" style={{ marginBottom: "10px" }} />
-                        <p><strong>Loại giảm giá:</strong></p>
-                        <Select value={discountType} onChange={setDiscountType} style={{ width: "100%", marginBottom: "10px" }}>
-                            <Option value="fixed">Giá cố định</Option>
-                            <Option value="percentage">Phần trăm</Option>
-                        </Select>
-                        <p><strong>Ngày bắt đầu:</strong></p>
-                        {startDate && <p>Đã chọn: {startDate.toLocaleString()}</p>}
-                        <DatePicker
-                            onChange={(_, dateString) => handleStartDateChange(dateString)}
-                            style={{ width: "100%", marginBottom: "10px" }}
-                        />
-                        <p><strong>Ngày kết thúc:</strong></p>
-                        {endDate && <p>Đã chọn: {endDate.toLocaleString()}</p>}
-                        <DatePicker
-                            onChange={(_, dateString) => handleEndDateChange(dateString)}
-                            style={{ width: "100%", marginBottom: "10px" }}
-                        />
-                    </div>
-                </Modal>
-            </Container>
-        </App>
+            ) : (
+                <Table
+                    columns={columns}
+                    dataSource={filteredProducts}
+                    rowKey="_id"
+                    bordered
+                    style={{
+                        background: "#fff",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+                    }}
+                    className="table-striped"
+                    pagination={{
+                        pageSize: 5, // Hiển thị tối đa 5 sản phẩm mỗi trang
+                        showSizeChanger: false, // Ẩn tùy chọn thay đổi số lượng mỗi trang
+                        position: ["bottomCenter"], // Đặt phân trang ở giữa dưới
+                        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`, // Hiển thị tổng số
+                    }}
+                />
+            )}
+            <Modal
+                title={isUpdating ? "Cập nhật giá sale" : "Thêm giá sale"}
+                open={modalVisible}
+                onOk={handleSubmit}
+                onCancel={() => setModalVisible(false)}
+                okText={isUpdating ? "Cập nhật" : "Thêm"}
+                cancelText="Hủy"
+                style={{ top: 20 }}
+                bodyStyle={{ background: "#fafafa", borderRadius: "8px", padding: "1.5rem" }}
+            >
+                <div>
+                    <p className="fw-bold mb-2">Tên sản phẩm:</p>
+                    <Input
+                        value={selectedProduct?.name || ""}
+                        disabled
+                        style={{ marginBottom: "1rem", borderRadius: "8px", fontWeight: "bold" }}
+                    />
+                    <p className="fw-bold mb-2">Nhập giá sale mới:</p>
+                    <Input
+                        type="number"
+                        value={salePrice}
+                        onChange={e => setSalePrice(e.target.value)}
+                        placeholder="Nhập giá sale"
+                        style={{ marginBottom: "1rem", borderRadius: "8px" }}
+                    />
+                    <p className="fw-bold mb-2">Loại giảm giá:</p>
+                    <Select
+                        value={discountType}
+                        onChange={setDiscountType}
+                        style={{ width: "100%", marginBottom: "1rem", borderRadius: "8px" }}
+                    >
+                        <Option value="fixed">Giá cố định</Option>
+                        <Option value="percentage">Phần trăm</Option>
+                    </Select>
+                    <p className="fw-bold mb-2">Ngày bắt đầu:</p>
+                    {startDate && <p style={{ color: "#555", marginBottom: "0.5rem" }}>Đã chọn: {startDate.toLocaleString()}</p>}
+                    <DatePicker
+                        onChange={(_, dateString) => handleStartDateChange(dateString)}
+                        style={{ width: "100%", marginBottom: "1rem", borderRadius: "8px" }}
+                        showTime
+                    />
+                    <p className="fw-bold mb-2">Ngày kết thúc:</p>
+                    {endDate && <p style={{ color: "#555", marginBottom: "0.5rem" }}>Đã chọn: {endDate.toLocaleString()}</p>}
+                    <DatePicker
+                        onChange={(_, dateString) => handleEndDateChange(dateString)}
+                        style={{ width: "100%", marginBottom: "1rem", borderRadius: "8px" }}
+                        showTime
+                    />
+                </div>
+            </Modal>
+        </Container>
     );
 };
 
