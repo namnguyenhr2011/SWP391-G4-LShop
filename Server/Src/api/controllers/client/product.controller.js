@@ -3,6 +3,7 @@ const PaginationHelper = require('../../../helper/pagination')
 const User = require('../../models/user')
 const Category = require('../../models/category')
 const SubCategory = require('../../models/subCategory')
+const Sale = require('../../models/sale');
 
 
 //[Post] api/products/addProducts
@@ -201,30 +202,46 @@ module.exports.searchProducts = async (req, res) => {
 // [GET] api/products/getAllProducts
 module.exports.getAllProducts = async (req, res) => {
     try {
-        const totalProducts = await Product.countDocuments({ deleted: false })
+        const totalProducts = await Product.countDocuments({ deleted: false });
         if (totalProducts === 0) {
-            return res.status(404).json({ message: 'No products found.' })
+            return res.status(404).json({ message: 'No products found.' });
         }
-        const paginationData = await PaginationHelper({
-            currentPage: 1,
-            limit: 12,
-        },
+
+        const paginationData = await PaginationHelper(
+            { currentPage: 1, limit: 12 },
             totalProducts,
             req.query
-        )
+        );
+
+        // Lấy danh sách sản phẩm và ghép dữ liệu từ bảng Sale
         const products = await Product.find({ deleted: false })
             .skip(paginationData.skip)
             .limit(paginationData.limit)
             .sort({ createdAt: -1 })
+            .lean(); // Dùng lean() để lấy dữ liệu nhanh hơn khi không cần thao tác mongoose document
+
+        // Lấy danh sách sale theo productId
+        const productIds = products.map(p => p._id);
+        const sales = await Sale.find({ productId: { $in: productIds } }).lean();
+
+        // Gộp dữ liệu sale vào danh sách sản phẩm
+        const productsWithSale = products.map(product => {
+            const saleInfo = sales.find(sale => sale.productId.toString() === product._id.toString());
+            return {
+                ...product,
+                sale: saleInfo || null, // Nếu không có khuyến mãi thì để null
+            };
+        });
 
         res.status(200).json({
-            products,
-            totalPage: paginationData.totalPage
-        })
+            products: productsWithSale,
+            totalPage: paginationData.totalPage,
+        });
     } catch (error) {
-        res.status(500).json(error)
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Internal Server Error', error });
     }
-}
+};
 
 
 // [GET] api/products/:id
@@ -328,18 +345,75 @@ module.exports.getProductBySubCategory = async (req, res) => {
 //[GET] api/product/getTop8
 module.exports.getTop8 = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ rating: -1 }).limit(8);
-        res.status(200).json({ products });
+
+        const products = await Product.find({ deleted: false })
+            .sort({ rating: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
-        res.status(500).json(error);
+        console.error('Error in getTop8:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
+};
+
 
 //[GET] api/getTopView
 module.exports.getTopView = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ numReviews: -1 }).limit(8);
-        res.status(200).json({ products });
+        const products = await Product.find({ deleted: false })
+            .sort({ numReviews: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -349,8 +423,35 @@ module.exports.getTopView = async (req, res) => {
 //[GET] api/products/getTopSold
 module.exports.getTopSold = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false }).sort({ numSold: -1 }).limit(8);
-        res.status(200).json({ products });
+        const products = await Product.find({ deleted: false })
+            .sort({ sold: -1 })
+            .limit(8);
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+            salesMap[sale.productId.toString()] = {
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales
+        });
     } catch (error) {
         res.status(500).json(error);
     }

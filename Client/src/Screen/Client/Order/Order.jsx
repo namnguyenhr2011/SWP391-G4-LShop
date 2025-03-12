@@ -1,43 +1,85 @@
-import React from "react";
-import { Card, Typography, Button } from "antd";
-import { Image } from "react-bootstrap";
+import React, { useEffect, useState } from 'react';
+import { Table, Button, Tag, Modal, Spin, message } from 'antd';
+import { getOrders, cancelOrder } from '../../../Service/Client/ApiOrder';
+import Header from "../../layout/Header"
+import Footer from "../../layout/Footer"
 
-const { Title, Text } = Typography;
+const MyOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-const MyOrder = () => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await getOrders();
+      console.log(response)
+      setOrders(response.data.orders);
+    } catch (error) {
+      message.error('Failed to fetch orders');
+    }
+    setLoading(false);
+  };
+
+  const handleCancelOrder = async (id) => {
+    try {
+      await cancelOrder(id);
+      message.success('Order cancelled successfully');
+      fetchOrders();
+    } catch (error) {
+      message.error('Failed to cancel order');
+    }
+  };
+
+  const columns = [
+    { title: 'Order ID', dataIndex: '_id', key: '_id' },
+    { title: 'Total Amount', dataIndex: 'totalAmount', key: 'totalAmount', render: amount => `$${amount}` },
+    { title: 'Payment Status', dataIndex: 'paymentStatus', key: 'paymentStatus', render: status => <Tag color={status === 'Paid' ? 'green' : 'red'}>{status}</Tag> },
+    { title: 'Order Status', dataIndex: 'orderStatus', key: 'orderStatus', render: status => <Tag color={status === 'Completed' ? 'blue' : 'orange'}>{status}</Tag> },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record) => (
+        <>
+          <Button type="link" onClick={() => { setSelectedOrder(record); setModalVisible(true); }}>View</Button>
+          {record.orderStatus !== 'Cancelled' && <Button type="link" danger onClick={() => handleCancelOrder(record._id)}>Cancel</Button>}
+        </>
+      )
+    }
+  ];
+
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
-      <Title level={3} style={{ textAlign: "center" }}>Đơn hàng của tôi</Title>
-      <Card>
-        <div style={{ marginBottom: "10px" }}>
-          <Text strong style={{ color: "red" }}>Giao hàng:</Text> Chưa giao hàng
-          <br />
-          <Text strong style={{ color: "red" }}>Thanh toán:</Text> Đã thanh toán
-        </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Image
-            src="https://via.placeholder.com/60"
-            alt="Ipad"
-            thumbnail
-            style={{ marginRight: "10px" }}
-          />
-          <div>
-            <Text strong>Ipad</Text>
-            <br />
-            <Text>200.000 VND</Text>
-          </div>
-        </div>
-        <div style={{ marginTop: "10px", textAlign: "right" }}>
-          <Text strong>Tổng tiền: </Text>
-          <Text style={{ color: "red", fontWeight: "bold" }}>210.000 VND</Text>
-        </div>
-        <div style={{ marginTop: "10px", textAlign: "right" }}>
-          <Button variant="danger" style={{ marginRight: "10px" }}>Hủy đơn hàng</Button>
-          <Button variant="primary">Xem chi tiết</Button>
-        </div>
-      </Card>
-    </div>
+    <>
+      <Header />
+      <div style={{ padding: 20 }}>
+        <h2>My Orders</h2>
+        {loading ? <Spin /> : <Table dataSource={orders} columns={columns} rowKey="_id" />}
+        <Modal
+          title="Order Details"
+          visible={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          footer={null}
+        >
+          {selectedOrder && (
+            <div>
+              <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+              <p><strong>Total Amount:</strong> ${selectedOrder.totalAmount}</p>
+              <p><strong>Payment Status:</strong> {selectedOrder.paymentStatus}</p>
+              <p><strong>Order Status:</strong> {selectedOrder.orderStatus}</p>
+            </div>
+          )}
+        </Modal>
+      </div>
+      <Footer />
+    </>
   );
 };
 
-export default MyOrder;
+export default MyOrders;
+
+// import { getOrders, cancelOrder } from '../../../Service/Client/ApiOrder';
