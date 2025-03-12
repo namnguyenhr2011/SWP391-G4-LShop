@@ -10,6 +10,8 @@ const Sidebar = () => {
   const handleMenuClick = (e) => {
     if (e.key === "Productdashboard") {
       navigate("/Productdashboard");
+    } else if (e.key === "viewProduct") {
+      navigate("/viewProduct")
     } else if (e.key === "addProduct") {
       navigate("/addProduct");
     } else if (e.key === "deleteProduct") {
@@ -18,7 +20,7 @@ const Sidebar = () => {
       navigate("/updateproduct");
     } else if (e.key === "updateQuantity") {
       navigate("/updatequantity");
-    } else if("/addCategory") {
+    } else if ("/addCategory") {
       navigate("/addCategory");
     }
   };
@@ -27,6 +29,7 @@ const Sidebar = () => {
     <Sider width={200} style={{ background: "#f8f9fa", padding: "10px" }}>
       <Menu mode="vertical" defaultSelectedKeys={["Productdashboard"]} onClick={handleMenuClick}>
         <Menu.Item key="Productdashboard">Dashboard</Menu.Item>
+        <Menu.Item key="viewProduct">View Product</Menu.Item>
         <Menu.Item key="addProduct">Add Product</Menu.Item>
         <Menu.Item key="deleteProduct">Delete Product</Menu.Item>
         <Menu.Item key="updateProduct">Update Product</Menu.Item>

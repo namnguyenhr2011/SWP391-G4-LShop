@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button, Select, Layout, message } from "antd";
+import { Select, Layout, message, Table, Input } from "antd";
 import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
-import { managerDeleteProduct } from "../../Service/Client/ApiProduct";
-import { getAllCategory } from "../../Service/Client/ApiProduct";
-import { getAllProductBySubCategory } from "../../Service/Client/ApiProduct";
+import { getAllCategory, getAllProductBySubCategory, getAllProduct } from "../../Service/Client/ApiProduct";
 
 const { Content } = Layout;
 const { Option } = Select;
 
-const DeleteProduct = () => {
+const ProductView = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
-  // Lấy danh sách category từ MongoDB
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -30,6 +29,26 @@ const DeleteProduct = () => {
     fetchCategories();
   }, []);
 
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      if (!selectedCategory) {
+        try {
+          const response = await getAllProduct();
+          if (response && response.products) {
+            setProducts(response.products);
+            setFilteredProducts(response.products);
+          } else {
+            setProducts([]);
+          }
+        } catch (error) {
+          message.error("Failed to load products");
+        }
+      }
+    };
+    fetchAllProducts();
+  }, [selectedCategory]);
+
   const handleCategoryChange = (categoryId) => {
     setSelectedCategory(categoryId);
     const category = categories.find((cat) => cat._id === categoryId);
@@ -41,9 +60,10 @@ const DeleteProduct = () => {
   const handleSubCategoryChange = async (subCategoryId) => {
     setSelectedSubCategory(subCategoryId);
     try {
-      const response = await getAllProductBySubCategory(subCategoryId); 
+      const response = await getAllProductBySubCategory(subCategoryId);
       if (response && response.products) {
-        setProducts(response.products); 
+        setProducts(response.products);
+        setFilteredProducts(response.products);
       } else {
         message.error("No products found for this subcategory.");
       }
@@ -52,19 +72,28 @@ const DeleteProduct = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedProduct) {
-      message.error("Please select a product to delete");
-      return;
-    }
-    try {
-      await managerDeleteProduct(selectedProduct);
-      message.success("Product deleted successfully");
-      setProducts(products.filter((p) => p._id !== selectedProduct));
-    } catch (error) {
-      message.error("Failed to delete product");
-    }
+  const handleSearchChange = (e) => {
+    const keyword = e.target.value;
+    setSearchKeyword(keyword);
+
+    const filtered = products.filter((product) =>
+      product.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+    setFilteredProducts(filtered);
   };
+
+  const columns = [
+    {
+      title: "Product Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -80,7 +109,7 @@ const DeleteProduct = () => {
               paddingTop: 80,
             }}
           >
-            <h3>DELETE PRODUCT</h3>
+            <h3>VIEW PRODUCT LIST</h3>
 
             <div className="mb-3">
               <label className="form-label">Category:</label>
@@ -89,6 +118,9 @@ const DeleteProduct = () => {
                 placeholder="Choose category"
                 onChange={handleCategoryChange}
               >
+                <Option key={0} value={null}>
+                  All Products
+                </Option>
                 {categories?.map((category) => (
                   <Option key={category._id} value={category._id}>
                     {category.name}
@@ -114,25 +146,20 @@ const DeleteProduct = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Product Name:</label>
-              <Select
-                style={{ width: "100%" }}
-                placeholder="Choose Product"
-                onChange={(value) => setSelectedProduct(value)}
-                disabled={!selectedSubCategory}
-              >
-                {products?.map((product) => (
-                  <Option key={product._id} value={product._id}>
-                    {product.name}
-                  </Option>
-                ))}
-              </Select>
+              <label className="form-label">Search Product:</label>
+              <Input
+                placeholder="Search by product name"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+              />
             </div>
 
-            {/* Nút Xóa */}
-            <Button type="primary" danger block onClick={handleDelete} disabled={!selectedProduct}>
-              Delete Product
-            </Button>
+            <Table
+              columns={columns}
+              dataSource={filteredProducts}
+              rowKey="_id"
+              pagination={false}
+            />
           </Content>
         </Layout>
       </Layout>
@@ -140,4 +167,4 @@ const DeleteProduct = () => {
   );
 };
 
-export default DeleteProduct;
+export default ProductView;

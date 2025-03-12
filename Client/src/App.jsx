@@ -25,6 +25,7 @@ import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
 import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
+import ViewProduct from "./Screen/ProductManager/ViewProudct"
 
 
 const App = () => {
@@ -53,6 +54,7 @@ const App = () => {
         <Route path="/addCategory" element={<AddCategory />} />
         <Route path="/deleteproduct" element={<DeleteProduct />} />
         <Route path="/updateproduct" element={<UpdateProduct />} />
+        <Route path="/viewproduct" element={<ViewProduct />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
 
