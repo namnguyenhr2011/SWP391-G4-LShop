@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Menu } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { getAllCategory } from "../Service/Client/ApiProduct";
+import { getAllCategory } from "../service/client/ApiProduct";
 
 const SidebarMenuAntd = ({ onClick }) => {
   const isDarkMode = useSelector((state) => state.user.darkMode);

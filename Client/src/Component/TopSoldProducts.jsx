@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Typography } from "antd";
 import { StarOutlined } from "@ant-design/icons";
 import ProductCard from "./ProductCard";
-import { getTopSold } from "../Service/Client/ApiProduct";
+import { getTopSold } from "../service/client/ApiProduct";
 
 const { Title } = Typography;
 

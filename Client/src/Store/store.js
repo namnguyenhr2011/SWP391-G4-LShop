@@ -1,16 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import storageSession from 'redux-persist/lib/storage/session'; // Dùng sessionStorage
-import userReducer from './reducer/userReducer';
-import cartReducer from './reducer/cartReducer';
+import userReducer from './reducer/user-reducer';
+import cartReducer from './reducer/cart-reducer';
 
 const persistConfig = {
     key: 'root',
-<<<<<<< HEAD
     storage: storageSession, // Sử dụng sessionStorage thay vì localStorage
-=======
-    storage,
->>>>>>> duc
 };
 
 const rootReducer = combineReducers({

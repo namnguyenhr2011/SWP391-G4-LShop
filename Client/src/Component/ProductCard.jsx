@@ -1,7 +1,7 @@
 import { Row, Col, Card, Typography, Spin, Button } from "antd";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../Store/reducer/cartReducer";
+import { addToCart } from "../store/reducer/cart-reducer";
 import { toast } from "react-toastify";
 const { Title, Text } = Typography;
 

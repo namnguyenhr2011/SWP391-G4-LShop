@@ -1,23 +1,11 @@
-<<<<<<< HEAD
-
-=======
 import { Container, Row, Col } from "react-bootstrap";
 import { Card, Button } from "antd";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
->>>>>>> duc
 
 const OrderScreen = () => {
   return (
     <div>
-<<<<<<< HEAD
-      
-    </div>
-  )
-}
-
-export default OrderScreen
-=======
       <Header />
       <Container>
         <Row className="justify-content-md-center">
@@ -36,4 +24,3 @@ export default OrderScreen
 
 export default OrderScreen;
 
->>>>>>> duc

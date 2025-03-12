@@ -2,8 +2,8 @@ const userRoute = require('./user.router')
 const productRoute = require('./product.router')
 const categoryRoute = require('./category.router')
 const orderRoute = require('./order.router')
-const paymentRoute = require('../client/payment/payment.router')
-const transactionRoute = require('../client/payment/transactions.router')
+const paymentRoute = require('./payment/payment.router')
+const transactionRoute = require('./payment/transactions.router')
 
 module.exports = (app) => {
     const api = '/api'

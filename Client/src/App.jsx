@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,12 +9,6 @@ import PropTypes from "prop-types";
 import { ConfigProvider } from "antd";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
-=======
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import PropTypes from "prop-types";
-import { ToastContainer } from "react-toastify";
->>>>>>> duc
 import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./Screen/Client/Login";
@@ -35,7 +28,6 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
-<<<<<<< HEAD
 
 import AdminLayout from "./Screen/Admin/AdminLayout";
 import AdminDashboard from "./Screen/Admin/AdminDashboard";
@@ -103,53 +95,6 @@ const App = () => {
         </Routes>
       </Router>
     </ConfigProvider>
-=======
-import AdminScreen from "./Screen/Admin/AdminScreen";
-
-
-import OrderScreen from "./Screen/Client/order/OrderScreen";
-import OrderDetail from "./Screen/Client/order/OrderDetail";
-import OrderHistory from "./Screen/Client/order/OrderHistory";
-
-const App = () => {
-  return (
-    <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot" element={<Forgot />} />
-        <Route path="/verify" element={<VerifyScreen />} />
-        <Route path="/otp/:email" element={<Otp />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
-
-
-        <Route path="/userProfile" element={<UserProfile />} />
-
-
-        <Route path="/cart">
-          <Route index element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="returnQR" element={<ReturnQR />} />
-        </Route>
-
-        <Route path="/order">
-          <Route index element={<OrderScreen />} />
-          <Route path=":id" element={<OrderDetail />} />
-          <Route path="history" element={<OrderHistory />} />
-        </Route>
-
-
-        <Route path="/productManager" element={<ProductManagerScreen />} />
-        <Route path="/admin" element={<AdminScreen />} />
-        <Route path="/sale" element={<SaleScreen />} />
-
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router >
->>>>>>> duc
   );
 };
 
@@ -162,7 +107,6 @@ ProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-<<<<<<< HEAD
 const AdminProtectedRoute = ({ children }) => {
   const user = useSelector((state) => state.user.user);
 
@@ -177,6 +121,4 @@ AdminProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-=======
->>>>>>> duc
 export default App;

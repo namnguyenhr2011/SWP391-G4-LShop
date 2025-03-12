@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Typography } from "antd";
 import { ThunderboltOutlined } from "@ant-design/icons";
 import ProductCard from "./ProductCard";
-import { getTop8 } from "../Service/Client/ApiProduct";
+import { getTop8 } from "../service/client/ApiProduct";
 
 const { Title } = Typography;
 
