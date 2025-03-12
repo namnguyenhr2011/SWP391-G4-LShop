@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllProductBySale, addSalePrice, updateSalePrice, deleteSale } from "../../Service/sale/ApiSale";
+import { addSalePrice, updateSalePrice, deleteSale, getProductWithSaleID } from "../../Service/sale/ApiSale";
 import { Button, Input, Table, Modal, Select, message, Spin, DatePicker, App } from "antd";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -27,8 +27,12 @@ const SaleScreen = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await getAllProductBySale();
-                setProducts(response.products);
+                const response = await getProductWithSaleID();
+                const updatedProducts = response.products.map(product => ({
+                    ...product,
+                    saleId: product.sale?.saleID || null  // Gán saleId nếu có
+                }));
+                setProducts(updatedProducts);
             } catch {
                 message.error("Không thể lấy dữ liệu sản phẩm.");
             } finally {
@@ -46,7 +50,7 @@ const SaleScreen = () => {
 
     const handleOpenModal = (product, isUpdate) => {
         setSelectedProduct(product);
-        setSaleId(product.sale?._id || null); // Lưu saleId nếu có
+        setSaleId(product.sale?.saleID || null);
         setSalePrice(product.sale?.salePrice || "");
         setStartDate(product.sale?.startDate ? new Date(product.sale.startDate) : null);
         setEndDate(product.sale?.endDate ? new Date(product.sale.endDate) : null);
@@ -76,12 +80,16 @@ const SaleScreen = () => {
     };
 
     const handleSubmit = async () => {
-        if (!salePrice || isNaN(salePrice)) {
+        if (!salePrice || isNaN(salePrice) || salePrice <= 0) {
             message.warning("Vui lòng nhập giá hợp lệ.");
             return;
         }
         if (!startDate || !endDate) {
             message.warning("Vui lòng chọn ngày bắt đầu và kết thúc.");
+            return;
+        }
+        if (startDate > endDate) {
+            message.warning("Ngày bắt đầu phải trước ngày kết thúc.");
             return;
         }
 
@@ -99,28 +107,30 @@ const SaleScreen = () => {
                 endDate: endDate.toISOString(),
                 discountType,
             };
-            console.log("Data gửi lên server:", saleData);
-
             let response;
             if (isUpdating) {
                 if (!saleId) {
                     message.error("Không tìm thấy sale để cập nhật.");
                     return;
                 }
-                response = await updateSalePrice(saleId, saleData); // Truyền saleId qua URL
+                response = await updateSalePrice(saleId, saleData);
             } else {
                 response = await addSalePrice(saleData);
             }
 
             if (response.message) {
                 message.success(response.message);
-                const updatedProducts = await getAllProductBySale();
+                const updatedProducts = await getProductWithSaleID();
                 setProducts(updatedProducts.products);
+                setModalVisible(false);
+                setSalePrice("");
+                setStartDate(null);
+                setEndDate(null);
+                setDiscountType("fixed");
+                setSaleId(null);
             } else {
                 message.error("Lỗi không xác định từ API.");
             }
-
-            setModalVisible(false);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message;
             message.error("Có lỗi xảy ra: " + errorMessage);
@@ -132,19 +142,24 @@ const SaleScreen = () => {
             message.error("Không tìm thấy sale để xóa.");
             return;
         }
-    
         try {
             const response = await deleteSale(saleId);
             if (response.message) {
                 message.success(response.message);
-                const updatedProducts = await getAllProductBySale();
-                setProducts(updatedProducts.products);
+                setProducts(prevProducts =>
+                    prevProducts.map(product =>
+                        product.sale?.saleID === saleId
+                            ? { ...product, sale: null, saleId: null } // Xóa thông tin sale
+                            : product
+                    )
+                );
             } else {
                 message.error("Lỗi không xác định từ API.");
             }
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message;
             message.error("Có lỗi xảy ra: " + errorMessage);
+            console.error("Chi tiết lỗi:", error.response?.data || error);
         }
     };
 
@@ -166,7 +181,12 @@ const SaleScreen = () => {
                     <Button type="primary" onClick={() => handleOpenModal(record, true)} disabled={!record.sale}>
                         Cập nhật giá sale
                     </Button>
-                    <Button type="primary" danger onClick={() => handleDelete(record.sale?._id)} disabled={!record.sale}>
+                    <Button
+                        type="primary"
+                        danger
+                        onClick={() => handleDelete(record.sale?.saleID)}
+                        disabled={!record.sale}
+                    >
                         Xóa sale
                     </Button>
                 </div>

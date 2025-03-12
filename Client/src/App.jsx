@@ -33,6 +33,7 @@ import AdminLayout from "./Screen/Admin/AdminLayout";
 import AdminDashboard from "./Screen/Admin/AdminDashboard";
 import UserManagement from "./Screen/Admin/UserManagement";
 import SaleManagement from "./Screen/Admin/SaleManagement";
+import ProductDetail from "./Screen/ProductManager/sale/productDetail"; 
 
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
@@ -75,6 +76,7 @@ const App = () => {
           </Route>
 
           <Route path="/productManager" element={<ProductManagerScreen />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
 
           <Route
             path="/admin/*"

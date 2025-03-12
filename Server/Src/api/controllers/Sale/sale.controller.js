@@ -26,13 +26,14 @@ module.exports.getAllProductsWithSale = async (req, res) => {
             .sort({ createdAt: -1 });
 
         const activeSales = await Sale.find({
-            productId: { $in: products.map(product => product._id) }, // Dùng mảng _id để tìm kiếm
+            productId: { $in: products.map(product => product._id) },
         });
 
         const salesMap = {};
         activeSales.forEach(sale => {
 
             salesMap[sale.productId.toString()] = {
+                saleID: sale._id,
                 isSale: sale.isSale,
                 discount: sale.salePrice,
                 discountType: sale.discountType,
@@ -55,7 +56,7 @@ module.exports.getAllProductsWithSale = async (req, res) => {
             totalPage: paginationData.totalPage
         });
     } catch (error) {
-        console.error('Error in getAllProductsWithSale:', error);
+        console.error('Error in getAllProductsWithSaleId:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -130,6 +131,7 @@ module.exports.addSalePrice = async (req, res) => {
 };
 
 
+
 module.exports.updateSalePrice = async (req, res) => {
     try {
         const { saleId } = req.params; // Lấy saleId từ param
@@ -158,7 +160,7 @@ module.exports.updateSalePrice = async (req, res) => {
         }
 
         // Kiểm tra sale có tồn tại không
-        const existingSale = await Sale.findOne({ _id: saleId, productId });
+        const existingSale = await Sale.findOne({ _id: saleId, productId: productId });
         if (!existingSale) {
             return res.status(404).json({ message: 'Sale not found for this product' });
         }
@@ -253,3 +255,61 @@ module.exports.deleteSale = async (req, res) => {
         res.status(500).json({ message: 'Error deleting sale: ' + error.message });
     }
 };
+
+
+module.exports.getAllProductsWithSaleID = async (req, res) => {
+    try {
+        const totalProducts = await Product.countDocuments({ deleted: false });
+        if (totalProducts === 0) {
+            return res.status(404).json({ message: 'No products found.' });
+        }
+
+        const paginationData = await PaginationHelper({
+            currentPage: req.query.page || 1,
+            limit: req.query.limit || 12,
+        },
+            totalProducts,
+            req.query
+        );
+
+        const products = await Product.find({ deleted: false })
+            .skip(paginationData.skip)
+            .limit(paginationData.limit)
+            .sort({ createdAt: -1 });
+
+        const activeSales = await Sale.find({
+            productId: { $in: products.map(product => product._id) },
+        });
+
+        const salesMap = {};
+        activeSales.forEach(sale => {
+
+            salesMap[sale.productId.toString()] = {
+                saleID: sale._id,
+                isSale: sale.isSale,
+                discount: sale.salePrice,
+                discountType: sale.discountType,
+                startDate: sale.startDate,
+                endDate: sale.endDate,
+                salePrice: sale.salePrice,
+            };
+        });
+
+        // Add sale information to each product
+        const productsWithSales = products.map(product => {
+            const productObj = product.toObject();
+            // Assign sale information to product if exists
+            productObj.sale = salesMap[product._id.toString()] || null;
+            return productObj;
+        });
+
+        res.status(200).json({
+            products: productsWithSales,
+            totalPage: paginationData.totalPage
+        });
+    } catch (error) {
+        console.error('Error in getAllProductsWithSaleId:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
