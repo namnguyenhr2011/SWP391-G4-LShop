@@ -34,8 +34,6 @@ yarn-error.*
 server/.env
 .env
 
-# typescript
-*.tsbuildinfo
-*.json
+default.json
 
 app-example
