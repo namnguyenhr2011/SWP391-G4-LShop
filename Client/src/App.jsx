@@ -27,7 +27,11 @@ import Checkout from "./Screen/Client/cart/checkout";
 import ReturnQR from "./Screen/Client/cart/ReturnQR";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
+
+//salesale
 import SaleScreen from "./Screen/Sale/SaleScreen";
+import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
+import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
 
 import AdminLayout from "./Screen/Admin/AdminLayout";
 import AdminDashboard from "./Screen/Admin/AdminDashboard";
@@ -92,6 +96,8 @@ const App = () => {
             <Route path="manage-feedback" element={<FeedbackManagement />} />
           </Route>
           <Route path="/sale" element={<SaleScreen />} />
+          <Route path="/sale/add" element={<AddSaleScreen />} />
+          <Route path="/sale/update" element={<UpdateSaleScreen />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
