@@ -110,6 +110,10 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                 style={{
                   marginBottom: "8px",
                   color: themeStyles.textColor,
+                  whiteSpace: "nowrap", // Giữ tiêu đề trên 1 dòng
+                  overflow: "hidden", // Ẩn phần nội dung vượt quá
+                  textOverflow: "ellipsis", // Thêm dấu ba chấm khi nội dung bị cắt
+                  maxWidth: "100%", // Giới hạn chiều rộng tối đa của tiêu đề
                 }}
               >
                 {product.name}
