@@ -49,3 +49,27 @@ export const changeStatus = async (userId, status) => {
   }
 };
 
+
+export const getAllOrder = async () => {
+  try {
+    const response = await axios.get("/admin/getAllOrder", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch orders");
+  }
+};
+
+export const assignSalerToOrder = async (orderId, salerId) => {
+  try {
+    const response = await axios.post(
+      '/admin/assignSalerToOrder',
+      { orderId, salerId },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to assign saler to order');
+  }
+};

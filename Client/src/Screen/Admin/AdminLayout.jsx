@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { doLogout, doDarkMode } from "../../Store/reducer/userReducer";
+import { doLogout, doDarkMode } from "../../store/reducer/user-reducer";
 
 const { Header, Sider, Content } = Layout;
 
@@ -54,9 +54,19 @@ const AdminLayout = () => {
       label: <Link to="/admin/manage-user">Manage Users</Link>,
     },
     {
-      key: "/admin/manage-sale",
+      key: "",
       icon: <ShopOutlined />,
-      label: <Link to="/admin/manage-sale">Manage Sales</Link>,
+      label: "Manage Sales",
+      children: [
+        {
+          key: "/admin/saler-list",
+          label: <Link to="/admin/saler-list">Saler List</Link>,
+        },
+        {
+          key: "/admin/order-list",
+          label: <Link to="/admin/order-list">Order List</Link>,
+        },
+      ],
     },
     {
       key: "/admin/manage-feedback",

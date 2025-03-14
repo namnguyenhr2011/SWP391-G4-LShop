@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { forgotPassword as userForgot } from "../../Service/Client/ApiServices";
+import { forgotPassword as userForgot } from "../../service/client/ApiServices";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";

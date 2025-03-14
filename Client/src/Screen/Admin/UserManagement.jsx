@@ -5,7 +5,7 @@ import {
   deleteUser,
   changeRole,
   changeStatus,
-} from "../../Service/Admin/AdminServices";
+} from "../../service/admin/AdminServices";
 
 const { Option } = Select;
 const { confirm } = Modal;

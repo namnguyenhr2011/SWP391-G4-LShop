@@ -1,6 +1,6 @@
 import { Table, Button, Popconfirm, message } from "antd";
 import { useState, useEffect } from "react";
-import { getAllUser } from "../../Service/Admin/AdminServices";
+import { getAllUser } from "../../service/admin/AdminServices";
 
 const SaleManagement = () => {
   const [sales, setSales] = useState([]);
@@ -63,20 +63,6 @@ const SaleManagement = () => {
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Popconfirm
-          title="Sure to delete?"
-          onConfirm={() => handleDelete(record.key)}
-        >
-          <Button type="primary" danger>
-            Delete
-          </Button>
-        </Popconfirm>
       ),
     },
   ];

@@ -29,11 +29,11 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 
-import AdminLayout from "./Screen/Admin/AdminLayout";
-import AdminDashboard from "./Screen/Admin/AdminDashboard";
-import UserManagement from "./Screen/Admin/UserManagement";
-import SaleManagement from "./Screen/Admin/SaleManagement";
-
+import AdminLayout from "./screen/admin/AdminLayout";
+import AdminDashboard from "./screen/admin/AdminDashboard";
+import UserManagement from "./screen/admin/UserManagement";
+import SaleManagement from "./screen/admin/SaleManagement";
+import OrderManagement from "./screen/admin/OrderManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
 const App = () => {
@@ -86,9 +86,11 @@ const App = () => {
           >
             <Route index element={<AdminDashboard />} />
             <Route path="manage-user" element={<UserManagement />} />
-            <Route path="manage-sale" element={<SaleManagement />} />
+            <Route path="saler-list" element={<SaleManagement />} />
+            <Route path="order-list" element={<OrderManagement />} />
             <Route path="manage-feedback" element={<FeedbackManagement />} />
           </Route>
+
           <Route path="/sale" element={<SaleScreen />} />
 
           <Route path="*" element={<NotFound />} />
