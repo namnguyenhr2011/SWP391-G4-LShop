@@ -1,5 +1,6 @@
-import { Layout, Typography, Row, Col, Carousel, Divider } from "antd";
+import { Layout, Typography, Row, Col, Carousel, Divider, Button } from "antd"; // Thêm Button vào import
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate để điều hướng
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
 import SidebarMenuAntd from "../Component/SidebarMenu";
@@ -12,12 +13,18 @@ const { Title, Text } = Typography;
 
 const Home = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
+  const navigate = useNavigate(); // Khởi tạo useNavigate
+
+  // Hàm xử lý khi click nút View More
+  const handleViewMore = () => {
+    navigate("/all-products"); // Điều hướng đến trang all-products
+  };
 
   return (
     <Layout
       style={{
         minHeight: "100vh",
-        backgroundColor: isDarkMode ? "#21252b" : "#f4f6f9", // Thay #0d1117 bằng #21252b
+        backgroundColor: isDarkMode ? "#21252b" : "#f4f6f9",
         color: isDarkMode ? "#e6edf3" : "#1c1e21",
         transition: "all 0.3s ease",
       }}
@@ -28,8 +35,8 @@ const Home = () => {
           padding: "60px 20px",
           maxWidth: "1200px",
           margin: "auto",
-          backgroundColor: isDarkMode ? "rgba(33, 37, 43, 0.9)" : "#fff", // Nền mờ nhẹ trong dark mode
-          borderRadius: isDarkMode ? "10px" : "0", // Bo góc trong dark mode
+          backgroundColor: isDarkMode ? "rgba(33, 37, 43, 0.9)" : "#fff",
+          borderRadius: isDarkMode ? "10px" : "0",
           boxShadow: isDarkMode ? "0 4px 12px rgba(0, 0, 0, 0.3)" : "none",
         }}
       >
@@ -46,7 +53,7 @@ const Home = () => {
                 borderRadius: "10px",
                 overflow: "hidden",
                 height: "500px",
-                position: "relative", // Thêm để overlay hoạt động
+                position: "relative",
               }}
             >
               <div
@@ -54,7 +61,7 @@ const Home = () => {
                   position: "relative",
                   backgroundColor: isDarkMode
                     ? "rgba(0, 0, 0, 0.3)"
-                    : "transparent", // Overlay mờ trong dark mode
+                    : "transparent",
                 }}
               >
                 <img
@@ -114,6 +121,37 @@ const Home = () => {
         />
 
         <SaleProducts isDarkMode={isDarkMode} />
+
+        {/* Thêm nút View More phía trên Footer */}
+        <div style={{ textAlign: "center", margin: "40px 0" }}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleViewMore}
+            style={{
+              backgroundColor: isDarkMode ? "#4096ff" : "#1890ff",
+              borderColor: isDarkMode ? "#4096ff" : "#1890ff",
+              color: "#fff",
+              borderRadius: "5px",
+              padding: "0 30px",
+              height: "40px",
+              fontWeight: "500",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = isDarkMode
+                ? "#58a6ff"
+                : "#40a9ff")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = isDarkMode
+                ? "#4096ff"
+                : "#1890ff")
+            }
+          >
+            View More
+          </Button>
+        </div>
       </Content>
       <Footer />
     </Layout>

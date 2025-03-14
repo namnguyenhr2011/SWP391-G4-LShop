@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./Screen/Client/Login";
 import Register from "./Screen/Client/Register";
 import Forgot from "./Screen/Client/Forgot";
-import Home from "./Screen/Home";
+import Home from "./screen/Home";
 import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
@@ -29,18 +29,17 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 
 //salesale
-import SaleScreen from "./Screen/Sale/SaleScreen";
+import SaleScreen from "./screen/sale/SaleScreen";
 import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
 import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
-
 
 import AdminLayout from "./Screen/Admin/AdminLayout";
 import AdminDashboard from "./Screen/Admin/AdminDashboard";
 import UserManagement from "./Screen/Admin/UserManagement";
 import SaleManagement from "./Screen/Admin/SaleManagement";
-import ProductDetail from "./Screen/ProductManager/sale/productDetail"; 
+import ProductDetail from "./Screen/ProductManager/sale/productDetail";
 import ProductList from "./Screen/ProductManager/sale/productList";
-
+import ProductListScreen from "./screen/client/product/ProductListScreen";
 
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
@@ -67,24 +66,21 @@ const App = () => {
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/all-products" element={<ProductListScreen />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot" element={<Forgot />} />
           <Route path="/verify" element={<VerifyScreen />} />
           <Route path="/otp/:email" element={<Otp />} />
           <Route path="/resetpassword" element={<ResetPassword />} />
-
           <Route path="/userProfile" element={<UserProfile />} />
-
           <Route path="/cart">
             <Route index element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="returnQR" element={<ReturnQR />} />
           </Route>
-
           <Route path="/productManager" element={<ProductManagerScreen />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-
           <Route
             path="/admin/*"
             element={
@@ -98,13 +94,14 @@ const App = () => {
             <Route path="manage-sale" element={<SaleManagement />} />
             <Route path="manage-feedback" element={<FeedbackManagement />} />
           </Route>
-
           //sale
           <Route path="/sale" element={<SaleScreen />} />
           <Route path="/sale/add" element={<AddSaleScreen />} />
           <Route path="/sale/update" element={<UpdateSaleScreen />} />
-          <Route path="/product-list/:subcategoryId" element={<ProductList />} />
-
+          <Route
+            path="/product-list/:subcategoryId"
+            element={<ProductList />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
