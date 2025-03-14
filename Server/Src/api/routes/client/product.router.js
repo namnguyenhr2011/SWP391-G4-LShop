@@ -6,7 +6,7 @@ const controller = require('../../controllers/client/product.controller')
 const saleController = require('../../controllers/Sale/sale.controller')
 
 routes.get('/getAllProduct', controller.getAllProducts)
-routes.get('/getProductBySubCategory/:subcategoryId', controller.getProductBySubCategory)
+routes.put('/getProductBySubCategory/:subcategoryId', controller.getProductBySubCategory)
 
 routes.get('/getProductById/:id', controller.getProductById)
 //Get top 8 product with most rating

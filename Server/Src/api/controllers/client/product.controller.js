@@ -320,13 +320,24 @@ module.exports.getProductByCategory = async (req, res) => {
 module.exports.getProductBySubCategory = async (req, res) => {
     try {
         const { subcategoryId } = req.params;
+        const { page } = req.body;
         const subcategoryDoc = await SubCategory.findOne({ _id: subcategoryId });
 
         if (!subcategoryDoc) {
-            return res.status(400).json({ code: 400, message: 'Please provide a subcategory.' })
+            return res.status(400).json({ code: 400, message: 'Please provide a valid subcategory.' });
         }
 
-        const products = await Product.find({ subCategory: subcategoryDoc._id, deleted: false }).populate('subCategory', 'name');
+        const totalProducts = await Product.countDocuments({ subCategory: subcategoryDoc._id, deleted: false });
+
+        const paginationData = {
+            currentPage: page ? parseInt(page) : 1,
+            limit: 12,
+        };
+
+        const products = await Product.find({ subCategory: subcategoryDoc._id, deleted: false })
+            .populate('subCategory', 'name')
+            .skip((paginationData.currentPage - 1) * paginationData.limit)
+            .limit(paginationData.limit);
 
         if (products.length === 0) {
             return res.status(404).json({ message: `No products found under SubCategory: ${subcategoryId}` });
@@ -334,10 +345,11 @@ module.exports.getProductBySubCategory = async (req, res) => {
 
         res.status(200).json({
             products,
+            pagination: paginationData,
             message: `Products under SubCategory: ${subcategoryId}`
-        })
+        });
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json({ message: 'Internal server error', error });
     }
 }
 

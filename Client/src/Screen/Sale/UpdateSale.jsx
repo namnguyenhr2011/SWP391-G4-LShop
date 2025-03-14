@@ -23,7 +23,7 @@ const UpdateSaleScreen = () => {
 
   useEffect(() => {
     if (!product || !product.sale) {
-      message.error("Không tìm thấy thông tin sale để cập nhật.");
+      message.error("No sale information found to update.");
       navigate("/sale");
     }
   }, [product, navigate]);
@@ -50,22 +50,22 @@ const UpdateSaleScreen = () => {
 
   const handleSubmit = async () => {
     if (!salePrice || isNaN(salePrice) || salePrice <= 0) {
-      message.warning("Vui lòng nhập giá hợp lệ.");
+      message.warning("Please enter a valid price.");
       return;
     }
     if (!startDate || !endDate) {
-      message.warning("Vui lòng chọn ngày bắt đầu và kết thúc.");
+      message.warning("Please select start and end dates.");
       return;
     }
     if (startDate > endDate) {
-      message.warning("Ngày bắt đầu phải trước ngày kết thúc.");
+      message.warning("Start date must be before end date.");
       return;
     }
 
     try {
       const priceValue = parseInt(salePrice, 10);
       if (discountType === "percentage" && (priceValue <= 0 || priceValue > 100)) {
-        message.warning("Phần trăm giảm giá phải từ 1 đến 100.");
+        message.warning("Discount percentage must be between 1 and 100.");
         return;
       }
 
@@ -78,7 +78,7 @@ const UpdateSaleScreen = () => {
       };
 
       if (!saleId) {
-        message.error("Không tìm thấy sale để cập nhật.");
+        message.error("No sale found to update.");
         return;
       }
 
@@ -87,11 +87,11 @@ const UpdateSaleScreen = () => {
         message.success(response.message);
         navigate("/sale");
       } else {
-        message.error("Lỗi không xác định từ API.");
+        message.error("An unknown error occurred from the API.");
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
-      message.error("Có lỗi xảy ra: " + errorMessage);
+      message.error("An error occurred: " + errorMessage);
     }
   };
 
@@ -99,12 +99,12 @@ const UpdateSaleScreen = () => {
     <Container
       className="mt-5 p-5"
       style={{
-        background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)", // Gradient xanh đậm sang xanh nhạt
+        background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)",
         borderRadius: "20px",
-        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)", // Bóng đổ mềm mại
+        boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)",
         color: "#ffffff",
-        maxWidth: "600px", // Giới hạn chiều rộng
-        margin: "0 auto", // Căn giữa
+        maxWidth: "600px",
+        margin: "0 auto",
       }}
     >
       <Row className="mb-4">
@@ -114,11 +114,11 @@ const UpdateSaleScreen = () => {
             style={{
               fontSize: "2rem",
               fontWeight: "700",
-              color: "#ffd700", // Vàng nhạt cho tiêu đề
-              textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)", // Bóng chữ nhẹ
+              color: "#ffd700",
+              textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)",
             }}
           >
-            Cập nhật Giá Sale
+            Update Sale Price
           </h2>
         </Col>
       </Row>
@@ -126,9 +126,9 @@ const UpdateSaleScreen = () => {
         <Col>
           <p
             className="fw-bold mb-2"
-            style={{ color: "#e0e0e0", fontSize: "1.1rem" }} // Xám nhạt cho nhãn
+            style={{ color: "#e0e0e0", fontSize: "1.1rem" }}
           >
-            Tên sản phẩm:
+            Product Name:
           </p>
           <Input
             value={product?.name || ""}
@@ -148,13 +148,13 @@ const UpdateSaleScreen = () => {
             className="fw-bold mb-2"
             style={{ color: "#e0e0e0", fontSize: "1.1rem" }}
           >
-            Nhập giá sale mới:
+            Enter New Sale Price:
           </p>
           <Input
             type="number"
             value={salePrice}
             onChange={(e) => setSalePrice(e.target.value)}
-            placeholder="Nhập giá sale"
+            placeholder="Enter sale price"
             style={{
               marginBottom: "1.5rem",
               borderRadius: "10px",
@@ -169,7 +169,7 @@ const UpdateSaleScreen = () => {
             className="fw-bold mb-2"
             style={{ color: "#e0e0e0", fontSize: "1.1rem" }}
           >
-            Loại giảm giá:
+            Discount Type:
           </p>
           <Select
             value={discountType}
@@ -180,24 +180,24 @@ const UpdateSaleScreen = () => {
               borderRadius: "10px",
             }}
           >
-            <Option value="fixed">Giá cố định</Option>
-            <Option value="percentage">Phần trăm</Option>
+            <Option value="fixed">Fixed Price</Option>
+            <Option value="percentage">Percentage</Option>
           </Select>
           <p
             className="fw-bold mb-2"
             style={{ color: "#e0e0e0", fontSize: "1.1rem" }}
           >
-            Ngày bắt đầu:
+            Start Date:
           </p>
           {startDate && (
             <p
               style={{
-                color: "#b0c4de", // Xanh nhạt cho ngày đã chọn
+                color: "#b0c4de",
                 marginBottom: "0.5rem",
                 fontStyle: "italic",
               }}
             >
-              Đã chọn: {startDate.toLocaleString()}
+              Selected: {startDate.toLocaleString()}
             </p>
           )}
           <DatePicker
@@ -216,7 +216,7 @@ const UpdateSaleScreen = () => {
             className="fw-bold mb-2"
             style={{ color: "#e0e0e0", fontSize: "1.1rem" }}
           >
-            Ngày kết thúc:
+            End Date:
           </p>
           {endDate && (
             <p
@@ -226,7 +226,7 @@ const UpdateSaleScreen = () => {
                 fontStyle: "italic",
               }}
             >
-              Đã chọn: {endDate.toLocaleString()}
+              Selected: {endDate.toLocaleString()}
             </p>
           )}
           <DatePicker
@@ -251,17 +251,17 @@ const UpdateSaleScreen = () => {
             onClick={handleSubmit}
             style={{
               borderRadius: "10px",
-              backgroundColor: "#007bff", // Xanh dương cho nút "Cập nhật"
+              backgroundColor: "#007bff",
               borderColor: "#007bff",
               padding: "0.5rem 2rem",
               fontWeight: "600",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
               transition: "all 0.3s",
             }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")} // Hover effect
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
           >
-            Cập nhật
+            Update
           </Button>
         </Col>
         <Col xs="auto">
@@ -271,7 +271,7 @@ const UpdateSaleScreen = () => {
             onClick={() => navigate("/sale")}
             style={{
               borderRadius: "10px",
-              backgroundColor: "#dc3545", // Đỏ cho nút "Hủy"
+              backgroundColor: "#dc3545",
               borderColor: "#dc3545",
               color: "#ffffff",
               padding: "0.5rem 2rem",
@@ -279,10 +279,10 @@ const UpdateSaleScreen = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
               transition: "all 0.3s",
             }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#c82333")} // Hover effect
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#c82333")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#dc3545")}
           >
-            Hủy
+            Cancel
           </Button>
         </Col>
       </Row>
