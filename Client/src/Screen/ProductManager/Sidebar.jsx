@@ -18,8 +18,6 @@ const Sidebar = () => {
       navigate("/deleteproduct");
     } else if (e.key === "updateProduct") {
       navigate("/updateproduct");
-    } else if (e.key === "updateQuantity") {
-      navigate("/updatequantity");
     } else if ("/addCategory") {
       navigate("/addCategory");
     }
@@ -33,7 +31,6 @@ const Sidebar = () => {
         <Menu.Item key="addProduct">Add Product</Menu.Item>
         <Menu.Item key="deleteProduct">Delete Product</Menu.Item>
         <Menu.Item key="updateProduct">Update Product</Menu.Item>
-        <Menu.Item key="updateQuantity">Update Quantity</Menu.Item>
         <Menu.Item key="addCategory">Add Category</Menu.Item>
       </Menu>
     </Sider>

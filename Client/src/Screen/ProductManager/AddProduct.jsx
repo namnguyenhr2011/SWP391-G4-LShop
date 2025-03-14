@@ -80,7 +80,7 @@ const AddProduct = () => {
             setSelectedSubCategory(null);
             setSubCategories([]);
 
-            navigate("/Productdashboard"); // Chuyển hướng về trang Dashboard
+            navigate("/Productdashboard"); 
         } catch (error) {
             message.error("Failed to add product!");
             console.error("Error:", error);

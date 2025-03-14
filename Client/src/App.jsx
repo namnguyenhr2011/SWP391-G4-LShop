@@ -26,7 +26,7 @@ import AdminScreen from "./Screen/Admin/AdminScreen";
 import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
 import ViewProduct from "./Screen/ProductManager/ViewProudct"
-
+import ProductDetail from "./Screen/ProductManager/sale/productDetail"; 
 
 const App = () => {
   return (
@@ -57,7 +57,7 @@ const App = () => {
         <Route path="/viewproduct" element={<ViewProduct />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
-
+        <Route path="/product/:id" element={<ProductDetail />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

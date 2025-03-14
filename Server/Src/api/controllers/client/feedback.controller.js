@@ -1,0 +1,38 @@
+    const Feedback = require("../../models/feedback");
+    const User = require('../../models/user');
+    module.exports.addFeedback = async (req, res) => {
+        try {
+            const { productId, rating, comment } = req.body;
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+
+
+            if (!token) {
+                return res.status(401).json({ message: 'Token is missing or invalid!' });
+            }
+
+            const user = await User.findOne({ token });
+            if (!user) {
+                return res.status(401).json({ message: 'User not found!' });
+            }
+            const userId = user._id;
+
+            const newFeedback = await Feedback.create({ userId, productId, rating, comment });
+            res.status(200).json({ success: true, feedback: newFeedback });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    }
+
+    module.exports.getFeedback = async (req, res) => {
+        try {
+            const { productId } = req.params;
+            // Populate 'userId' để lấy thông tin userName từ User model
+            const feedback = await Feedback.find({ productId: productId })
+                .populate('userId', 'userName'); // Lấy chỉ userName từ User model
+            res.status(200).json({ success: true, feedback });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    }
+    

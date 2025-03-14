@@ -121,3 +121,8 @@ export const uploadImage = async (id, base64Image) => {
         throw error;
     }
 };
+
+export const getAllProductsWithSale = async () => {
+    const response = await axios.get(`product/getAllProductsWithSale`, { withCredentials: true });
+    return response.data;
+};
