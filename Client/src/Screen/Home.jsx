@@ -121,37 +121,6 @@ const Home = () => {
         />
 
         <SaleProducts isDarkMode={isDarkMode} />
-
-        {/* Thêm nút View More phía trên Footer */}
-        <div style={{ textAlign: "center", margin: "40px 0" }}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={handleViewMore}
-            style={{
-              backgroundColor: isDarkMode ? "#4096ff" : "#1890ff",
-              borderColor: isDarkMode ? "#4096ff" : "#1890ff",
-              color: "#fff",
-              borderRadius: "5px",
-              padding: "0 30px",
-              height: "40px",
-              fontWeight: "500",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = isDarkMode
-                ? "#58a6ff"
-                : "#40a9ff")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = isDarkMode
-                ? "#4096ff"
-                : "#1890ff")
-            }
-          >
-            View More
-          </Button>
-        </div>
       </Content>
       <Footer />
     </Layout>

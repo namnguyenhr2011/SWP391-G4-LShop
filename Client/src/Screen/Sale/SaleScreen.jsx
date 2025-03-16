@@ -8,7 +8,7 @@ import { doLogout } from "../../Store/reducer/userReducer";
 
 const { Option } = Select;
 
-// Header Component (Giữ nguyên)
+// Header Component
 const Header = ({ onLogout }) => (
   <Navbar
     expand="lg"
@@ -53,7 +53,7 @@ const Header = ({ onLogout }) => (
   </Navbar>
 );
 
-// Sidebar Component (Giữ nguyên)
+// Sidebar Component 
 const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
   <div
     style={{
@@ -63,12 +63,12 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
       boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
       color: "#ffffff",
       height: "calc(90vh - 50px)",
-      minWidth: "250px", // Đảm bảo chiều rộng cố định
-      maxWidth: "250px", // Giữ cố định chiều rộng
+      minWidth: "250px",
+      maxWidth: "250px", 
       overflowY: "auto",
-      overflowX: "hidden", // Chặn kéo ngang
+      overflowX: "hidden", 
       position: "sticky",
-      top: "50px", // Giữ cố định khi cuộn
+      top: "50px", 
     }}
   >
     <h4
@@ -78,7 +78,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
         fontSize: "1.4rem",
         marginBottom: "1.5rem",
         textAlign: "center",
-        whiteSpace: "nowrap", // Ngăn tiêu đề bị xuống dòng
+        whiteSpace: "nowrap",
       }}
     >
       Navigation
@@ -94,7 +94,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
           backgroundColor: !activeView ? "#28a745" : "transparent",
           marginBottom: "1rem",
           transition: "all 0.3s",
-          textAlign: "center", // Căn giữa nội dung
+          textAlign: "center",
         }}
         onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
         onMouseOut={(e) =>
@@ -103,7 +103,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
             : "transparent")
         }
       >
-        View Sale Price
+        Sale Management
       </Nav.Link>
       <Nav.Link
         onClick={onViewOrder}
@@ -123,7 +123,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
             : "transparent")
         }
       >
-        View Order
+        Order Management
       </Nav.Link>
     </Nav>
   </div>
@@ -145,10 +145,10 @@ const MainContent = ({
       background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
       borderRadius: "15px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      height: "calc(90vh - 50px)", // Thay đổi minHeight thành height để cố định
+      height: "calc(90vh - 50px)", 
       display: "flex",
       flexDirection: "column",
-      overflowY: "auto", // Thêm scroll dọc khi nội dung vượt quá chiều cao
+      overflowY: "auto",
     }}
   >
     {showOrderDescription ? (
@@ -192,7 +192,7 @@ const MainContent = ({
               onChange={onSortChange}
               style={{ width: "100%", fontSize: "1.1rem" }}
             >
-              <Option value="default">Default Sort</Option>
+              <Option value="default">Default</Option>
               <Option value="desc">Price: High to Low</Option>
               <Option value="asc">Price: Low to High</Option>
             </Select>
