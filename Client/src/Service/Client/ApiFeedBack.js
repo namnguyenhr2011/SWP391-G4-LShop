@@ -2,7 +2,6 @@ import axios from "../../utils/CustomizeApi";  // Đảm bảo axios được c�
 
 export const addFeedback = async (feedbackData) => {
   try {
-    // Sửa lại URL cho đúng với API backend
     const response = await axios.post(`feedback/addFeedback`, feedbackData);
     return response.data;
   } catch (error) {
@@ -20,3 +19,15 @@ export const getFeedbackByProductId = async (productId) => {
     throw new Error("Unable to get feedback by product ID.");
   }
 };
+
+export const deleteFeedback = async (feedbackId) => {
+  try {
+    const response = await axios.delete(`feedback/deleteFeedback/${feedbackId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting feedback:", error);
+    throw new Error("Unable to delete feedback.");
+  }
+};
+
+

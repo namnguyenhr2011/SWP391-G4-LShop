@@ -15,14 +15,14 @@ import {
     Tabs,
 } from "antd";
 import { getProductById } from "../../../Service/Client/ApiProduct";
-import { addFeedback, getFeedbackByProductId } from "../../../Service/Client/ApiFeedBack";
+import { addFeedback, getFeedbackByProductId, deleteFeedback } from "../../../Service/Client/ApiFeedBack";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-
+import { DeleteOutlined } from "@ant-design/icons";
+import { useDispatch ,useSelector } from "react-redux";
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-const { TabPane } = Tabs;
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -32,6 +32,8 @@ const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [feedbacks, setFeedbacks] = useState([]);
     const [form] = Form.useForm();
+    const { _id: userId } = useSelector((state) => state.user?.user) || {};
+
 
     useEffect(() => {
         fetchProductAndFeedbacks();
@@ -40,7 +42,7 @@ const ProductDetail = () => {
     const fetchProductAndFeedbacks = async () => {
         try {
             const productResponse = await getProductById(id);
-            console.log(productResponse); // Kiểm tra phản hồi sản phẩm
+            console.log(productResponse);
             if (productResponse?.product) {
                 setProduct(productResponse.product);
                 setSelectedImage(productResponse.product.image || "");
@@ -49,7 +51,7 @@ const ProductDetail = () => {
             }
 
             const feedbackResponse = await getFeedbackByProductId(id);
-            console.log(feedbackResponse); // Kiểm tra phản hồi phản hồi
+            console.log(feedbackResponse);
             if (feedbackResponse?.feedback) {
                 setFeedbacks(feedbackResponse.feedback);
             }
@@ -68,21 +70,25 @@ const ProductDetail = () => {
         }
 
         const feedbackData = {
-            productId: id,
+            productId: product?._id,
             rating: Number(values.rating),
             comment: values.comment.trim(),
         };
 
         try {
+            console.log("Dữ liệu gửi đi:", feedbackData);
             const response = await addFeedback(feedbackData);
+            console.log("Phản hồi API:", response);
+
             if (response && response.success) {
                 message.success("Đánh giá của bạn đã được gửi!");
                 form.resetFields();
-                fetchProductAndFeedbacks();  // Cập nhật lại feedbacks sau khi gửi
+                fetchProductAndFeedbacks();
             } else {
                 message.error("Có lỗi xảy ra, vui lòng thử lại.");
             }
         } catch (err) {
+            console.error("Lỗi khi gửi đánh giá:", err);
             message.error("Có lỗi khi gửi đánh giá!");
         }
     };
@@ -94,6 +100,17 @@ const ProductDetail = () => {
             </Container>
         );
     }
+
+    const handleDelete = async (feedbackId) => {
+        try {
+            await deleteFeedback(feedbackId);
+            message.success("Feedback đã được xóa!");
+            fetchProductAndFeedbacks(); // Refresh lại danh sách feedbacks
+        } catch (err) {
+            message.error("Xóa feedback thất bại!");
+        }
+    };
+
 
     if (error) {
         return (
@@ -126,37 +143,73 @@ const ProductDetail = () => {
                     </Row>
                     <Row style={{ marginTop: "40px", padding: "20px", background: "#fafafa", borderRadius: "10px", maxWidth: "1200px", width: "100%" }}>
                         <Col>
-                            <Tabs defaultActiveKey="1" centered>
-                                <TabPane tab="Mô tả sản phẩm" key="1">
-                                    <Text>{product.description || "Chưa có thông tin mô tả chi tiết."}</Text>
-                                </TabPane>
-                                <TabPane tab="Đánh giá sản phẩm" key="2">
-                                    <Form form={form} onFinish={handleSubmitFdback} layout="vertical">
-                                        <Form.Item name="rating" label="Đánh giá sao" rules={[{ required: true, type: "number", message: "Vui lòng chọn số sao!" }]}> <Rate /> </Form.Item>
-                                        <Form.Item name="comment" label="Nhận xét" rules={[{ required: true }]}> <TextArea rows={4} /> </Form.Item>
-                                        <Form.Item>
-                                            <Button type="primary" htmlType="submit">Gửi Đánh Giá</Button>
-                                        </Form.Item>
-                                    </Form>
-                                    <List
-                                        itemLayout="horizontal"
-                                        dataSource={feedbacks}
-                                        renderItem={(feedback) => (
-                                            <List.Item>
-                                                <List.Item.Meta
-                                                    title={feedback.userId?.userName}  // Hiển thị tên người dùng
-                                                    description={
-                                                        <>
-                                                            <Rate disabled value={feedback.rating} /> {/* Hiển thị đánh giá sao */}
-                                                            <Text>{feedback.comment}</Text> {/* Hiển thị nhận xét */}
-                                                        </>
-                                                    }
+                            <Tabs
+                                defaultActiveKey="1"
+                                centered
+                                items={[
+                                    {
+                                        key: "1",
+                                        label: "Mô tả sản phẩm",
+                                        children: <Text>{product.description || "Chưa có thông tin mô tả chi tiết."}</Text>,
+                                    },
+                                    {
+                                        key: "2",
+                                        label: "Đánh giá sản phẩm",
+                                        children: (
+                                            <>
+                                                <Form form={form} onFinish={handleSubmitFdback} layout="vertical">
+                                                    <Form.Item name="rating" label="Đánh giá sao" rules={[{ required: true, message: "Vui lòng chọn số sao!" }]}>
+                                                        <Rate />
+                                                    </Form.Item>
+                                                    <Form.Item name="comment" label="Nhận xét" rules={[{ required: true }]}>
+                                                        <TextArea rows={4} />
+                                                    </Form.Item>
+                                                    <Form.Item>
+                                                        <Button type="primary" htmlType="submit">Gửi Đánh Giá</Button>
+                                                    </Form.Item>
+                                                </Form>
+
+                                                <List
+                                                    itemLayout="horizontal"
+                                                    dataSource={[...feedbacks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
+                                                    renderItem={(feedback) => (
+                                                        <List.Item>
+                                                            <List.Item.Meta
+                                                                title={feedback.userId?.userName}
+                                                                description={
+                                                                    <>
+                                                                        <Row>
+                                                                            <Col md={8} xs={12} >
+                                                                                <Text>{feedback.comment}</Text>
+                                                                                <br />
+                                                                                <Rate disabled value={feedback.rating} />
+                                                                            </Col>
+                                                                            <Col md={4} xs={12} >
+                                                                                {userId && String(feedback.userId?._id) === String(userId) && (
+                                                                                    <Button
+                                                                                        danger
+                                                                                        icon={<DeleteOutlined />}
+                                                                                        onClick={() => handleDelete(feedback._id)}
+                                                                                        style={{ marginTop: 4, marginLeft: 10 }}
+                                                                                    >
+                                                                                        Xóa
+                                                                                    </Button>
+                                                                                )}
+                                                                            </Col>
+
+                                                                        </Row>
+                                                                    </>
+                                                                }
+                                                            />
+                                                        </List.Item>
+                                                    )}
                                                 />
-                                            </List.Item>
-                                        )}
-                                    />
-                                </TabPane>
-                            </Tabs>
+
+                                            </>
+                                        ),
+                                    },
+                                ]}
+                            />
                         </Col>
                     </Row>
                 </Container>

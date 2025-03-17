@@ -35,4 +35,36 @@
             res.status(500).json({ success: false, error: error.message });
         }
     }
+
+    module.exports.deleteFeedback = async (req, res) => {
+        try {
+            const { feedbackId } = req.params;
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+    
+            if (!token) {
+                return res.status(401).json({ message: 'Token is missing or invalid!' });
+            }
+    
+            const user = await User.findOne({ token });
+            if (!user) {
+                return res.status(401).json({ message: 'User not found!' });
+            }
+    
+            const feedback = await Feedback.findById(feedbackId);
+            if (!feedback) {
+                return res.status(404).json({ message: 'Feedback not found!' });
+            }
+    
+            if (feedback.userId.toString() !== user._id.toString()) {
+                return res.status(403).json({ message: 'You are not authorized to delete this feedback!' });
+            }
+    
+            await Feedback.findByIdAndDelete(feedbackId);
+            res.status(200).json({ success: true, message: 'Feedback deleted successfully' });
+    
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    };
     
