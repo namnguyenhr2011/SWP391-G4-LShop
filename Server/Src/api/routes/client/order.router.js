@@ -4,7 +4,7 @@ const controller = require('../../controllers/client/order.controller');
 const authorization = require('../../../middleware/user.middleware');
 
 
-routes.get('/getAllOrder', controller.getAllOrders)
+routes.get('/getAllOrder',controller.getAllOrders)
 routes.get('/getOrderDetails/:id', controller.getOrderDetails)
 
 routes.get('/getOrders', authorization.Authorization, controller.getOrders);

@@ -22,6 +22,9 @@ import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
 import OrderScreen from "./Screen/Client/Order/Order";
+import OrderDetails from "./Screen/Client/Order/OrderDetail";
+
+
 
 const App = () => {
   return (
@@ -36,6 +39,7 @@ const App = () => {
         <Route path="/otp/:email" element={<Otp />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
 
+
         <Route path="/userProfile" element={<UserProfile />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/profile" element={<UserProfile />} />
@@ -45,7 +49,11 @@ const App = () => {
         <Route path="/productManager" element={<ProductManagerScreen />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
-        <Route path="/order" element={<OrderScreen />} />
+
+        <Route path="/order">
+          <Route index element={<OrderScreen />} />
+          <Route path="orderDetail/:id" element={<OrderDetails />} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>

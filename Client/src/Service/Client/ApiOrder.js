@@ -1,9 +1,9 @@
 import axios from '../../utils/CustomizeApi';
 
-// 🔹 Lấy danh sách đơn hàng
+
 export const getOrders = async () => {
     try {
-        const response = await axios.get(`order/getOrders`, { withCredentials: true });
+        const response = await axios.get(`order/getOrders`)
         return response;
     } catch (error) {
         console.error("❌ Error fetching orders:", error.response?.data || error.message);
@@ -11,18 +11,17 @@ export const getOrders = async () => {
     }
 };
 
-
-
 // 🔹 Lấy chi tiết đơn hàng
-export const getOrderById = async (id) => {
+export const getOrderDetails = async (id) => {
     try {
-        const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
+        const response = await axios.get(`order/getOrdersDetails/${id}`);
         return response.data;
     } catch (error) {
         console.error("❌ Error fetching order details:", error.response?.data || error.message);
         return null;
     }
 };
+
 
 // 🔹 Tạo đơn hàng mới
 export const createOrder = async (orderData) => {

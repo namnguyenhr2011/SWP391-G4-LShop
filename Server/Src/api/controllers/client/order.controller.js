@@ -123,30 +123,44 @@ module.exports.getOrders = async (req, res) => {
 module.exports.getOrdersDetails = async (req, res) => {
     try {
         const { id } = req.params;
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+
         if (!token) {
-            return res.status(401).json({ message: 'Token is missing or invalid!' });
+            return res.status(401).json({ message: "Token is missing or invalid!" });
         }
+
+       
         const user = await User.findOne({ token: token });
+        
         if (!user) {
-            return res.status(401).json({ message: 'User not found!' });
+            return res.status(401).json({ message: "User not found!" });
         }
 
-        const order = await Order.findOne({ _id: id })
-            .populate('products')
-            .populate('userId')
 
+        // Tìm đơn hàng
+        const order = await Order.findById(id)
+            .populate("products.productId") // ✅ Populate product details
+            .populate("userId") // ✅ Populate user details
+            .exec();
 
         if (!order) {
-            return res.status(404).json({ message: 'Order not found!' });
+            return res.status(404).json({ message: "Order not found!" });
         }
-        res.status(200).json({ message: 'Order details fetched successfully', order });
+
+        // Tìm giao dịch liên quan đến orderId
+        const transaction = await Transaction.findOne({ orderId: order._id });
+
+        res.status(200).json({ 
+            message: "Order details fetched successfully", 
+            order,
+            transaction  // ✅ Thêm giao dịch vào response
+        });
     } catch (error) {
-        console.error('Error fetching order details:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error("Error fetching order details:", error.message);
+        res.status(500).json({ message: "Internal server error" });
     }
-}
+};
 
 module.exports.userCancelOrder = async (req, res) => {
     try {
