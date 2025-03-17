@@ -11,7 +11,7 @@ export const getOrders = async () => {
     }
 };
 
-// 🔹 Lấy chi tiết đơn hàng
+// Lấy chi tiết đơn hàng
 export const getOrderDetails = async (id) => {
     try {
         const response = await axios.get(`order/getOrdersDetails/${id}`);
@@ -23,7 +23,7 @@ export const getOrderDetails = async (id) => {
 };
 
 
-// 🔹 Tạo đơn hàng mới
+// Tạo đơn hàng mới
 export const createOrder = async (orderData) => {
     try {
         const response = await axios.post(API_URL, orderData, getAuthHeaders());
@@ -34,7 +34,7 @@ export const createOrder = async (orderData) => {
     }
 };
 
-// 🔹 Cập nhật trạng thái đơn hàng
+// Cập nhật trạng thái đơn hàng
 export const updateOrderStatus = async (id, status) => {
     try {
         const response = await axios.put(`${API_URL}/update-status/${id}`, { status }, getAuthHeaders());
@@ -45,7 +45,7 @@ export const updateOrderStatus = async (id, status) => {
     }
 };
 
-// 🔹 Cập nhật trạng thái thanh toán
+// Cập nhật trạng thái thanh toán
 export const updatePaymentStatus = async (id, paymentStatus, paymentMethod) => {
     try {
         const response = await axios.put(`${API_URL}/update-payment/${id}`, { paymentStatus, paymentMethod }, getAuthHeaders());
@@ -56,7 +56,7 @@ export const updatePaymentStatus = async (id, paymentStatus, paymentMethod) => {
     }
 };
 
-// 🔹 Hủy đơn hàng
+// Hủy đơn hàng
 export const cancelOrder = async (id) => {
     try {
         const response = await axios.put(`${API_URL}/cancel/${id}`, {}, getAuthHeaders());
@@ -67,7 +67,7 @@ export const cancelOrder = async (id) => {
     }
 };
 
-// 🔹 Lấy tất cả đơn hàng (cho Admin)
+// Lấy tất cả đơn hàng (cho Admin)
 export const getAllOrders = async () => {
     try {
         const response = await axios.get(`${API_URL}/all`, getAuthHeaders());
