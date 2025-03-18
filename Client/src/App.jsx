@@ -17,16 +17,19 @@ import UserProfile from "./Screen/Client/UserProfile";
 
 import Cart from "./Screen/Client/cart/cart";
 import Checkout from "./Screen/Client/cart/checkout";
-import ReturnQR from "./Screen/Client/cart/ReturnQR";
+import ReturnQR from "./Screen/Client/cart/returnQR";
 
-import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
+
+
+import DashBoard from "./Screen/ProductManager/DashBoard";
+import AddProduct from "./Screen/ProductManager/AddProduct";
+import AddCategory from "./Screen/ProductManager/AddCategory";
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AdminScreen from "./Screen/Admin/AdminScreen";
-
-
-import OrderScreen from "./Screen/Client/order/OrderScreen";
-import OrderDetail from "./Screen/Client/order/OrderDetail";
-import OrderHistory from "./Screen/Client/order/OrderHistory";
+import DeleteProduct from "./Screen/ProductManager/DelteProduct";
+import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
+import ViewProduct from "./Screen/ProductManager/ViewProudct"
+import ProductDetail from "./Screen/ProductManager/sale/productDetail"; 
 
 const App = () => {
   return (
@@ -51,21 +54,21 @@ const App = () => {
           <Route path="returnQR" element={<ReturnQR />} />
         </Route>
 
-        <Route path="/order">
-          <Route index element={<OrderScreen />} />
-          <Route path=":id" element={<OrderDetail />} />
-          <Route path="history" element={<OrderHistory />} />
-        </Route>
 
 
-        <Route path="/productManager" element={<ProductManagerScreen />} />
+        <Route path="/Productdashboard" element={<DashBoard />} />
+        <Route path="/addProduct" element={<AddProduct />} />
+        <Route path="/addCategory" element={<AddCategory />} />
+        <Route path="/deleteproduct" element={<DeleteProduct />} />
+        <Route path="/updateproduct" element={<UpdateProduct />} />
+        <Route path="/viewproduct" element={<ViewProduct />} />
         <Route path="/admin" element={<AdminScreen />} />
         <Route path="/sale" element={<SaleScreen />} />
-
+        <Route path="/product/:id" element={<ProductDetail />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router >
+    </Router>
   );
 };
 

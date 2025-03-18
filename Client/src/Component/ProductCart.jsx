@@ -3,12 +3,13 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Store/reducer/cartReducer";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 
 const ProductCard = ({ products, loading }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user._id);
-
+  const navigate = useNavigate();
   if (loading) {
     return <Spin size="large" style={{ display: "block", margin: "50px auto" }} />;
   }
@@ -18,7 +19,7 @@ const ProductCard = ({ products, loading }) => {
       toast.error("Vui lòng đăng nhập để mua hàng.");
       return;
     }
-  
+
     dispatch(
       addToCart({
         userId: userId,
@@ -31,10 +32,17 @@ const ProductCard = ({ products, loading }) => {
         },
       })
     );
-  
+
     toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
   };
-  
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <Row gutter={[24, 24]} justify="center">
@@ -61,10 +69,11 @@ const ProductCard = ({ products, loading }) => {
               transition: "transform 0.2s ease",
             }}
             bodyStyle={{ padding: "16px", textAlign: "center" }}
+            onClick={() => handleProductClick(product._id)}
           >
             <Title level={5} style={{ marginBottom: "8px" }}>{product.name}</Title>
             <Text strong style={{ fontSize: "16px", color: "#ff4d4f" }}>
-              {product.price} VND
+              {formatPrice(product.price)}
             </Text>
             <div style={{ marginTop: "8px", display: "flex", justifyContent: "center", gap: "10px" }}>
               <Button type="primary" onClick={() => handleAddToCart(product)}>

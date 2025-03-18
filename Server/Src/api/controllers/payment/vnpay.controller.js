@@ -292,7 +292,6 @@ module.exports.query = (req, res) => {
         'vnp_IpAddr': vnp_IpAddr,
         'vnp_SecureHash': vnp_SecureHash
     };
-
     request({
         url: vnp_Api,
         method: "POST",

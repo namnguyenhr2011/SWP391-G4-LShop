@@ -38,4 +38,5 @@ server/.env
 *.tsbuildinfo
 *.json
 
+default.json
 app-example
