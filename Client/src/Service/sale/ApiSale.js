@@ -28,3 +28,14 @@ export const getProductWithSaleID = async () => {
     const response = await axios.get(`/sale/productWithSaleID`, { withCredentials: true });
     return response.data;
 }
+
+export const getAllSaleClaims = async () => {
+    const response = await axios.get(`/sale/saleClaims`, { withCredentials: true });
+    return response.data;
+};
+
+export const getAllOrderBySaleId = async (saleId) => {
+    const response = await axios.get(`/order/getAllOrderBySaleId/${saleId}`, { withCredentials: true });
+    return response.data;
+};
+

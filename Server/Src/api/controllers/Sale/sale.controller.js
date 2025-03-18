@@ -313,3 +313,45 @@ module.exports.getAllProductsWithSaleID = async (req, res) => {
     }
 };
 
+module.exports.getAllSaleClaims = async (req, res) => {
+    try {
+        const saleClaims = await SaleClaim.find({});
+        
+        if (!saleClaims || saleClaims.length === 0) {
+            return res.status(404).json({ message: 'No sale claims found.' });
+        }
+
+        res.status(200).json({
+            saleClaims: saleClaims,
+            total: saleClaims.length
+        });
+    } catch (error) {
+        console.error('Error in getAllSaleClaims:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports.getAllOrderBySaleId = async (req, res) => {
+    try {
+        const { saleId } = req.params;
+
+        // Kiểm tra saleId hợp lệ
+        if (!saleId) {
+            return res.status(400).json({ message: 'Sale ID is required.' });
+        }
+
+        const orders = await Order.find({ saleId: saleId }); // Giả sử bạn có model Order
+        
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found for this sale ID.' });
+        }
+
+        res.status(200).json({
+            orders: orders,
+            total: orders.length
+        });
+    } catch (error) {
+        console.error('Error in getAllOrderBySaleId:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

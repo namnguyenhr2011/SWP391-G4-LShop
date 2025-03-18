@@ -28,17 +28,19 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 
 import ProductManagerScreen from "./Screen/ProductManager/ProductManagerScreen";
 
-//salesale
+//sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
 import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
+import ProductDetail from "./Screen/ProductManager/sale/productDetail";
+import ProductList from "./Screen/ProductManager/sale/productList";
+import OrderManager from "./Screen/Sale/OrderManager";
 
 import AdminLayout from "./Screen/Admin/AdminLayout";
 import AdminDashboard from "./Screen/Admin/AdminDashboard";
 import UserManagement from "./Screen/Admin/UserManagement";
 import SaleManagement from "./Screen/Admin/SaleManagement";
-import ProductDetail from "./Screen/ProductManager/sale/productDetail";
-import ProductList from "./Screen/ProductManager/sale/productList";
+
 
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
@@ -98,6 +100,7 @@ const App = () => {
           <Route path="/sale" element={<SaleScreen />} />
           <Route path="/sale/add" element={<AddSaleScreen />} />
           <Route path="/sale/update" element={<UpdateSaleScreen />} />
+          <Route path="/sale/ordermanager" element={<OrderManager />} />
         </Routes>
       </Router>
     </ConfigProvider>

@@ -12,4 +12,7 @@ routes.put('/updateSalePrice/:saleId', authorization.Authorization, controller.u
 routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteSale)
 routes.get('/productWithSaleID', controller.getAllProductsWithSaleID)
 
+routes.get('/getAllOrderBySaleId/:saleId', controller.getAllOrderBySaleId)
+routes.get('/saleClaims', controller.getAllSaleClaims)
+
 module.exports = routes
