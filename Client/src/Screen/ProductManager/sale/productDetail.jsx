@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import {
@@ -9,7 +9,6 @@ import {
     Button,
     Space,
     List,
-    Avatar,
     Form,
     Input,
     Tabs,
@@ -20,7 +19,7 @@ import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useDispatch ,useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
@@ -56,7 +55,7 @@ const ProductDetail = () => {
                 setFeedbacks(feedbackResponse.feedback);
             }
         } catch (err) {
-            message.error("Có lỗi khi tải dữ liệu!");
+            message.error("Có lỗi khi tải dữ liệu!", err);
             setError("Đã xảy ra lỗi khi tải dữ liệu.");
         } finally {
             setLoading(false);
@@ -105,9 +104,9 @@ const ProductDetail = () => {
         try {
             await deleteFeedback(feedbackId);
             message.success("Feedback đã được xóa!");
-            fetchProductAndFeedbacks(); // Refresh lại danh sách feedbacks
+            fetchProductAndFeedbacks();
         } catch (err) {
-            message.error("Xóa feedback thất bại!");
+            message.error("Xóa feedback thất bại!", err);
         }
     };
 

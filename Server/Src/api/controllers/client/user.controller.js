@@ -38,7 +38,7 @@ module.exports.register = async (req, res) => {
             }
             const vertifyEmail = new VerifyEmail(objVrtify);
             await vertifyEmail.save();
-            const subject = "Your One-Time Password (OTP) for Account reset password";
+            const subject = "Your One-Time Password (OTP) for Verify Account ";
             const html = `
                             <!DOCTYPE html>
                             <html>
@@ -96,18 +96,18 @@ module.exports.register = async (req, res) => {
                             <body>
                                 <div class="email-container">
                                     <div class="email-header">
-                                        Account reset password
+                                        Account Verify email
                                     </div>
                                     <div class="email-body">
                                         <p>Dear User,</p>
-                                        <p>To complete the reset password process for your account, please use the following One-Time Password (OTP):</p>
+                                        <p>To complete verify your process for your account, please use the following One-Time Password (OTP):</p>
                                         <h3 class="otp">${otp}</h3>
                                         <p>This OTP is valid for the next <strong>3 minutes</strong>. For your security, please do not share this OTP with anyone.</p>
                                         <p>If you did not request this, please ignore this email or contact our support team immediately.</p>
-                                        <p>Thank you,<br>The LaptopShopingApp Team</p>
+                                        <p>Thank you,<br>The L-Shop Team</p>
                                     </div>
                                     <div class="email-footer">
-                                        © 2025 LaptopShopingApp. All rights reserved.
+                                        © 2025 L-Shop. All rights reserved.
                                     </div>
                                 </div>
                             </body>
@@ -333,7 +333,7 @@ module.exports.forgot = async (req, res) => {
                             <body>
                                 <div class="email-container">
                                     <div class="email-header">
-                                        Account Verification
+                                        Account Reset Password
                                     </div>
                                     <div class="email-body">
                                         <p>Dear User,</p>
@@ -341,10 +341,10 @@ module.exports.forgot = async (req, res) => {
                                         <h3 class="otp">${otp}</h3>
                                         <p>This OTP is valid for the next <strong>3 minutes</strong>. For your security, please do not share this OTP with anyone.</p>
                                         <p>If you did not request this, please ignore this email or contact our support team immediately.</p>
-                                        <p>Thank you,<br>The LaptopShopingApp Team</p>
+                                        <p>Thank you,<br>The L-Shop Team</p>
                                     </div>
                                     <div class="email-footer">
-                                        © 2025 LaptopShopingApp. All rights reserved.
+                                        © 2025 L-Shop. All rights reserved.
                                     </div>
                                 </div>
                             </body>
