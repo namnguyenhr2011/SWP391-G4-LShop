@@ -19,8 +19,9 @@ routes.post('/resetPassword', validate.resetPasswordValidate, controller.reset)
 
 routes.get('/user-profile', authorization.Authorization, controller.profile)
 routes.put('/edit-profile', authorization.Authorization, controller.editProfile)
+routes.put('/change-password', authorization.Authorization, controller.changePassword)
 
-routes.get('/getAllUser',  controller.getAllUser)
+routes.get('/getAllUser', controller.getAllUser)
 
 
 

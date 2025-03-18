@@ -167,4 +167,3 @@ module.exports.updateSalPrice = async (req, res) => {
 };
 
 
-

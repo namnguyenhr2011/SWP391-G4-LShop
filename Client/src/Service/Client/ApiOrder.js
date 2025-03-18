@@ -59,3 +59,24 @@ export const updateOrderStatus = async (orderID) => {
     const response = await axios.put(`order/transaction/${orderID}`, { withCredentials: true });
     return response.data;
 }
+export const getOrders = async () => {
+    try {
+        const response = await axios.get(`order/getOrders`)
+        return response;
+    } catch (error) {
+        console.error("❌ Error fetching orders:", error.response?.data || error.message);
+        return [];
+    }
+};
+
+// Lấy chi tiết đơn hàng
+export const getOrderDetails = async (id) => {
+    try {
+        const response = await axios.get(`order/getOrdersDetails/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error fetching order details:", error.response?.data || error.message);
+        return null;
+    }
+};
+

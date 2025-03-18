@@ -18,8 +18,11 @@ import UserProfile from "./Screen/Client/UserProfile";
 import Cart from "./Screen/Client/cart/cart";
 import Checkout from "./Screen/Client/cart/checkout";
 import ReturnQR from "./Screen/Client/cart/returnQR";
+import UpdateProfile from "./Screen/Client/UpdateProfile";
+import ChangePassword from "./Screen/Client/ChangePassword"
 
-
+import OrderDetails from "./Screen/Client/order/OrderDetail"
+import OrderScreen from "./Screen/Client/order/OrderScreen"
 
 import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";
@@ -29,7 +32,8 @@ import AdminScreen from "./Screen/Admin/AdminScreen";
 import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
 import ViewProduct from "./Screen/ProductManager/ViewProudct"
-import ProductDetail from "./Screen/ProductManager/sale/productDetail"; 
+import ProductDetail from "./Screen/ProductManager/sale/productDetail";
+
 
 const App = () => {
   return (
@@ -45,18 +49,23 @@ const App = () => {
         <Route path="/resetpassword" element={<ResetPassword />} />
 
 
-        <Route path="/userProfile" element={<UserProfile />} />
-
+        <Route path="/order">
+          <Route index element={<OrderScreen />} />
+          <Route path="orderDetail/:id" element={<OrderDetails />} />
+        </Route>
 
         <Route path="/cart">
           <Route index element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="returnQR" element={<ReturnQR />} />
         </Route>
-
+        <Route path="/update-profile" element={<UpdateProfile />} />
+        <Route path="/userProfile" element={<UserProfile />} />
+        <Route path="/change-password" element={<ChangePassword />} />
 
 
         <Route path="/Productdashboard" element={<DashBoard />} />
+
         <Route path="/addProduct" element={<AddProduct />} />
         <Route path="/addCategory" element={<AddCategory />} />
         <Route path="/deleteproduct" element={<DeleteProduct />} />
@@ -67,8 +76,8 @@ const App = () => {
         <Route path="/product/:id" element={<ProductDetail />} />
 
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+      </Routes >
+    </Router >
   );
 };
 

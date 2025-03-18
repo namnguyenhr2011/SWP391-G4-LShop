@@ -296,4 +296,3 @@ module.exports.managerDeleteSubCategory = async (req, res) => {
         });
     }
 };
-
