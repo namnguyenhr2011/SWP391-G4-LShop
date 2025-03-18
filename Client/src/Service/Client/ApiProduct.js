@@ -108,7 +108,7 @@ export const adminDeleteProduct = async (id) => {
 
 export const uploadImage = async (id, base64Image) => {
     try {
-        const base64String = base64Image.split(',')[1];
+        // const base64String = base64Image.split(',')[1];
 
         const response = await axios.put(
             `product/updateImage/${id}`,

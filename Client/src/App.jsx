@@ -22,7 +22,7 @@ import UpdateProfile from "./Screen/Client/UpdateProfile";
 import ChangePassword from "./Screen/Client/ChangePassword"
 
 import OrderDetails from "./Screen/Client/order/OrderDetail"
-import OrderScreen from "./Screen/Client/order/OrderScreen"
+import OrderScreen from "./Screen/Client/order/Order"
 
 import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";

@@ -80,3 +80,12 @@ export const getOrderDetails = async (id) => {
     }
 };
 
+export const cancelOrder = async (id) => {
+    try {
+        const response = await axios.put(`order/cancel/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error canceling order:", error.response?.data || error.message);
+        return null;
+    }
+};

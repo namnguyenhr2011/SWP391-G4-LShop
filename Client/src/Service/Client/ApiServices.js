@@ -1,9 +1,9 @@
 import axios from "../../utils/CustomizeApi";
 
-export const userRegister = async (username, email, password, phone, address) => {
+export const userRegister = async (userName, email, password, phone, address) => {
     try {
         const response = await axios.post('user/register', {
-            username,
+            userName,
             email,
             password,
             phone,

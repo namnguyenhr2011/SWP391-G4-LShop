@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Tag, Spin, message } from 'antd';
 import { getOrders, cancelOrder } from '../../../Service/Client/ApiOrder';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +20,7 @@ const MyOrders = () => {
       const response = await getOrders();
       setOrders(response.data.orders);
     } catch (error) {
-      message.error('Failed to fetch orders');
+      message.error('Failed to fetch orders', error);
     }
     setLoading(false);
   };
@@ -35,7 +35,7 @@ const MyOrders = () => {
       message.success('Order cancelled successfully');
       fetchOrders();
     } catch (error) {
-      message.error('Failed to cancel order');
+      message.error('Failed to cancel order', error);
     }
   };
 

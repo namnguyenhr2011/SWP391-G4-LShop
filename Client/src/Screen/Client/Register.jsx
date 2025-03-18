@@ -9,7 +9,7 @@ import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 const Register = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: "",
+        userName: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -39,9 +39,9 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        const { username, email, password, confirmPassword, phone, address } = formData;
+        const { userName, email, password, confirmPassword, phone, address } = formData;
 
-        if (!username || !email || !password || !confirmPassword || !phone || !address) {
+        if (!userName || !email || !password || !confirmPassword || !phone || !address) {
             toast.error("Please fill in all fields");
             return;
         }
@@ -62,7 +62,7 @@ const Register = () => {
         }
 
         try {
-            const res = await userRegister(username, email, password, phone, address);
+            const res = await userRegister(userName, email, password, phone, address);
             if (res.code === 409 || res.code === 509) {
                 toast.error(res.message);
                 return;
@@ -86,12 +86,12 @@ const Register = () => {
                             <h3 className="text-center text-primary mb-4">Sign Up</h3>
                             <Form onSubmit={handleRegister}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Username</Form.Label>
+                                    <Form.Label>userName</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="username"
-                                        placeholder="Enter your username"
-                                        value={formData.username}
+                                        name="userName"
+                                        placeholder="Enter your userName"
+                                        value={formData.userName}
                                         onChange={handleChange}
                                         required
                                     />

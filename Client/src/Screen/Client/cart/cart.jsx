@@ -55,7 +55,7 @@ const Cart = () => {
             <Header />
 
             <Layout style={{
-                minHeight: "100vh",
+                minHeight: "90vh",
                 width: "100%",
                 backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
                 color: isDarkMode ? "#e6edf3" : "#1c1e21",

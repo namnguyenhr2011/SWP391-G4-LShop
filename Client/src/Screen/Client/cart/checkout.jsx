@@ -46,7 +46,7 @@ const CheckoutPage = () => {
           phone: userData?.user?.phone || "",
         }));
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
+        toast.error("Lỗi khi lấy thông tin người dùng:", error);
       }
     };
 
@@ -162,7 +162,6 @@ const CheckoutPage = () => {
       };
 
       const createOrderResponse = await createOrder(finalOrderData);
-      console.log("Create Order Response:", createOrderResponse.order._id);
       const orderId = createOrderResponse.order._id;
 
       if (formData.paymentMethod === "Bank Transfer") {
@@ -174,7 +173,7 @@ const CheckoutPage = () => {
         };
 
         const vnPayResponse = await create_VnPay(vnpayData);
-        console.log("VnPay Response:", vnPayResponse);
+
         dispatch(clearCart({ userId }));
         navigate("/");
         toast.success("Đặt hàng thành công!");
@@ -184,9 +183,11 @@ const CheckoutPage = () => {
           return;
         }
       }
+      toast.success("Đặt hàng thành công!")
+      dispatch(clearCart({ userId }));
+      navigate("/");
     } catch (error) {
-      console.error(error);
-      toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!", error);
     } finally {
       setLoading(false);
     }
@@ -285,7 +286,7 @@ const CheckoutPage = () => {
                                   {Math.round(
                                     ((item.originalPrice - item.price) /
                                       item.originalPrice) *
-                                      100
+                                    100
                                   )}
                                   %)
                                 </Text>
@@ -331,7 +332,7 @@ const CheckoutPage = () => {
                           {` (${Math.round(
                             ((totalOriginalPrice - totalAmount) /
                               totalOriginalPrice) *
-                              100
+                            100
                           )}%)`}
                         </Text>
                       </>
@@ -355,7 +356,7 @@ const CheckoutPage = () => {
                         <UserOutlined /> Họ và tên
                       </Form.Label>
                       <Input
-                        value={profile?.name || "Chưa có thông tin"}
+                        value={profile?.userName || "Chưa có thông tin"}
                         disabled
                       />
                     </Form.Group>
