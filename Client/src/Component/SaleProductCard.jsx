@@ -69,7 +69,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
       {products.map((product) => (
         <Col key={product._id} xs={24} sm={12} md={6}>
           <Badge.Ribbon
-            text={`Giảm ${formatPrice(product.sale?.discount || 0)}`}
+            text={`Chỉ còn ${formatPrice(product.sale?.discount || 0)}`}
             color="red"
             style={{ display: product.sale?.isSale ? "block" : "none" }}
           >
