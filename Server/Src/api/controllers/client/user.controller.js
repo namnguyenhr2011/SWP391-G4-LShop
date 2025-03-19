@@ -135,7 +135,7 @@ module.exports.login = async (req, res) => {
             email: email,
             status: "Inactive",
         })
-        console.log(userInactive);
+       
         if (userInactive) {
             res.json({
                 code: 606,

@@ -50,80 +50,82 @@ import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Chữ trắng trong dark mode
-          colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền phù hợp
-          colorBorder: isDarkMode ? "#3a3f44" : "#d9d9d9", // Viền phù hợp
-          colorTextPlaceholder: isDarkMode ? "#b0c4de" : "#8c8c8c", // Placeholder
-        },
-        components: {
-          Menu: {
-            colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Đảm bảo chữ trong Menu là trắng
-            colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền của Menu
+    <>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <ConfigProvider
+        theme={{
+          token: {
+            colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Chữ trắng trong dark mode
+            colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền phù hợp
+            colorBorder: isDarkMode ? "#3a3f44" : "#d9d9d9", // Viền phù hợp
+            colorTextPlaceholder: isDarkMode ? "#b0c4de" : "#8c8c8c", // Placeholder
           },
-        },
-      }}
-    >
-      <Router>
-        <ToastContainer position="top-right" autoClose={3000} />
-        <Routes>
-          {/* duc */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot" element={<Forgot />} />
-          <Route path="/verify" element={<VerifyScreen />} />
-          <Route path="/otp/:email" element={<Otp />} />
-          <Route path="/resetpassword" element={<ResetPassword />} />
-          <Route path="/cart">
-            <Route index element={<Cart />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="returnQR" element={<ReturnQR />} />
-          </Route>
-          {/* an */}
-          <Route path="/userProfile" element={<UserProfile />} />
-          <Route path="/update-profile" element={<UpdateProfile />} />
-          <Route path="/userProfile" element={<UserProfile />} />
-          <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/order">
-            <Route index element={<OrderScreen />} />
-            <Route path="orderDetail/:id" element={<OrderDetails />} />
-          </Route>
+          components: {
+            Menu: {
+              colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Đảm bảo chữ trong Menu là trắng
+              colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền của Menu
+            },
+          },
+        }}
+      >
+        <Router>
+          <Routes>
+            {/* duc */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<Forgot />} />
+            <Route path="/verify" element={<VerifyScreen />} />
+            <Route path="/otp/:email" element={<Otp />} />
+            <Route path="/resetpassword" element={<ResetPassword />} />
+            <Route path="/cart">
+              <Route index element={<Cart />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="returnQR" element={<ReturnQR />} />
+            </Route>
+            {/* an */}
+            <Route path="/userProfile" element={<UserProfile />} />
+            <Route path="/update-profile" element={<UpdateProfile />} />
+            <Route path="/userProfile" element={<UserProfile />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/order">
+              <Route index element={<OrderScreen />} />
+              <Route path="orderDetail/:id" element={<OrderDetails />} />
+            </Route>
 
-          {/* huy */}
-          <Route path="/Productdashboard" element={<DashBoard />} />
-          <Route path="/addProduct" element={<AddProduct />} />
-          <Route path="/addCategory" element={<AddCategory />} />
-          <Route path="/deleteproduct" element={<DeleteProduct />} />
-          <Route path="/updateproduct" element={<UpdateProduct />} />
-          <Route path="/viewproduct" element={<ViewProduct />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          {/* nam */}
-          <Route
-            path="/admin/*"
-            element={
-              <AdminProtectedRoute>
-                <AdminLayout />
-              </AdminProtectedRoute>
-            }
-          >
-            <Route index element={<AdminDashboard />} />
-            <Route path="manage-user" element={<UserManagement />} />
-            <Route path="saler-list" element={<SaleManagement />} />
-            <Route path="order-list" element={<OrderManagement />} />
-            <Route path="manage-feedback" element={<FeedbackManagement />} />
-          </Route>
+            {/* huy */}
+            <Route path="/Productdashboard" element={<DashBoard />} />
+            <Route path="/addProduct" element={<AddProduct />} />
+            <Route path="/addCategory" element={<AddCategory />} />
+            <Route path="/deleteproduct" element={<DeleteProduct />} />
+            <Route path="/updateproduct" element={<UpdateProduct />} />
+            <Route path="/viewproduct" element={<ViewProduct />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            {/* nam */}
+            <Route
+              path="/admin/*"
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout />
+                </AdminProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="manage-user" element={<UserManagement />} />
+              <Route path="saler-list" element={<SaleManagement />} />
+              <Route path="order-list" element={<OrderManagement />} />
+              <Route path="manage-feedback" element={<FeedbackManagement />} />
+            </Route>
 
-          {/* tuan */}
-          <Route path="/sale" element={<SaleScreen />} />
+            {/* tuan */}
+            <Route path="/sale" element={<SaleScreen />} />
 
 
-          <Route path="*" element={<NotFound />} />
-        </Routes >
-      </Router >
-    </ConfigProvider >
+            <Route path="*" element={<NotFound />} />
+          </Routes >
+        </Router >
+      </ConfigProvider >
+    </>
   );
 };
 
