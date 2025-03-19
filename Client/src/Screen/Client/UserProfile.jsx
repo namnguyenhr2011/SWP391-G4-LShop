@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, Card, Typography, Avatar, Tag, Spin, Layout, Button } from "antd";
 import { Container, Row, Col } from "react-bootstrap";
 import { UserOutlined } from "@ant-design/icons";
-import { userProfile } from "../../Service/Client/ApiServices";
+import { userProfile } from "../../service/client/ApiServices";
 import { useSelector } from "react-redux";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
@@ -33,23 +33,31 @@ const UserProfile = () => {
         fetchUserProfile();
     }, []);
 
-    const columns = [
-        { title: "Field", dataIndex: "field", key: "field", width: "30%" },
-        { title: "Value", dataIndex: "value", key: "value" },
-    ];
+  const columns = [
+    { title: "Field", dataIndex: "field", key: "field", width: "30%" },
+    { title: "Value", dataIndex: "value", key: "value" },
+  ];
 
-    const userData = user
-        ? [
-            { key: "1", field: "ID", value: user._id },
-            { key: "2", field: "Email", value: user.email },
-            { key: "3", field: "User Name", value: user.userName },
-            { key: "4", field: "Phone", value: user.phone },
-            { key: "5", field: "Address", value: user.address },
-            { key: "6", field: "Status", value: <Tag color="green">{user.status}</Tag> },
-            { key: "7", field: "Role", value: <Tag color="blue">{user.role}</Tag> },
-            { key: "8", field: "Created At", value: new Date(user.createdAt).toLocaleString() },
-        ]
-        : [];
+  const userData = user
+    ? [
+        { key: "1", field: "ID", value: user._id },
+        { key: "2", field: "Email", value: user.email },
+        { key: "3", field: "User Name", value: user.userName },
+        { key: "4", field: "Phone", value: user.phone },
+        { key: "5", field: "Address", value: user.address },
+        {
+          key: "6",
+          field: "Status",
+          value: <Tag color="green">{user.status}</Tag>,
+        },
+        { key: "7", field: "Role", value: <Tag color="blue">{user.role}</Tag> },
+        {
+          key: "8",
+          field: "Created At",
+          value: new Date(user.createdAt).toLocaleString(),
+        },
+      ]
+    : [];
 
     return (
         <Layout

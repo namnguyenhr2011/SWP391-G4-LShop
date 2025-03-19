@@ -38,7 +38,7 @@ module.exports.createPaymentUrl = async (req, res) => {
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
 
-    let locale = req.body.language || 'vn';  // Default to 'vn' if no language is provided
+    let locale = req.body.language || 'vn';  
     let currCode = 'VND';
 
     let vnp_Params = {};
@@ -273,6 +273,7 @@ module.exports.query = (req, res) => {
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress;
 
+    let currCode = 'VND';
     let vnp_CreateDate = moment(date).format('YYYYMMDDHHmmss');
 
     let data = vnp_RequestId + "|" + vnp_Version + "|" + vnp_Command + "|" + vnp_TmnCode + "|" + vnp_TxnRef + "|" + vnp_TransactionDate + "|" + vnp_CreateDate + "|" + vnp_IpAddr + "|" + vnp_OrderInfo;

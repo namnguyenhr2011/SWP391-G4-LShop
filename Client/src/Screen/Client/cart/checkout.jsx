@@ -206,16 +206,18 @@ const CheckoutPage = () => {
           transition: "background-color 0.3s ease, color 0.3s ease",
         }}
       >
-        <h2 className="mb-4 text-center">Thanh toán đơn hàng</h2>
+        <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000" }}>
+          Thanh toán đơn hàng
+        </h2>
 
         <Container fluid className="px-lg-5">
           <Row justify="space-around">
             <Col md={6}>
-              <Card className="mb-3">
+              <Card className="mb-3" style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
                 <Card.Header className="bg-primary text-white">
                   <ShoppingOutlined /> Thông tin giỏ hàng
                 </Card.Header>
-                <Card.Body>
+                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                   <List
                     itemLayout="horizontal"
                     dataSource={cartItems}
@@ -265,7 +267,9 @@ const CheckoutPage = () => {
 
                           {/* Thông tin sản phẩm */}
                           <Col flex="auto" style={{ overflow: "hidden" }}>
-                            <Text strong>{item.name}</Text>
+                            <Text strong style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                              {item.name}
+                            </Text>
                             <br />
                             {item.isSale ? (
                               <>
@@ -291,7 +295,7 @@ const CheckoutPage = () => {
                                   %)
                                 </Text>
                                 <br />
-                                <Text>
+                                <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                                   {formatPrice(item.price)} x {item.quantity} =
                                   <strong>
                                     {" "}
@@ -300,7 +304,7 @@ const CheckoutPage = () => {
                                 </Text>
                               </>
                             ) : (
-                              <Text>
+                              <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                                 {formatPrice(item.price)} x {item.quantity} =
                                 <strong>
                                   {" "}
@@ -337,7 +341,9 @@ const CheckoutPage = () => {
                         </Text>
                       </>
                     ) : (
-                      <h5>Tổng cộng: {formatPrice(totalAmount)}</h5>
+                      <h5 style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                        Tổng cộng: {formatPrice(totalAmount)}
+                      </h5>
                     )}
                   </div>
                 </Card.Body>
@@ -345,34 +351,36 @@ const CheckoutPage = () => {
             </Col>
 
             <Col md={6}>
-              <Card>
+              <Card style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
                 <Card.Header className="bg-primary text-white">
                   <CreditCardOutlined /> Thông tin thanh toán
                 </Card.Header>
-                <Card.Body>
+                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                   <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <UserOutlined /> Họ và tên
                       </Form.Label>
                       <Input
                         value={profile?.userName || "Chưa có thông tin"}
                         disabled
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
                       />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <MailOutlined /> Email
                       </Form.Label>
                       <Input
                         value={profile?.email || "Chưa có email"}
                         disabled
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
                       />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <CreditCardOutlined /> Phương thức thanh toán
                       </Form.Label>
                       <div>
@@ -392,7 +400,7 @@ const CheckoutPage = () => {
 
                     {formData.paymentMethod === "Bank Transfer" && (
                       <Form.Group className="mb-3">
-                        <Form.Label>
+                        <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                           <BankOutlined /> Chọn ngân hàng thanh toán
                         </Form.Label>
                         <Select
@@ -411,7 +419,7 @@ const CheckoutPage = () => {
                     )}
 
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <HomeOutlined /> Địa chỉ giao hàng
                       </Form.Label>
                       <Input
@@ -423,7 +431,7 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <PhoneOutlined /> Số điện thoại
                       </Form.Label>
                       <Input
@@ -435,7 +443,7 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label>
+                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                         <CommentOutlined /> Ghi chú đơn hàng
                       </Form.Label>
                       <TextArea
@@ -467,6 +475,8 @@ const CheckoutPage = () => {
       <AppFooter />
     </>
   );
+
+
 };
 
 export default CheckoutPage;

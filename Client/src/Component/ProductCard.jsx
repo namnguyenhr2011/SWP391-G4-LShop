@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../Store/reducer/cartReducer";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 
 const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user._id);
-
+  const navigate = useNavigate()
   if (loading) {
     return (
       <Spin
@@ -23,6 +23,10 @@ const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
       />
     );
   }
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   const handleAddToCart = (product, e) => {
     e.stopPropagation(); // Ngăn sự kiện click lan sang Card
@@ -94,7 +98,7 @@ const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
               textAlign: "center",
               color: themeStyles.textColor,
             }}
-            onClick={() => onProductClick(product._id)} // Chuyển hướng khi click vào Card
+            onClick={() => handleProductClick(product._id)} // Chuyển hướng khi click vào Card
             onMouseEnter={(e) =>
               (e.currentTarget.style.transform = "scale(1.03)")
             }

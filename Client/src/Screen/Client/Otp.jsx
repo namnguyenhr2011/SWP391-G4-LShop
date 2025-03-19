@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { otp as userOtp } from "../../Service/Client/ApiServices";
+import { otp as userOtp } from "../../service/client/ApiServices";
 import { toast, ToastContainer } from "react-toastify";
 import { Container } from "react-bootstrap";
 import { Card, Form, Input, Button, Typography, Row, Col } from "antd";

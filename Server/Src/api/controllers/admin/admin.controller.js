@@ -1,4 +1,6 @@
 const User = require('../../models/user')
+const Order = require('../../models/order')
+const SaleClaim = require('../../models/saleClaim')
 const PaginationHelper = require('../../../helper/pagination')
 const Generate = require('../../../helper/generateRandom')
 const bcrypt = require('bcrypt');
@@ -57,7 +59,7 @@ module.exports.changeRoleById = async (req, res) => {
 
         const { id } = req.params
         const { newRole } = req.body
-        const validRoles = ['admin', 'user', 'productManager', 'saleManager'];
+        const validRoles = ['admin', 'user', 'productManager', 'sale'];
         if (!newRole || !validRoles.includes(newRole)) {
             return res.status(400).json({ message: `Invalid role! Allowed roles are: ${validRoles.join(', ')}` });
         }
@@ -186,15 +188,12 @@ module.exports.deleteUser = async (req, res) => {
 module.exports.searchUser = async (req, res) => {
     try {
         const { search } = req.query;
-
-
         if (!search) {
             return res.status(400).json({
                 code: 400,
                 message: 'Search query is required!',
             });
         }
-
         // Tìm kiếm theo id (nếu `search` là ObjectId hợp lệ), username hoặc email
         const users = await User.find({
             $or: [
@@ -223,7 +222,6 @@ module.exports.searchUser = async (req, res) => {
 module.exports.getUserByRole = async (req, res) => {
     try {
         const role = req.query.role;
-        
         const users = await User.find({ role: role });
         if (!users) {
             return res.status(404).json({ message: 'No users found.' });
@@ -233,3 +231,105 @@ module.exports.getUserByRole = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+module.exports.getAllOrder = async (req, res) => {
+    try {
+        const orders = await Order.find().populate("userId", "userName");
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found.' });
+        }
+
+        // Lấy tất cả SaleClaim
+        const saleClaims = await SaleClaim.find();
+
+        // Tạo map từ orderId đến salerId và assignedAt
+        const orderToSalerMap = {};
+        saleClaims.forEach((saleClaim) => {
+            saleClaim.orderIds.forEach((orderId) => {
+                orderToSalerMap[orderId.toString()] = {
+                    salerId: saleClaim.salerId,
+                    assignedAt: saleClaim.assignedAt,
+                };
+            });
+        });
+
+        // Gán thông tin saler cho từng order
+        const ordersWithSaleClaims = orders.map((order) => {
+            const saleClaim = orderToSalerMap[order._id.toString()];
+            return {
+                ...order.toObject(),
+                saleClaim: saleClaim || null,
+            };
+        });
+
+        res.status(200).json({
+            message: 'Orders fetched successfully',
+            orders: ordersWithSaleClaims,
+        });
+    } catch (error) {
+        console.error('Detailed error fetching orders:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
+
+module.exports.assignSalerToOrder = async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+
+        const admin = await User.findOne({ token });
+        if (!admin || admin.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized! Only admin can assign salers.' });
+        }
+
+        const { orderId, salerId } = req.body;
+
+        if (!orderId || !salerId) {
+            return res.status(400).json({ message: 'orderId and salerId are required!' });
+        }
+
+        const order = await Order.findById(orderId);
+        const saler = await User.findById(salerId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found!' });
+        }
+        if (!saler || saler.role.toLowerCase() !== 'sale') {
+            return res.status(404).json({ message: 'Saler not found or not a valid sale role!' });
+        }
+
+        // Tìm hoặc tạo bản ghi SaleClaim cho salerId
+        let saleClaim = await SaleClaim.findOne({ salerId });
+        if (saleClaim) {
+            // Nếu đã tồn tại, thêm orderId vào mảng orderIds nếu chưa có
+            if (!saleClaim.orderIds.includes(orderId)) {
+                saleClaim.orderIds.push(orderId);
+                saleClaim.assignedAt = Date.now();
+                await saleClaim.save();
+            }
+        } else {
+            // Nếu chưa tồn tại, tạo mới với mảng orderIds chứa orderId đầu tiên
+            saleClaim = new SaleClaim({
+                salerId,
+                orderIds: [orderId],
+            });
+            await saleClaim.save();
+        }
+
+        res.status(200).json({
+            code: 200,
+            message: 'Saler assigned to order successfully!',
+            saleClaim,
+        });
+    } catch (error) {
+        console.error('Error assigning saler to order:', error.message);
+        res.status(500).json({
+            code: 500,
+            message: error.message || 'Internal server error',
+        });
+    }
+};

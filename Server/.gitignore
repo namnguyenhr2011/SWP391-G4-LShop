@@ -34,10 +34,14 @@ yarn-error.*
 server/.env
 .env
 
+<<<<<<< HEAD
 # typescript
 *.tsbuildinfo
 <<<<<<< HEAD
 *.json
+=======
+default.json
+>>>>>>> nam
 
 default.json
 =======
