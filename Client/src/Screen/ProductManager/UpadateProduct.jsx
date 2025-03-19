@@ -105,7 +105,7 @@ const UpdateProduct = () => {
       <Header />
       <Layout style={{ marginTop: 64 }}>
         <Sidebar />
-        <Layout style={{ padding: "20px", marginLeft: 200 }}>
+        <Layout style={{ padding: "20px" }}>
           <Content
             style={{
               background: "#fff",

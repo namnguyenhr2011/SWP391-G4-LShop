@@ -43,7 +43,7 @@ const AddCategory = () => {
       <Header />
       <Layout style={{ marginTop: 64 }}>
         <Sidebar />
-        <Layout style={{ padding: "20px", marginLeft: 200 }}>
+        <Layout style={{ padding: "20px" }}>
           <Content style={{ background: "#fff", padding: "20px", borderRadius: "8px", paddingTop: 80 }}>
             <h3>ADD CATEGORY</h3>
             <Form layout="vertical" onFinish={handleSubmit}>

@@ -92,18 +92,6 @@ const ProductView = () => {
 
   const columns = [
     {
-      title: "Ảnh",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <img
-          src={image || "https://via.placeholder.com/50"} // Ảnh mặc định nếu không có ảnh
-          alt="Sản phẩm"
-          style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
-        />
-      ),
-    },
-    {
       title: "Tên sản phẩm",
       dataIndex: "name",
       key: "name",
