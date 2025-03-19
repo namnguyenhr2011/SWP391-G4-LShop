@@ -100,7 +100,7 @@ const App = () => {
           <Route path="/sale" element={<SaleScreen />} />
           <Route path="/sale/add" element={<AddSaleScreen />} />
           <Route path="/sale/update" element={<UpdateSaleScreen />} />
-          <Route path="/sale/ordermanager" element={<OrderManager />} />
+          <Route path="/sale/order-manager" element={<OrderManager />} />
         </Routes>
       </Router>
     </ConfigProvider>
