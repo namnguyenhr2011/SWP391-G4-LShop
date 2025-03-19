@@ -47,7 +47,15 @@ const FeaturedProducts = ({ isDarkMode }) => {
           Sản phẩm nổi bật
         </Title>
       </div>
+<<<<<<< HEAD
       <ProductCard products={products} loading={loading}  />
+=======
+      <ProductCard
+        products={products}
+        loading={loading}
+        onProductClick={handleProductClick} // Truyền hàm xử lý click xuống ProductCard
+      />
+>>>>>>> tuan
     </div>
   );
 };
