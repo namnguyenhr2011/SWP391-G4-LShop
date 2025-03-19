@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, Select, Input, Upload, Layout, message, Spin } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Button, Select, Input, Layout, message, Spin } from "antd";
 import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
-import { getAllCategory, getSubCategory, updateProduct, getAllProductBySubCategory } from "../../Service/Client/ApiProduct";
+import { getAllCategory, getAllProductBySubCategory, updateProduct } from "../../Service/Client/ApiProduct";
 import UploadProductImage from "./uploadImage/uploadImage";
-
-
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -65,20 +62,32 @@ const UpdateProduct = () => {
     }
   };
 
-
-
   const handleUpdateProduct = async () => {
     if (!selectedProduct) {
       message.error("Please select a product to update");
       return;
     }
 
+    if (!productDetails.name.trim()) {
+      message.error("Product name cannot be empty");
+      return;
+    }
+
+    if (!productDetails.price.trim()) {
+      message.error("Price cannot be empty");
+      return;
+    }
+
+    if (!productDetails.description.trim()) {
+      message.error("Description cannot be empty");
+      return;
+    }
+
     setLoading(true);
 
-    const productId = selectedProduct;
     try {
       const updatedProduct = {
-        productId,
+        productId: selectedProduct,
         ...productDetails,
       };
       console.log(updatedProduct);

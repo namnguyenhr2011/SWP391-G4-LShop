@@ -61,6 +61,11 @@ const AddProduct = () => {
             return;
         }
 
+        if (!product.quantity || Number(product.quantity) <= 0) {
+            message.error("Quantity must be greater than 0!");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -124,19 +129,50 @@ const AddProduct = () => {
                                 )}
 
                                 <Form.Item label="Product Name" required>
-                                    <Input value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
+                                    <Input 
+                                        value={product.name} 
+                                        onChange={(e) => setProduct({ ...product, name: e.target.value })} 
+                                    />
                                 </Form.Item>
                                 <Form.Item label="Price" required>
-                                    <Input value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
+                                    <Input 
+                                        value={product.price} 
+                                        onChange={(e) => setProduct({ ...product, price: e.target.value })} 
+                                    />
                                 </Form.Item>
-                                <Form.Item label="Quantity" required>
-                                    <Input value={product.quantity} onChange={(e) => setProduct({ ...product, quantity: e.target.value })} />
+                                <Form.Item
+                                    label="Quantity"
+                                    required
+                                    rules={[
+                                        { required: true, message: "Please enter quantity!" },
+                                        { type: "number", min: 1, message: "Quantity must be greater than 0!" }
+                                    ]}
+                                >
+                                    <Input
+                                        type="number"
+                                        value={product.quantity}
+                                        onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+                                    />
                                 </Form.Item>
                                 <Form.Item label="Image URL">
-                                    <Input value={product.image} onChange={(e) => setProduct({ ...product, image: e.target.value })} />
+                                    <Input 
+                                        value={product.image} 
+                                        onChange={(e) => setProduct({ ...product, image: e.target.value })} 
+                                    />
                                 </Form.Item>
-                                <Form.Item label="Description">
-                                    <Input.TextArea value={product.description} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
+                                <Form.Item
+                                    label="Description"
+                                    required
+                                    rules={[
+                                        { required: true, message: "Please enter a description!" },
+                                        { max: 500, message: "Description must be less than 500 characters!" }
+                                    ]}
+                                >
+                                    <Input.TextArea
+                                        value={product.description}
+                                        onChange={(e) => setProduct({ ...product, description: e.target.value })}
+                                        maxLength={500} 
+                                    />
                                 </Form.Item>
                                 <Button type="primary" block htmlType="submit" loading={loading}>
                                     {loading ? "Adding..." : "Add Product"}

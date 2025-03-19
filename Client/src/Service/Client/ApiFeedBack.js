@@ -1,4 +1,4 @@
-import axios from "../../utils/CustomizeApi";  // Đảm bảo axios được cấu hình đúng
+import axios from "../../utils/CustomizeApi"; 
 
 export const addFeedback = async (feedbackData) => {
   try {
