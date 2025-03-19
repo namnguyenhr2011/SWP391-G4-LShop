@@ -50,13 +50,8 @@ export const getAllProduct = async (page) => {
     return response.data;
 };
 
-export const getAllProductByCategory = async (category, page) => {
-    const response = await axios.get(`getProductByCategory/${category}`, { params: { page }, withCredentials: true });
-    return response.data;
-};
-
 export const getAllProductBySubCategory = async (id, page) => {
-    const response = await axios.get(`product/getProductBySubCategory/${id}`, { params: { page }, withCredentials: true });
+    const response = await axios.put(`product/getProductBySubCategory/${id }`, { params: { page }, withCredentials: true });
     return response.data;
 };
 

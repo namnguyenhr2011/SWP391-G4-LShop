@@ -20,7 +20,7 @@ import Footer from "../../layout/Footer";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../../Store/reducer/cartReducer"
+import { addToCart } from "../../../store/reducer/cartReducer";
 
 
 

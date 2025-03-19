@@ -42,7 +42,7 @@ const Header = () => {
 
   // Effects
   useEffect(() => {
-    document.title = nameApp || "My App";
+    document.title = nameApp || "L-Shop";
     const iconLink = document.querySelector("link[rel='icon']");
     if (logo && iconLink) {
       iconLink.href = logo;

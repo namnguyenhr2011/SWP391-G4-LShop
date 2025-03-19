@@ -10,6 +10,7 @@ export const createOrder = async (data) => {
     return response.data;
 };
 
+
 export const updateOrder = async (id, data) => {
     const response = await axios.put(`order/updateOrder/${id}`, data, { withCredentials: true });
     return response.data;

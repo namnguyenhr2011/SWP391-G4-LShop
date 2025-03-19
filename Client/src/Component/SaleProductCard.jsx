@@ -115,7 +115,13 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                 style={{
                   marginBottom: "8px",
                   color: themeStyles.textColor,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "100%",
+                  display: "block",
                 }}
+                title={product.name} // Hiển thị tooltip khi hover vào tên sản phẩm
               >
                 {product.name}
               </Title>

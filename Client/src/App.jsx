@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./Screen/Client/Login";
 import Register from "./Screen/Client/Register";
 import Forgot from "./Screen/Client/Forgot";
-import Home from "./Screen/Home";
+import Home from "./screen/Home";
 import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
@@ -34,11 +34,10 @@ import OrderScreen from "./Screen/Client/order/Order"
 import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";
 import AddCategory from "./Screen/ProductManager/AddCategory";
-import SaleScreen from "./Screen/Sale/SaleScreen";
 import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
 import ViewProduct from "./Screen/ProductManager/ViewProudct"
-import ProductDetail from "./Screen/ProductManager/sale/productDetail";
+import ProductDetail from "./Screen/Client/product/productDetail";
 
 import AdminLayout from "./screen/admin/AdminLayout";
 import AdminDashboard from "./screen/admin/AdminDashboard";
@@ -46,6 +45,14 @@ import UserManagement from "./screen/admin/UserManagement";
 import SaleManagement from "./screen/admin/SaleManagement";
 import OrderManagement from "./screen/admin/OrderManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
+
+
+//sale
+import SaleScreen from "./Screen/Sale/SaleScreen";
+import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
+import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
+import ProductList from "./Screen/Client/product/productList";
+import OrderManager from "./Screen/Sale/OrderManager";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -118,9 +125,15 @@ const App = () => {
             </Route>
 
             {/* tuan */}
+            <Route path="/product-list" element={<ProductList />} />
+            <Route path="/product-list/:subcategoryId" element={<ProductList />} />
             <Route path="/sale" element={<SaleScreen />} />
+            <Route path="/sale/add" element={<AddSaleScreen />} />
+            <Route path="/sale/update" element={<UpdateSaleScreen />} />
+            <Route path="/sale/order-manager" element={<OrderManager />} />
 
 
+            {/* end */}
             <Route path="*" element={<NotFound />} />
           </Routes >
         </Router >

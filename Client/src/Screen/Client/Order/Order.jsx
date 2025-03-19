@@ -41,7 +41,7 @@ const MyOrders = () => {
 
   const columns = [
     { title: 'Order ID', dataIndex: '_id', key: '_id' },
-    { title: 'Total Amount', dataIndex: 'totalAmount', key: 'totalAmount', render: amount => `$${amount}` },
+    { title: 'Total Amount', dataIndex: 'totalAmount', key: 'totalAmount', render: amount => `${amount} VND` },
     { title: 'Payment Method', dataIndex: 'paymentMethod', key: 'paymentMethod' },
     { title: 'Payment Status', dataIndex: 'paymentStatus', key: 'paymentStatus', render: status => <Tag color={status === 'Completed' ? 'green' : 'red'}>{status}</Tag> },
     { title: 'Order Status', dataIndex: 'status', key: 'status', render: status => <Tag color={status === 'Pending' ? 'orange' : 'blue'}>{status}</Tag> },

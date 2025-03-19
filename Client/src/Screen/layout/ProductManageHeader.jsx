@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { UserOutlined, LoginOutlined, LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 
-import ButtonAntd from "../../Component/ButtonAntd";
+import ButtonAntd from "../../Component/Button";
 import { doLogout, doDarkMode } from "../../Store/reducer/userReducer";
 
 const Header = () => {

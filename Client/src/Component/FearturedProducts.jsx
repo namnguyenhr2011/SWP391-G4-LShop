@@ -1,12 +1,15 @@
+// src/Component/FearturedProducts.jsx
 import { useEffect, useState } from "react";
 import { Typography } from "antd";
 import { ThunderboltOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 import ProductCard from "./ProductCard";
 import { getTop8 } from "../service/client/ApiProduct";
 
 const { Title } = Typography;
 
 const FeaturedProducts = ({ isDarkMode }) => {
+  const navigate = useNavigate(); // Khởi tạo useNavigate
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +26,11 @@ const FeaturedProducts = ({ isDarkMode }) => {
     };
     fetchProducts();
   }, []);
+
+  // Hàm xử lý khi click vào sản phẩm
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <div style={{ marginBottom: "40px" }}>

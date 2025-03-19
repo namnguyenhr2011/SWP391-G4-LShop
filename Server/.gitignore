@@ -36,17 +36,6 @@ server/.env
 
 <<<<<<< HEAD
 # typescript
-*.tsbuildinfo
-<<<<<<< HEAD
-*.json
-=======
-default.json
->>>>>>> nam
-
-default.json
-=======
-
 default.json
 
->>>>>>> daian
 app-example
