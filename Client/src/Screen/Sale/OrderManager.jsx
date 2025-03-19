@@ -7,7 +7,7 @@ const OrderManager = ({ saleId }) => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get(`/api/orders?saleId=${saleId}`);
+                const response = await axios.get(`/orders?saleId=${saleId}`);
                 setOrders(response.data);
             } catch (error) {
                 console.error('Error fetching orders:', error);

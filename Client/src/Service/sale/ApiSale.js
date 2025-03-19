@@ -35,7 +35,7 @@ export const getAllSaleClaims = async () => {
 };
 
 export const getAllOrderBySaleId = async (saleId) => {
-    const response = await axios.get(`/order/getAllOrderBySaleId/${saleId}`, { withCredentials: true });
+    const response = await axios.get(`/sale/getAllOrderBySaleId/${saleId}`, { withCredentials: true });
     return response.data;
 };
 
