@@ -23,7 +23,7 @@ const ProductView = () => {
         const response = await getAllCategory();
         setCategories(response.categories);
       } catch (error) {
-        message.error("Failed to load categories");
+        message.error("Không thể tải danh mục sản phẩm!");
       }
     };
     fetchCategories();
@@ -41,7 +41,7 @@ const ProductView = () => {
             setProducts([]);
           }
         } catch (error) {
-          message.error("Failed to load products");
+          message.error("Không thể tải danh sách sản phẩm!");
         }
       }
     };
@@ -64,10 +64,10 @@ const ProductView = () => {
         setProducts(response.products);
         setFilteredProducts(response.products);
       } else {
-        message.error("No products found for this subcategory.");
+        message.error("Không tìm thấy sản phẩm cho danh mục này!");
       }
     } catch (error) {
-      message.error("Failed to load products");
+      message.error("Không thể tải sản phẩm!");
     }
   };
 
@@ -92,14 +92,27 @@ const ProductView = () => {
 
   const columns = [
     {
-      title: "Product Name",
+      title: "Ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          src={image || "https://via.placeholder.com/50"} // Ảnh mặc định nếu không có ảnh
+          alt="Sản phẩm"
+          style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
+        />
+      ),
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Price",
+      title: "Giá",
       dataIndex: "price",
       key: "price",
+      render: (price) => `${new Intl.NumberFormat("vi-VN").format(price)} VND`,
     },
   ];
 
@@ -117,17 +130,17 @@ const ProductView = () => {
               paddingTop: 80,
             }}
           >
-            <h3>VIEW PRODUCT LIST</h3>
+            <h3>Danh sách sản phẩm</h3>
 
             <div className="mb-3">
-              <label className="form-label">Category:</label>
+              <label className="form-label">Danh mục:</label>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Choose category"
+                placeholder="Chọn danh mục"
                 onChange={handleCategoryChange}
               >
                 <Option key={0} value={null}>
-                  All Products
+                  Tất cả sản phẩm
                 </Option>
                 {categories?.map((category) => (
                   <Option key={category._id} value={category._id}>
@@ -138,10 +151,10 @@ const ProductView = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">SubCategory:</label>
+              <label className="form-label">Danh mục con:</label>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Choose sub category"
+                placeholder="Chọn danh mục con"
                 onChange={handleSubCategoryChange}
                 disabled={!selectedCategory}
               >
@@ -154,9 +167,9 @@ const ProductView = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Search Product:</label>
+              <label className="form-label">Tìm kiếm sản phẩm:</label>
               <Input
-                placeholder="Search by product name"
+                placeholder="Nhập tên sản phẩm"
                 value={searchKeyword}
                 onChange={handleSearchChange}
               />
