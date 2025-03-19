@@ -16,11 +16,10 @@ import Header from "../../layout/Header";
 import AppFooter from "../../layout/Footer";
 import { userProfile } from "../../../Service/Client/ApiServices";
 import { createOrder, create_VnPay } from "../../../Service/Client/ApiOrder";
-import { clearCart } from "../../../Store/reducer/cartReducer";
+import { clearCart } from "../../../store/reducer/cartReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 
 
 
