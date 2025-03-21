@@ -7,7 +7,7 @@ const saleClaimSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // Đảm bảo mỗi saler chỉ có một bản ghi
+      unique: true, 
     },
     orderIds: [{
       type: mongoose.Schema.Types.ObjectId,

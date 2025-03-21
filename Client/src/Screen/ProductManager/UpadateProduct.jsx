@@ -101,9 +101,9 @@ const UpdateProduct = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh"  }}>
       <Header />
-      <Layout style={{ marginTop: 64 }}>
+      <Layout style={{ marginTop: 64, marginLeft: 200 }}>
         <Sidebar />
         <Layout style={{ padding: "20px" }}>
           <Content

@@ -17,7 +17,6 @@ const DeleteProduct = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Lấy danh sách category từ MongoDB
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -69,7 +68,7 @@ const DeleteProduct = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header />
-      <Layout style={{ marginTop: 64 }}>
+      <Layout style={{ marginTop: 64, marginLeft: 200 }}>
         <Sidebar />
         <Layout style={{ padding: "20px" }}>
           <Content

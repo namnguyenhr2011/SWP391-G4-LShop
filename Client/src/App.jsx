@@ -38,6 +38,8 @@ import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
 import ViewProduct from "./Screen/ProductManager/ViewProudct"
 import ProductDetail from "./Screen/Client/product/productDetail";
+import AddSubCategory  from "./Screen/ProductManager/AddSubCategory";
+import ViewCategory from "./Screen/ProductManager/ViewCategory";
 
 import AdminLayout from "./screen/admin/AdminLayout";
 import AdminDashboard from "./screen/admin/AdminDashboard";
@@ -108,6 +110,9 @@ const App = () => {
             <Route path="/updateproduct" element={<UpdateProduct />} />
             <Route path="/viewproduct" element={<ViewProduct />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/addSubCategory" element={<AddSubCategory />} />
+            <Route path="/viewCategory" element={<ViewCategory />} />
+            
             {/* nam */}
             <Route
               path="/admin/*"

@@ -4,7 +4,6 @@ const User = require('../../models/user')
 const subCategories = require('../../models/subCategory');
 const subCategory = require('../../models/subCategory');
 
-
 //[GET] api/category/getAllCategory
 module.exports.getAllCategory = async (req, res) => {
     try {
@@ -296,3 +295,14 @@ module.exports.managerDeleteSubCategory = async (req, res) => {
         });
     }
 };
+
+module.exports.getAllSubCategoriesByCategory = async (req, res) => {
+    try {
+      const { categoryId } = req.params;
+      const subCategories = await SubCategory.find({ categoryId });
+  
+      res.status(200).json({ success: true, subCategories });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Lỗi khi tải subcategories" });
+    }
+  };

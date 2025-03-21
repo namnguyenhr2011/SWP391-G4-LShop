@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, Layout, message, Table, Input } from "antd";
+import { Select, Layout, message, Table, Input, Modal } from "antd";
 import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
 import { getAllCategory, getAllProductBySubCategory, getAllProduct } from "../../Service/Client/ApiProduct";
@@ -16,6 +16,8 @@ const ProductView = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [selectedProduct, setSelectedProduct] = useState(null); // State lưu sản phẩm được chọn
+  const [modalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -85,12 +87,24 @@ const ProductView = () => {
     setPagination({ current: page, pageSize: pageSize });
   };
 
-  const paginatedProducts = filteredProducts.slice(
-    (pagination.current - 1) * pagination.pageSize,
-    pagination.current * pagination.pageSize
-  );
+  const handleRowClick = (record) => {
+    setSelectedProduct(record);
+    setModalVisible(true);
+  };
 
   const columns = [
+    {
+      title: "Ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          src={image || "https://via.placeholder.com/50"} // Ảnh mặc định nếu không có ảnh
+          alt="Sản phẩm"
+          style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
+        />
+      ),
+    },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
@@ -101,6 +115,11 @@ const ProductView = () => {
       dataIndex: "price",
       key: "price",
       render: (price) => `${new Intl.NumberFormat("vi-VN").format(price)} VND`,
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
     },
   ];
 
@@ -165,7 +184,7 @@ const ProductView = () => {
 
             <Table
               columns={columns}
-              dataSource={paginatedProducts}
+              dataSource={filteredProducts}
               rowKey="_id"
               pagination={{
                 current: pagination.current,
@@ -173,7 +192,27 @@ const ProductView = () => {
                 total: filteredProducts.length,
                 onChange: handlePaginationChange,
               }}
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+              })}
+              rowClassName="clickable-row"
             />
+            
+            <Modal
+              title="Chi tiết sản phẩm"
+              open={modalVisible}
+              onCancel={() => setModalVisible(false)}
+              footer={null}
+            >
+              {selectedProduct && (
+                <>
+                  <p><b>Tên:</b> {selectedProduct.name}</p>
+                  <p><b>Giá:</b> {new Intl.NumberFormat("vi-VN").format(selectedProduct.price)} VND</p>
+                  <p><b>Số lượng:</b> {selectedProduct.quantity}</p>
+                  <p><b>Mô tả:</b> {selectedProduct.description}</p>
+                </>
+              )}
+            </Modal>
           </Content>
         </Layout>
       </Layout>
