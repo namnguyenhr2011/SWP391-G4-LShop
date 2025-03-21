@@ -15,9 +15,9 @@ const ProductView = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
-  const [selectedProduct, setSelectedProduct] = useState(null); // State lưu sản phẩm được chọn
-  const [modalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 8 }); // Đổi pageSize thành 8
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -99,7 +99,7 @@ const ProductView = () => {
       key: "image",
       render: (image) => (
         <img
-          src={image || "https://via.placeholder.com/50"} // Ảnh mặc định nếu không có ảnh
+          src={image || "https://via.placeholder.com/50"}
           alt="Sản phẩm"
           style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
         />
@@ -188,7 +188,7 @@ const ProductView = () => {
               rowKey="_id"
               pagination={{
                 current: pagination.current,
-                pageSize: pagination.pageSize,
+                pageSize: pagination.pageSize, // Hiển thị 8 sản phẩm mỗi trang
                 total: filteredProducts.length,
                 onChange: handlePaginationChange,
               }}
@@ -197,7 +197,7 @@ const ProductView = () => {
               })}
               rowClassName="clickable-row"
             />
-            
+
             <Modal
               title="Chi tiết sản phẩm"
               open={modalVisible}
