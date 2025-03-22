@@ -4,7 +4,7 @@ import { Button, Input, Table, Select, message, Spin } from "antd";
 import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { doLogout } from "../../Store/reducer/userReducer";
+import { doLogout } from "../../store/reducer/userReducer";
 
 const { Option } = Select;
 
@@ -271,19 +271,20 @@ const SaleScreen = () => {
   const handleDelete = async (saleId) => {
     if (!saleId) return message.error("No sale found to delete.");
     try {
+      setLoading(true);
       const response = await deleteSale(saleId);
-      if (response.message) {
-        message.success(response.message);
-        setProducts((prev) =>
-          prev.map((product) =>
-            product.sale?.saleID === saleId
-              ? { ...product, sale: null, saleId: null }
-              : product
-          )
-        );
-      }
+      message.success(response.message);
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.sale?.saleID === saleId
+            ? { ...product, sale: null, saleId: null }
+            : product
+        )
+      );
     } catch (error) {
       message.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 

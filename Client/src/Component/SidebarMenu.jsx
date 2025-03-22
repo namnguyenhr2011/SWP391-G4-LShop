@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAllCategory } from "../Service/Client/ApiProduct";
 
-const SidebarMenuAntd = () => {
+const SidebarMenu = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
@@ -88,4 +88,4 @@ const SidebarMenuAntd = () => {
   );
 };
 
-export default SidebarMenuAntd;
+export default SidebarMenu;

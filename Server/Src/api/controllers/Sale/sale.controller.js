@@ -61,7 +61,38 @@ module.exports.getAllProductsWithSale = async (req, res) => {
     }
 };
 
+module.exports.getProductWithSaleById = async (req, res) => {
+    try {
+        const { id } = req.params; // Lấy productId từ params
 
+        // Kiểm tra xem productId có tồn tại không
+        if (!id) {
+            return res.status(400).json({ message: 'Product ID is required.' });
+        }
+
+        // Tìm sản phẩm theo ID và populate subCategory
+        const product = await Product.findOne({ _id: id, deleted: false })
+            .populate('subCategory', 'name description')
+
+        // Kiểm tra nếu không tìm thấy sản phẩm
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+
+        // Tìm thông tin sale liên quan đến sản phẩm này
+        const sale = await Sale.findOne({ productId: id })
+
+        // Kết hợp thông tin sản phẩm và sale để trả về
+        res.status(200).json({
+            product: {
+                ...product.toObject(), // Chuyển đổi document thành object để thêm sale
+                sale: sale ? sale.toObject() : null // Nếu không có sale thì trả về null
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
 
 module.exports.addSalePrice = async (req, res) => {
     try {
@@ -313,45 +344,62 @@ module.exports.getAllProductsWithSaleID = async (req, res) => {
     }
 };
 
-module.exports.getAllSaleClaims = async (req, res) => {
-    try {
-        const saleClaims = await SaleClaim.find({});
-        
-        if (!saleClaims || saleClaims.length === 0) {
-            return res.status(404).json({ message: 'No sale claims found.' });
-        }
-
-        res.status(200).json({
-            saleClaims: saleClaims,
-            total: saleClaims.length
-        });
-    } catch (error) {
-        console.error('Error in getAllSaleClaims:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
-
 module.exports.getAllOrderBySaleId = async (req, res) => {
     try {
-        const { saleId } = req.params;
-
-        // Kiểm tra saleId hợp lệ
-        if (!saleId) {
-            return res.status(400).json({ message: 'Sale ID is required.' });
-        }
-
-        const orders = await Order.find({ saleId: saleId }); // Giả sử bạn có model Order
-        
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: 'No orders found for this sale ID.' });
-        }
-
-        res.status(200).json({
-            orders: orders,
-            total: orders.length
-        });
+      const { saleId } = req.params; // Lấy saleId từ params
+      const { status } = req.body; // Lấy trạng thái mới từ body (nếu cần update)
+  
+      // Tìm SaleClaim theo saleId
+      const saleClaim = await SaleClaim.findOne({ salerId: saleId }).populate('orderIds');
+      
+      if (!saleClaim) {
+        return res.status(404).json({ message: "SaleClaim not found" });
+      }
+  
+      // Trả về danh sách orderIds
+      const orderIds = saleClaim.orderIds;
+  
+      // Nếu có status trong body, update trạng thái cho tất cả orders
+      if (status) {
+        await Order.updateMany(
+          { _id: { $in: orderIds } },
+          { $set: { status: status } }
+        );
+      }
+  
+      return res.status(200).json({
+        message: "Orders retrieved successfully",
+        orders: orderIds,
+      });
+  
     } catch (error) {
-        console.error('Error in getAllOrderBySaleId:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
-};
+  };
+
+  module.exports.updateOrderStatusBySaleId = async (req, res) => {
+    try {
+      const { saleId } = req.params; // Lấy saleId từ params
+      const { status } = req.body; // Lấy status từ body
+  
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+  
+      // Tìm SaleClaim theo saleId
+      const saleClaim = await SaleClaim.findOne({ salerId: saleId });
+      if (!saleClaim) {
+        return res.status(404).json({ message: "SaleClaim not found" });
+      }
+  
+      // Cập nhật trạng thái cho tất cả orders trong saleClaim
+      await Order.updateMany(
+        { _id: { $in: saleClaim.orderIds } },
+        { $set: { status } }
+      );
+  
+      return res.status(200).json({ message: "Order statuses updated successfully" });
+    } catch (error) {
+      return res.status(500).json({ message: "Server error", error: error.message });
+    }
+  };

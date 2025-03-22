@@ -29,13 +29,22 @@ export const getProductWithSaleID = async () => {
     return response.data;
 }
 
-export const getAllSaleClaims = async () => {
-    const response = await axios.get(`/sale/saleClaims`, { withCredentials: true });
+export const getProductWithSaleById = async (id) => {
+    if (!id) throw new Error("Product ID is required");
+    try {
+      const response = await axios.get(`/sale/getProductWithSaleById/${id}`, { withCredentials: true });
+      return response.data; // Trả về dữ liệu từ API
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch product with sale");
+    }
+  };
+
+export const getAllOrdersBySaleId = async (saleId) => {
+    const response = await axios.get(`sale/${saleId}/orders`, { withCredentials: true });
     return response.data;
 };
 
-export const getAllOrderBySaleId = async (saleId) => {
-    const response = await axios.get(`/sale/getAllOrderBySaleId/${saleId}`, { withCredentials: true });
+export const updateOrderStatusBySaleId = async (saleId, status) => {
+    const response = await axios.put(`sale/${saleId}/orders/status`, { status }, { withCredentials: true });
     return response.data;
 };
-

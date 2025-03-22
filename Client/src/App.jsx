@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./Screen/Client/Login";
 import Register from "./Screen/Client/Register";
 import Forgot from "./Screen/Client/Forgot";
-import Home from "./screen/Home";
+import Home from "./Screen/Home";
 import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
@@ -53,6 +53,8 @@ import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
 import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
 import ProductList from "./Screen/Client/product/productList";
 import OrderManager from "./Screen/Sale/OrderManager";
+import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
+import SaleProductCard from "./Component/SaleProductCard";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -125,12 +127,14 @@ const App = () => {
             </Route>
 
             {/* tuan */}
-            <Route path="/product-list" element={<ProductList />} />
+            <Route path="/all-products" element={<ProductList />} />
             <Route path="/product-list/:subcategoryId" element={<ProductList />} />
             <Route path="/sale" element={<SaleScreen />} />
             <Route path="/sale/add" element={<AddSaleScreen />} />
             <Route path="/sale/update" element={<UpdateSaleScreen />} />
             <Route path="/sale/order-manager" element={<OrderManager />} />
+            <Route path="/product-sale/:id" element={<ProductSaleDetail />} />;
+            <Route path="/products-sale" element={<SaleProductCard />} />;
 
 
             {/* end */}

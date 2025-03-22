@@ -40,7 +40,6 @@ const ProductDetail = () => {
     const [form] = Form.useForm();
     const { _id: userId } = useSelector((state) => state.user?.user) || {};
 
-
     useEffect(() => {
         fetchProductAndFeedbacks();
     }, [id]);
@@ -48,7 +47,6 @@ const ProductDetail = () => {
     const fetchProductAndFeedbacks = async () => {
         try {
             const productResponse = await getProductById(id);
-            console.log(productResponse);
             if (productResponse?.product) {
                 setProduct(productResponse.product);
                 setSelectedImage(productResponse.product.image || "");
@@ -57,9 +55,13 @@ const ProductDetail = () => {
             }
 
             const feedbackResponse = await getFeedbackByProductId(id);
-            console.log(feedbackResponse);
             if (feedbackResponse?.feedback) {
                 setFeedbacks(feedbackResponse.feedback);
+
+                const totalRating = feedbackResponse.feedback.reduce((sum, fb) => sum + fb.rating, 0);
+                const avgRating = feedbackResponse.feedback.length ? totalRating / feedbackResponse.feedback.length : 0;
+
+                setProduct((prev) => ({ ...prev, rating: avgRating }));
             }
         } catch (err) {
             message.error("Có lỗi khi tải dữ liệu!", err);
@@ -69,7 +71,7 @@ const ProductDetail = () => {
         }
     };
 
-    const handleSubmitFdback = async (values) => {
+    const handleSubmitFeedback = async (values) => {
         if (!values.rating || !values.comment) {
             message.error("Vui lòng chọn đầy đủ đánh giá và nhận xét!");
             return;
@@ -82,10 +84,7 @@ const ProductDetail = () => {
         };
 
         try {
-            console.log("Dữ liệu gửi đi:", feedbackData);
             const response = await addFeedback(feedbackData);
-            console.log("Phản hồi API:", response);
-
             if (response && response.success) {
                 message.success("Đánh giá của bạn đã được gửi!");
                 form.resetFields();
@@ -94,10 +93,10 @@ const ProductDetail = () => {
                 message.error("Có lỗi xảy ra, vui lòng thử lại.");
             }
         } catch (err) {
-            console.error("Lỗi khi gửi đánh giá:", err);
-            message.error("Có lỗi khi gửi đánh giá!");
+            message.error("Có lỗi khi gửi đánh giá!", err);
         }
     };
+
 
     if (loading) {
         return (
@@ -229,15 +228,15 @@ const ProductDetail = () => {
                                         label: "Đánh giá sản phẩm",
                                         children: (
                                             <>
-                                                <Form form={form} onFinish={handleSubmitFdback} layout="vertical">
-                                                    <Form.Item name="rating" label="Đánh giá sao" rules={[{ required: true, message: "Vui lòng chọn số sao!" }]}>
+                                                <Form form={form} onFinish={handleSubmitFeedback} layout="vertical">
+                                                    <Form.Item name="rating" label="Rate" rules={[{ required: true, message: "Please choose a rating" }]}>
                                                         <Rate />
                                                     </Form.Item>
-                                                    <Form.Item name="comment" label="Nhận xét" rules={[{ required: true }]}>
+                                                    <Form.Item name="comment" label="Comment" rules={[{ required: true }]}>
                                                         <TextArea rows={4} />
                                                     </Form.Item>
                                                     <Form.Item>
-                                                        <Button type="primary" htmlType="submit">Gửi Đánh Giá</Button>
+                                                        <Button type="primary" htmlType="submit">Send Feedback</Button>
                                                     </Form.Item>
                                                 </Form>
 
@@ -250,33 +249,25 @@ const ProductDetail = () => {
                                                                 title={feedback.userId?.userName}
                                                                 description={
                                                                     <>
-                                                                        <Row>
-                                                                            <Col md={8} xs={12} >
-                                                                                <Text>{feedback.comment}</Text>
-                                                                                <br />
-                                                                                <Rate disabled value={feedback.rating} />
-                                                                            </Col>
-                                                                            <Col md={4} xs={12} >
-                                                                                {userId && String(feedback.userId?._id) === String(userId) && (
-                                                                                    <Button
-                                                                                        danger
-                                                                                        icon={<DeleteOutlined />}
-                                                                                        onClick={() => handleDelete(feedback._id)}
-                                                                                        style={{ marginTop: 4, marginLeft: 10 }}
-                                                                                    >
-                                                                                        Xóa
-                                                                                    </Button>
-                                                                                )}
-                                                                            </Col>
-
-                                                                        </Row>
+                                                                        <Text>{feedback.comment}</Text>
+                                                                        <br />
+                                                                        <Rate disabled value={feedback.rating} />
+                                                                        {userId && String(feedback.userId?._id) === String(userId) && (
+                                                                            <Button
+                                                                                danger
+                                                                                icon={<DeleteOutlined />}
+                                                                                onClick={() => handleDelete(feedback._id)}
+                                                                                style={{ marginTop: 4, marginLeft: 10 }}
+                                                                            >
+                                                                                Delete
+                                                                            </Button>
+                                                                        )}
                                                                     </>
                                                                 }
                                                             />
                                                         </List.Item>
                                                     )}
                                                 />
-
                                             </>
                                         ),
                                     },
