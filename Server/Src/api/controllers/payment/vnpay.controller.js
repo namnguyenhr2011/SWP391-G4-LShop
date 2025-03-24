@@ -4,6 +4,9 @@ const moment = require('moment');
 const Transaction = require("../../models/transaction");
 const Order = require("../../models/order");
 const User = require("../../models/user");
+const sendEmail = require('../../../helper/sendEmail');
+
+
 
 module.exports.createPaymentUrl = async (req, res) => {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
@@ -38,7 +41,7 @@ module.exports.createPaymentUrl = async (req, res) => {
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
 
-    let locale = req.body.language || 'vn';  
+    let locale = req.body.language || 'vn';
     let currCode = 'VND';
 
     let vnp_Params = {};
@@ -129,10 +132,10 @@ module.exports.returnUrl = async (req, res) => {
         // Verify the hash to authenticate data
         if (secureHash === signed) {
             const paymentStatus = responseCode === '00' ? 'Completed' : 'Failed';
-            
+
 
             // Update order status
-            const order = await Order.findById(orderId);
+            const order = await Order.findById(orderId).populate("products.productId");
             if (order) {
                 order.paymentStatus = paymentStatus;
                 await order.save();
@@ -162,6 +165,134 @@ module.exports.returnUrl = async (req, res) => {
                 responseCode,
                 ...vnp_Params
             };
+
+            const user = await User.findById(transaction.userId);
+            
+            if (!user) {
+                return res.status(401).json({ message: 'User not found!' });
+            }
+            const userEmail = user.email
+            if (paymentStatus === "Completed") {
+                const subject = "Your Payment Was Successful - Order Confirmation";
+                const html = `
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <style>
+                                    body {
+                                        font-family: Arial, sans-serif;
+                                        line-height: 1.6;
+                                        color: #333;
+                                        background-color: #f9f9f9;
+                                        padding: 20px;
+                                    }
+                                    .email-container {
+                                        max-width: 600px;
+                                        margin: 0 auto;
+                                        background: #ffffff;
+                                        border: 1px solid #ddd;
+                                        border-radius: 8px;
+                                        overflow: hidden;
+                                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                    }
+                                    .email-header {
+                                        background: #4caf50;
+                                        color: #ffffff;
+                                        text-align: center;
+                                        padding: 20px;
+                                        font-size: 24px;
+                                    }
+                                    .email-body {
+                                        padding: 20px;
+                                        text-align: left;
+                                    }
+                                    .email-body h3 {
+                                        color: #4caf50;
+                                    }
+                                    .order-details {
+                                        margin-top: 20px;
+                                    }
+                                    .order-details td {
+                                        padding: 8px;
+                                        border-bottom: 1px solid #ddd;
+                                    }
+                                    .order-details th {
+                                        text-align: left;
+                                        padding: 8px;
+                                        background-color: #f4f4f4;
+                                    }
+                                    .email-footer {
+                                        text-align: center;
+                                        padding: 10px;
+                                        background: #f1f1f1;
+                                        color: #555;
+                                        font-size: 12px;
+                                    }
+                                    .order-status {
+                                        font-size: 20px;
+                                        font-weight: bold;
+                                        color: #4caf50;
+                                        background: #eaf7e1;
+                                        padding: 10px;
+                                        border-radius: 8px;
+                                        display: inline-block;
+                                        margin: 10px 0;
+                                    }
+                                    .total-amount {
+                                        font-size: 16px;
+                                        font-weight: bold;
+                                        color: #333;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="email-container">
+                                    <div class="email-header">
+                                        Payment Successful - Order Confirmation
+                                    </div>
+                                    <div class="email-body">
+                                        <p>Dear ${userEmail},</p>
+                                        <p>We are pleased to inform you that your payment has been successfully processed. Your order is now confirmed, and we are preparing it for shipment.</p>
+                                        <div class="order-status">
+                                            Order Status: <span>Payment Successful</span>
+                                        </div>
+                                        <p>Order Details:</p>
+                                        <table class="order-details" style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price (VND)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Loop through order items dynamically -->
+                                                ${order.products.map(item => `
+                                                    <tr>
+                                                        <td>${item.productId.name}</td>
+                                                        <td>${item.quantity}</td>
+                                                        <td>${item.price * item.quantity}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                        <div class="total-amount">
+                                            Total Amount: ${order.totalAmount} VND
+                                        </div>
+                                        <p>If you have any questions or concerns about your order, please don't hesitate to contact our support team.</p>
+                                        <p>Thank you for shopping with us!</p>
+                                        <p>The L-Shop Team</p>
+                                    </div>
+                                    <div class="email-footer">
+                                        © 2025 L-Shop. All rights reserved.
+                                    </div>
+                                </div>
+                            </body>
+                            </html>
+                            `;
+                await sendEmail.sendEmail(userEmail, subject, html)
+                console.log("Send email after transaction successfully!!!")
+            }
 
             // Redirect to frontend with payment result
             const returnUrl = `${frontendUrl}/cart/returnQR?${querystring.stringify(paymentResult)}`;
