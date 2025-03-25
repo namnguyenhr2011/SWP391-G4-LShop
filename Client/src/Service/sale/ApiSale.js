@@ -64,6 +64,11 @@ export const getProductWithSaleById = async (id) => {
       throw new Error(error.response?.data?.message || "Không thể chấp nhận đơn hàng");
     }
   };
+
+  export const completeOrder = async (orderId) => {
+    const response = await axios.post("/sale/completeOrder", { orderId });
+    return response.data;
+  };
   
   export const cancelOrder = async (orderId) => {
     try {

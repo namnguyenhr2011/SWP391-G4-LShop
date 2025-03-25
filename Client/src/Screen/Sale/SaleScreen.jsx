@@ -27,7 +27,7 @@ const Header = ({ onLogout }) => (
       <Navbar.Brand
         style={{
           color: "#ffd700",
-          fontSize: "1.5rem",
+          fontSize: "1.3rem", // Reduced font size
           fontWeight: "700",
           textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)",
         }}
@@ -37,11 +37,12 @@ const Header = ({ onLogout }) => (
       <Button
         type="primary"
         danger
-        size="middle"
+        size="small" // Smaller button size
         onClick={onLogout}
         style={{
           borderRadius: "8px",
-          padding: "0.3rem 1.5rem",
+          padding: "0.2rem 1rem",
+          fontSize: "12px", // Smaller font size
           fontWeight: "600",
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         }}
@@ -59,13 +60,13 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
   <div
     style={{
       background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)",
-      padding: "2rem",
+      padding: "1.5rem", // Reduced padding
       borderRadius: "15px",
       boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
       color: "#ffffff",
       height: "calc(90vh - 50px)",
-      minWidth: "250px",
-      maxWidth: "250px",
+      minWidth: "200px", // Reduced width
+      maxWidth: "200px",
       overflowY: "auto",
       overflowX: "hidden",
       position: "sticky",
@@ -76,8 +77,8 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
       style={{
         color: "#ffd700",
         fontWeight: "600",
-        fontSize: "1.4rem",
-        marginBottom: "1.5rem",
+        fontSize: "1.2rem", // Reduced font size
+        marginBottom: "1rem",
         textAlign: "center",
         whiteSpace: "nowrap",
       }}
@@ -89,11 +90,11 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
         onClick={onViewSalePrice}
         style={{
           color: "#ffffff",
-          fontSize: "1.2rem",
-          padding: "0.75rem 1rem",
+          fontSize: "1rem", // Reduced font size
+          padding: "0.5rem 0.75rem",
           borderRadius: "8px",
           backgroundColor: !activeView ? "#28a745" : "transparent",
-          marginBottom: "1rem",
+          marginBottom: "0.75rem",
           transition: "all 0.3s",
           textAlign: "center",
         }}
@@ -110,8 +111,8 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
         onClick={onViewOrder}
         style={{
           color: "#ffffff",
-          fontSize: "1.2rem",
-          padding: "0.75rem 1rem",
+          fontSize: "1rem", // Reduced font size
+          padding: "0.5rem 0.75rem",
           borderRadius: "8px",
           backgroundColor: activeView ? "#007bff" : "transparent",
           transition: "all 0.3s",
@@ -130,7 +131,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
   </div>
 );
 
-// MainContent Component (Updated to handle SaleOrderManagement)
+// MainContent Component
 const MainContent = ({
   products,
   loading,
@@ -144,7 +145,7 @@ const MainContent = ({
 }) => (
   <div
     style={{
-      padding: "1.5rem",
+      padding: "1rem", // Reduced padding
       background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
       borderRadius: "15px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
@@ -158,7 +159,7 @@ const MainContent = ({
       <SaleOrderManagement loading={loading} setLoading={setLoading} />
     ) : (
       <>
-        <Row className="mb-4" align="middle">
+        <Row className="mb-3" align="middle">
           <Col md={8} xs={12}>
             <Input
               placeholder="🔍 Search..."
@@ -168,7 +169,7 @@ const MainContent = ({
                 borderRadius: "8px",
                 border: "none",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                fontSize: "1rem",
+                fontSize: "0.9rem", // Reduced font size
                 width: "90%",
               }}
             />
@@ -177,7 +178,7 @@ const MainContent = ({
             <Select
               defaultValue="default"
               onChange={onSortChange}
-              style={{ width: "100%", fontSize: "1.1rem" }}
+              style={{ width: "100%", fontSize: "0.9rem" }} // Reduced font size
             >
               <Option value="default">Default</Option>
               <Option value="desc">Price: High to Low</Option>
@@ -208,6 +209,8 @@ const MainContent = ({
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} of ${total} products`,
               }}
+              // Add smaller font size to table cells
+              className="small-font-table"
             />
           </div>
         )}
@@ -221,7 +224,7 @@ const SaleScreen = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
-  const [activeView, setActiveView] = useState(false); // Toggle between Sale Price and Order Management
+  const [activeView, setActiveView] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -297,56 +300,75 @@ const SaleScreen = () => {
           src={image}
           alt="product"
           style={{
-            width: 80,
-            height: 80,
+            width: 60, // Reduced image size
+            height: 60,
             borderRadius: "8px",
             objectFit: "cover",
           }}
         />
       ),
     },
-    { title: "Product Name", dataIndex: "name", key: "name" },
+    {
+      title: "Product Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text) => (
+        <span style={{ fontSize: "12px", whiteSpace: "normal", wordBreak: "break-word" }}>
+          {text}
+        </span>
+      ),
+    },
     {
       title: "Original Price",
       dataIndex: "price",
       key: "price",
-      render: (price) => `${price.toLocaleString()} VND`,
+      render: (price) => (
+        <span style={{ fontSize: "12px" }}>
+          {price.toLocaleString()} VND
+        </span>
+      ),
     },
     {
       title: "Sale Price",
       dataIndex: "sale",
       key: "salePrice",
-      render: (sale) =>
-        sale?.salePrice
-          ? `${sale.salePrice.toLocaleString()} VND`
-          : "Not Available",
+      render: (sale) => (
+        <span style={{ fontSize: "12px" }}>
+          {sale?.salePrice
+            ? `${sale.salePrice.toLocaleString()} VND`
+            : "Not Available"}
+        </span>
+      ),
     },
     {
       title: "Actions",
       key: "action",
       render: (_, record) => (
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
           <Button
-            size="middle"
+            size="small"
             type="primary"
             onClick={() => handleAddSale(record)}
+            style={{ fontSize: "12px", padding: "0 8px" }}
           >
             Add Sale
           </Button>
           <Button
-            size="middle"
+            size="small"
             type="primary"
             onClick={() => handleUpdateSale(record)}
             disabled={!record.sale}
+            style={{ fontSize: "12px", padding: "0 8px" }}
           >
             Update
           </Button>
           <Button
-            size="middle"
+            size="small"
             type="primary"
             danger
             onClick={() => handleDelete(record.sale?.saleID)}
             disabled={!record.sale}
+            style={{ fontSize: "12px", padding: "0 8px" }}
           >
             Delete
           </Button>
@@ -376,7 +398,7 @@ const SaleScreen = () => {
             <Sidebar
               activeView={activeView}
               onViewSalePrice={() => setActiveView(false)}
-              onViewOrder={() => setActiveView(true)} // Toggle to Order Management view
+              onViewOrder={() => setActiveView(true)}
             />
           </Col>
           <Col md={10} xs={12}>
@@ -397,5 +419,26 @@ const SaleScreen = () => {
     </div>
   );
 };
+
+// Add some custom CSS to reduce font sizes in the table
+const styles = `
+  .small-font-table .ant-table-thead > tr > th,
+  .small-font-table .ant-table-tbody > tr > td {
+    font-size: 12px !important;
+    padding: 8px !important; /* Reduce padding for more compact rows */
+  }
+  .small-font-table .ant-select-selector {
+    font-size: 12px !important;
+  }
+  .small-font-table .ant-select-item {
+    font-size: 12px !important;
+  }
+`;
+
+// Inject the styles into the document
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
 
 export default SaleScreen;

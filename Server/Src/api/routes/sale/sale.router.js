@@ -15,6 +15,7 @@ routes.get('/getProductWithSaleById/:id', controller.getProductWithSaleById);
 
 routes.get("/getAssignedOrders", controller.getAssignedOrders);
 routes.post("/acceptOrder", authorization.Authorization, controller.acceptOrder);
+routes.post("/completeOrder", authorization.Authorization, controller.completeOrder);
 routes.post("/cancelOrder", authorization.Authorization, controller.cancelOrder);
 
 module.exports = routes

@@ -409,18 +409,16 @@ module.exports.getAssignedOrders = async (req, res) => {
         return res.status(403).json({ message: "Đơn hàng này không được gán cho bạn!" });
       }
   
-      // Lấy đơn hàng và populate thông tin sản phẩm
       const order = await Order.findById(orderId).populate("products.productId");
       if (!order) {
         return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
       }
   
-      // Kiểm tra trạng thái đơn hàng
       if (order.status !== "Pending") {
         return res.status(400).json({ message: "Chỉ có thể chấp nhận đơn hàng đang ở trạng thái Pending!" });
       }
   
-      // Kiểm tra số lượng tồn kho của tất cả sản phẩm trong đơn hàng
+      // Kiểm tra số lượng tồn kho
       for (const item of order.products) {
         const product = await Product.findById(item.productId);
         if (!product) {
@@ -434,12 +432,12 @@ module.exports.getAssignedOrders = async (req, res) => {
         }
       }
   
-      // Trừ số lượng tồn kho và tăng số lượng đã bán (sold)
+      // Trừ số lượng tồn kho và tăng số lượng đã bán
       for (const item of order.products) {
         await Product.findByIdAndUpdate(item.productId, {
           $inc: {
-            quantity: -item.quantity, // Giảm số lượng tồn kho
-            sold: item.quantity, // Tăng số lượng đã bán (tùy chọn)
+            quantity: -item.quantity,
+            sold: item.quantity,
           },
         });
       }
@@ -451,6 +449,50 @@ module.exports.getAssignedOrders = async (req, res) => {
       res.status(200).json({ message: "Chấp nhận đơn hàng thành công và đã cập nhật số lượng tồn kho!" });
     } catch (error) {
       console.error("Lỗi khi chấp nhận đơn hàng:", error);
+      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
+    }
+  };
+  
+  // Complete Order: Changes status from "Processing" to "Completed"
+  module.exports.completeOrder = async (req, res) => {
+    try {
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Token bị thiếu hoặc không hợp lệ!" });
+      }
+  
+      const saler = await User.findOne({ token });
+      if (!saler || saler.role.toLowerCase() !== "sale") {
+        return res.status(403).json({ message: "Không có quyền truy cập! Chỉ vai trò sale mới được phép." });
+      }
+  
+      const { orderId } = req.body;
+      if (!orderId) {
+        return res.status(400).json({ message: "orderId là bắt buộc!" });
+      }
+  
+      const saleClaim = await SaleClaim.findOne({ salerId: saler._id });
+      if (!saleClaim || !saleClaim.orderIds.includes(orderId)) {
+        return res.status(403).json({ message: "Đơn hàng này không được gán cho bạn!" });
+      }
+  
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+      }
+  
+      if (order.status !== "Processing") {
+        return res.status(400).json({ message: "Chỉ có thể hoàn thành đơn hàng đang ở trạng thái Processing!" });
+      }
+  
+      // Cập nhật trạng thái đơn hàng thành Completed
+      order.status = "Completed";
+      await order.save();
+  
+      res.status(200).json({ message: "Hoàn thành đơn hàng thành công!" });
+    } catch (error) {
+      console.error("Lỗi khi hoàn thành đơn hàng:", error);
       res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
     }
   };

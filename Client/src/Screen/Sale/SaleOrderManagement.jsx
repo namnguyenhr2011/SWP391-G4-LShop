@@ -1,6 +1,6 @@
 import { Table, Button, message, Spin, Typography, Space } from "antd";
 import { useState, useEffect } from "react";
-import { getAssignedOrders, acceptOrder, cancelOrder } from "../../Service/sale/ApiSale";
+import { getAssignedOrders, acceptOrder, completeOrder, cancelOrder } from "../../Service/sale/ApiSale";
 
 const { Title } = Typography;
 
@@ -14,10 +14,11 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
 
   const fetchAssignedOrders = async () => {
     setLoading(true);
-    setParentLoading(true); // Sync with parent loading state
+    setParentLoading(true);
     try {
       const data = await getAssignedOrders();
-      setOrders(data.orders || []);
+      const sortedOrders = sortOrders(data.orders || []);
+      setOrders(sortedOrders);
     } catch (error) {
       message.error("Unable to fetch order list");
       setOrders([]);
@@ -27,13 +28,53 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     }
   };
 
+  // Helper function to sort orders: "Completed" and "Cancelled" go to the bottom
+  const sortOrders = (orders) => {
+    return orders.sort((a, b) => {
+      const statusA = a.status;
+      const statusB = b.status;
+
+      // Define the order of statuses
+      const statusOrder = {
+        Pending: 1,
+        Processing: 2,
+        Completed: 3,
+        Cancelled: 4,
+      };
+
+      return statusOrder[statusA] - statusOrder[statusB];
+    });
+  };
+
   const handleAcceptOrder = async (orderId) => {
     try {
       await acceptOrder(orderId);
       message.success("Order accepted successfully!");
-      await fetchAssignedOrders();
+      // Update local state instead of refetching
+      setOrders((prevOrders) => {
+        const updatedOrders = prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: "Processing" } : order
+        );
+        return sortOrders(updatedOrders);
+      });
     } catch (error) {
       message.error(error.message || "Unable to accept order");
+    }
+  };
+
+  const handleCompleteOrder = async (orderId) => {
+    try {
+      await completeOrder(orderId);
+      message.success("Order completed successfully!");
+      // Update local state instead of refetching
+      setOrders((prevOrders) => {
+        const updatedOrders = prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: "Completed" } : order
+        );
+        return sortOrders(updatedOrders);
+      });
+    } catch (error) {
+      message.error(error.message || "Unable to complete order");
     }
   };
 
@@ -41,7 +82,13 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     try {
       await cancelOrder(orderId);
       message.success("Order cancelled successfully!");
-      await fetchAssignedOrders();
+      // Update local state instead of refetching
+      setOrders((prevOrders) => {
+        const updatedOrders = prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: "Cancelled" } : order
+        );
+        return sortOrders(updatedOrders);
+      });
     } catch (error) {
       message.error(error.message || "Unable to cancel order");
     }
@@ -64,12 +111,15 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       title: "Products",
       dataIndex: "products",
       key: "products",
-      render: (products) =>
-        products.map((item) => (
-          <div key={item._id}>
-            {item.productId?.name || "Unknown"} - Quantity: {item.quantity} - Price: {item.price.toLocaleString()} VND
-          </div>
-        )),
+      render: (products) => (
+        <div style={{ fontSize: "12px", lineHeight: "1.2" }}>
+          {products.map((item) => (
+            <div key={item._id} style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+              {item.productId?.name || "Unknown"} - Qty: {item.quantity} - Price: {item.price.toLocaleString()} VND
+            </div>
+          ))}
+        </div>
+      ),
     },
     {
       title: "Total Amount",
@@ -89,6 +139,8 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       render: (status) => {
         let color = "green";
         if (status === "Pending") color = "orange";
+        if (status === "Processing") color = "blue";
+        if (status === "Completed") color = "green";
         if (status === "Cancelled") color = "red";
         return <span style={{ fontWeight: "bold", color }}>{status}</span>;
       },
@@ -98,17 +150,23 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       key: "action",
       render: (_, record) => {
         const canAcceptOrCancel = record.status === "Pending";
+        const canComplete = record.status === "Processing";
         return (
           <Space>
             {canAcceptOrCancel && (
               <>
                 <Button type="primary" onClick={() => handleAcceptOrder(record._id)}>
-                  Accept
+                  Process
                 </Button>
                 <Button danger onClick={() => handleCancelOrder(record._id)}>
                   Cancel
                 </Button>
               </>
+            )}
+            {canComplete && (
+              <Button type="primary" onClick={() => handleCompleteOrder(record._id)}>
+                Complete
+              </Button>
             )}
           </Space>
         );
