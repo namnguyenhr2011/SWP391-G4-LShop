@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { verifyEmail } from '../../service/client/ApiServices';
+import { verifyEmail } from '../../Service/Client/ApiServices';
 import { toast } from 'react-toastify';
 import { Input, Button, Row, Col, Typography } from 'antd';
 import { Container, Card } from 'react-bootstrap';

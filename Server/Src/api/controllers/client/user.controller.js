@@ -135,7 +135,7 @@ module.exports.login = async (req, res) => {
             email: email,
             status: "Inactive",
         })
-       
+
         if (userInactive) {
             res.json({
                 code: 606,
@@ -528,5 +528,40 @@ module.exports.changePassword = async (req, res) => {
     } catch (error) {
         console.error('Change password error:', error);
         res.status(500).json({ code: 500, message: 'Internal Server Error', error });
+    }
+};
+
+// [POST] api/user/upload-avatar
+module.exports.uploadAvatar = async (req, res) => {
+    try {
+        const { avatar } = req.body;
+        console.log("avatar", avatar)
+        // Kiểm tra định dạng ảnh (phải là Base64 hoặc URL)
+        if (!avatar.startsWith("data:image/") && !avatar.startsWith("http")) {
+            return res.status(400).json({ message: "Invalid image format!" });
+        }
+
+        // Lấy token từ header
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+
+        if (!token) {
+            return res.status(401).json({ message: "Token is missing or invalid!" });
+        }
+
+        // Tìm người dùng theo token
+        const user = await Users.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: "User not authorized!" });
+        }
+
+        // Cập nhật avatar
+        user.avatar = avatar;
+        await user.save();
+
+        res.status(200).json({ message: "Avatar updated successfully!", avatar: user.avatar });
+    } catch (error) {
+        console.error("Lỗi trong uploadAvatar:", error);
+        res.status(500).json({ error: error.message + ": upload avatar error" });
     }
 };

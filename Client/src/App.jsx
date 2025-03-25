@@ -93,7 +93,7 @@ const App = () => {
             {/* an */}
             <Route path="/userProfile" element={<UserProfile />} />
             <Route path="/update-profile" element={<UpdateProfile />} />
-            <Route path="/userProfile" element={<UserProfile />} />
+            
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/order">
               <Route index element={<OrderScreen />} />

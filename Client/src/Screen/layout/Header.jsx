@@ -22,7 +22,7 @@ import {
   OrderedListOutlined
 } from "@ant-design/icons";
 
-import ButtonAntd from "../../component/Button";
+import ButtonAntd from "../../Component/Button";
 import InputSearch from "../../component/InputSearch";
 import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
 

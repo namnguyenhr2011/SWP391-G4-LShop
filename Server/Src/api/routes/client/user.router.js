@@ -24,5 +24,8 @@ routes.put('/change-password', authorization.Authorization, controller.changePas
 routes.get('/getAllUser', controller.getAllUser)
 
 
+routes.put('/update-avatar', authorization.Authorization, controller.uploadAvatar)
+
+
 
 module.exports = routes;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { resetPassword as userResetPassword } from "../../service/client/ApiServices";
+import { resetPassword as userResetPassword } from "../../Service/Client/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
