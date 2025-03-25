@@ -5,6 +5,7 @@ import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { doLogout } from "../../store/reducer/userReducer";
+import SaleOrderManagement from "./SaleOrderManagement";
 
 const { Option } = Select;
 
@@ -53,7 +54,7 @@ const Header = ({ onLogout }) => (
   </Navbar>
 );
 
-// Sidebar Component 
+// Sidebar Component
 const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
   <div
     style={{
@@ -64,11 +65,11 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
       color: "#ffffff",
       height: "calc(90vh - 50px)",
       minWidth: "250px",
-      maxWidth: "250px", 
+      maxWidth: "250px",
       overflowY: "auto",
-      overflowX: "hidden", 
+      overflowX: "hidden",
       position: "sticky",
-      top: "50px", 
+      top: "50px",
     }}
   >
     <h4
@@ -129,6 +130,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
   </div>
 );
 
+// MainContent Component (Updated to handle SaleOrderManagement)
 const MainContent = ({
   products,
   loading,
@@ -137,7 +139,8 @@ const MainContent = ({
   onSearchChange,
   onSortChange,
   columns,
-  showOrderDescription,
+  showOrderManagement,
+  setLoading,
 }) => (
   <div
     style={{
@@ -145,30 +148,14 @@ const MainContent = ({
       background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
       borderRadius: "15px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      height: "calc(90vh - 50px)", 
+      height: "calc(90vh - 50px)",
       display: "flex",
       flexDirection: "column",
       overflowY: "auto",
     }}
   >
-    {showOrderDescription ? (
-      <div style={{ padding: "1.5rem" }}>
-        <h3
-          style={{
-            color: "#1e3c72",
-            fontWeight: "600",
-            fontSize: "1.6rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          Order Description
-        </h3>
-        <p style={{ color: "#444", fontSize: "1.1rem", lineHeight: "1.6" }}>
-          This section allows sellers to view and manage order details
-          efficiently, providing a clear overview of all order-related
-          information.
-        </p>
-      </div>
+    {showOrderManagement ? (
+      <SaleOrderManagement loading={loading} setLoading={setLoading} />
     ) : (
       <>
         <Row className="mb-4" align="middle">
@@ -234,28 +221,30 @@ const SaleScreen = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
-  const [showOrderDescription, setShowOrderDescription] = useState(false);
+  const [activeView, setActiveView] = useState(false); // Toggle between Sale Price and Order Management
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const response = await getProductWithSaleID();
-        const updatedProducts = response.products.map((product) => ({
-          ...product,
-          saleId: product.sale?.saleID || null,
-        }));
-        setProducts(updatedProducts);
-      } catch {
-        message.error("Unable to fetch product data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+    if (!activeView) {
+      const fetchProducts = async () => {
+        try {
+          setLoading(true);
+          const response = await getProductWithSaleID();
+          const updatedProducts = response.products.map((product) => ({
+            ...product,
+            saleId: product.sale?.saleID || null,
+          }));
+          setProducts(updatedProducts);
+        } catch {
+          message.error("Unable to fetch product data");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProducts();
+    }
+  }, [activeView]);
 
   const handleLogout = () => {
     dispatch(doLogout());
@@ -269,7 +258,7 @@ const SaleScreen = () => {
     navigate("/sale/update", { state: { product } });
 
   const handleDelete = async (saleId) => {
-    if (!saleId) return message.error("No sale found to delete.");
+    if (!saleId) return message.error("No sale found to delete");
     try {
       setLoading(true);
       const response = await deleteSale(saleId);
@@ -385,9 +374,9 @@ const SaleScreen = () => {
         <Row>
           <Col md={2} xs={12}>
             <Sidebar
-              activeView={showOrderDescription}
-              onViewSalePrice={() => setShowOrderDescription(false)}
-              onViewOrder={() => setShowOrderDescription(true)}
+              activeView={activeView}
+              onViewSalePrice={() => setActiveView(false)}
+              onViewOrder={() => setActiveView(true)} // Toggle to Order Management view
             />
           </Col>
           <Col md={10} xs={12}>
@@ -399,7 +388,8 @@ const SaleScreen = () => {
               onSearchChange={(e) => setSearchTerm(e.target.value)}
               onSortChange={setSortOrder}
               columns={columns}
-              showOrderDescription={showOrderDescription}
+              showOrderManagement={activeView}
+              setLoading={setLoading}
             />
           </Col>
         </Row>

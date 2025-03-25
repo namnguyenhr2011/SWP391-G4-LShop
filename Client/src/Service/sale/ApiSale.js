@@ -39,12 +39,41 @@ export const getProductWithSaleById = async (id) => {
     }
   };
 
-export const getAllOrdersBySaleId = async (saleId) => {
-    const response = await axios.get(`sale/${saleId}/orders`, { withCredentials: true });
-    return response.data;
-};
 
-export const updateOrderStatusBySaleId = async (saleId, status) => {
-    const response = await axios.put(`sale/${saleId}/orders/status`, { status }, { withCredentials: true });
-    return response.data;
-};
+
+  export const getAssignedOrders = async () => {
+    try {
+      const response = await axios.get("/sale/getAssignedOrders", {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Không thể lấy danh sách đơn hàng");
+    }
+  };
+  
+  export const acceptOrder = async (orderId) => {
+    try {
+      const response = await axios.post(
+        "/sale/acceptOrder",
+        { orderId },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Không thể chấp nhận đơn hàng");
+    }
+  };
+  
+  export const cancelOrder = async (orderId) => {
+    try {
+      const response = await axios.post(
+        "/sale/cancelOrder",
+        { orderId },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Không thể hủy đơn hàng");
+    }
+  };

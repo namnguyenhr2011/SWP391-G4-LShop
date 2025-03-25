@@ -13,7 +13,8 @@ routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteS
 routes.get('/productWithSaleID', controller.getAllProductsWithSaleID)
 routes.get('/getProductWithSaleById/:id', controller.getProductWithSaleById);
 
-
-routes.get('/getAllOrderBySaleId/:saleId', controller.getAllOrderBySaleId)
+routes.get("/getAssignedOrders", controller.getAssignedOrders);
+routes.post("/acceptOrder", authorization.Authorization, controller.acceptOrder);
+routes.post("/cancelOrder", authorization.Authorization, controller.cancelOrder);
 
 module.exports = routes
