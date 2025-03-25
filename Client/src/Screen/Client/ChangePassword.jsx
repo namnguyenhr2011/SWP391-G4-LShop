@@ -28,7 +28,7 @@ const ChangePassword = () => {
 
         setLoading(true);
         try {
-            const res = await changePasswordApi(oldPassword, newPassword, confirmPassword);
+            await changePasswordApi(oldPassword, newPassword, confirmPassword);
             toast.success("Password changed successfully!");
             navigate("/");
         } catch (error) {

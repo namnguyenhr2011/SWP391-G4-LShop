@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import {
@@ -9,6 +9,7 @@ import {
     Button,
     Space,
     List,
+    Avatar,
     Form,
     Input,
     Tabs,
@@ -17,24 +18,17 @@ import { getProductById } from "../../../Service/Client/ApiProduct";
 import { addFeedback, getFeedbackByProductId, deleteFeedback } from "../../../Service/Client/ApiFeedBack";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
-import { ShoppingCartOutlined } from "@ant-design/icons";
-import { DeleteOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../../store/reducer/cartReducer";
-
-
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 const ProductDetail = () => {
-    const isDarkMode = useSelector((state) => state.user.darkMode);
-    const dispatch = useDispatch();
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
     const [feedbacks, setFeedbacks] = useState([]);
     const [form] = Form.useForm();
@@ -64,7 +58,7 @@ const ProductDetail = () => {
                 setProduct((prev) => ({ ...prev, rating: avgRating }));
             }
         } catch (err) {
-            message.error("Có lỗi khi tải dữ liệu!", err);
+            message.error("Có lỗi khi tải dữ liệu!");
             setError("Đã xảy ra lỗi khi tải dữ liệu.");
         } finally {
             setLoading(false);
@@ -93,18 +87,9 @@ const ProductDetail = () => {
                 message.error("Có lỗi xảy ra, vui lòng thử lại.");
             }
         } catch (err) {
-            message.error("Có lỗi khi gửi đánh giá!", err);
+            message.error("Có lỗi khi gửi đánh giá!");
         }
     };
-
-
-    if (loading) {
-        return (
-            <Container style={{ minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Spin size="large" />
-            </Container>
-        );
-    }
 
     const handleDelete = async (feedbackId) => {
         try {
@@ -112,41 +97,8 @@ const ProductDetail = () => {
             message.success("Feedback đã được xóa!");
             fetchProductAndFeedbacks();
         } catch (err) {
-            message.error("Xóa feedback thất bại!", err);
+            message.error("Xóa feedback thất bại!");
         }
-    };
-
-    const handleAddToCart = () => {
-        if (!product) return;
-        if (quantity > product.quantity) {
-            message.error(`Số lượng không thể vượt quá ${product.quantity}`);
-            return;
-        }
-       
-        dispatch(
-            addToCart({
-                userId,
-                item: {
-                    productId: product._id,
-                    name: product.name,
-                    price: product.sale?.salePrice || product.price,
-                    image: product.image,
-                    quantity: quantity,
-                    originalPrice: product.price,
-                    isSale: product.sale?.isSale || false,
-                },
-            })
-        );
-        message.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    };
-
-
-    const handleIncreaseQuantity = () => {
-        setQuantity((prev) => prev + 1);
-    };
-
-    const handleDecreaseQuantity = () => {
-        setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
     };
 
     if (loading) {
@@ -168,38 +120,22 @@ const ProductDetail = () => {
     return (
         <>
             <Header />
-            <Container fluid style={{
-                background: "#fff", padding: "50px 0", paddingTop: "80px",
-                backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
-                color: isDarkMode ? "#e6edf3" : "#1c1e21",
-                transition: "background-color 0.3s ease, color 0.3s ease",
-            }}>
+            <Container fluid style={{ background: "#fff", padding: "50px 0", paddingTop: "80px" }}>
                 <Container>
-                    <Row style={{
-                        alignItems: "center", padding: "20px 0", maxWidth: "1200px", width: "100%",
-                    }}>
+                    <Row style={{ alignItems: "center", padding: "20px 0", maxWidth: "1200px", width: "100%" }}>
                         <Col md={6} style={{ textAlign: "center" }}>
                             <img src={selectedImage} alt={product.name} style={{ width: "400px", height: "400px", objectFit: "cover", borderRadius: "10px" }} />
                         </Col>
-                        <Col md={6} style={{ padding: "20px", backgroundColor: "#fff", borderRadius: "10px", height: "400px" }}>
+                        <Col md={6} style={{ padding: "20px" }}>
                             <Title level={2}>{product.name || "Sản phẩm không tên"}</Title>
                             <Rate allowHalf value={product.rating ?? 0} disabled style={{ marginBottom: "15px" }} />
-                            <br />
                             <Text style={{ fontSize: "32px", fontWeight: "bold", color: "#ff4d4f" }}>
-                                Giá: {product.price ? `${product.price.toLocaleString("vi-VN")} VNĐ` : "Liên hệ để biết giá"}
+                                {product.price ? `${product.price.toLocaleString("vi-VN")} VNĐ` : "Liên hệ để biết giá"}
                             </Text>
-                            <br />
-                            <Text style={{ fontSize: "24px", color: "#666" }}>
-                                Còn lại: {product.quantity}
-                            </Text>
-                            <br />
                             <Space size="large" style={{ marginTop: "20px" }}>
-                                <Button onClick={handleDecreaseQuantity}>-</Button>
-                                <Text>{quantity}</Text>
-                                <Button onClick={handleIncreaseQuantity}>+</Button>
+                                <Button type="primary" size="large" icon={<ShoppingCartOutlined />}>Thêm vào giỏ</Button>
+                                <Button type="primary" size="large" danger>Mua ngay</Button>
                             </Space>
-                            <br />
-                            <Button style={{ marginTop: "20px" }} type="primary" size="large" icon={<ShoppingCartOutlined />} onClick={handleAddToCart} block>Thêm vào giỏ</Button>
                         </Col>
                     </Row>
                     <Row style={{ marginTop: "40px", padding: "20px", background: "#fafafa", borderRadius: "10px", maxWidth: "1200px", width: "100%" }}>
