@@ -95,7 +95,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getOrderDetails } from "../../../Service/Client/ApiOrder";
 import { useSelector } from "react-redux";
-import { Button, Card, Spin } from 'antd';
+import { Button, Card, Spin, message } from 'antd';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
