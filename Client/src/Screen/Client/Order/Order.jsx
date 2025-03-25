@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Tag, Spin, message } from 'antd';
+import { Table, Button, Tag, Spin, message, Modal } from 'antd';
 import { getOrders, cancelOrder } from '../../../Service/Client/ApiOrder';
 import { useNavigate } from 'react-router-dom';
 import Header from "../../layout/Header";
@@ -40,13 +40,23 @@ const MyOrders = () => {
   };
 
   const handleCancelOrder = async (id) => {
-    try {
-      await cancelOrder(id);
-      message.success('Order cancelled successfully');
-      fetchOrders();
-    } catch (error) {
-      message.error('Failed to cancel order');
-    }
+    Modal.confirm({
+      title: "Confirm Cancellation",
+      content: "Are you sure you want to cancel this order?",
+      onOk: async () => {
+        message.info("Your request is pending...");
+        try {
+          const response = await cancelOrder(id);
+          if (response && response.status === "pending") {
+            message.success("Cancellation request sent. Waiting for confirmation.");
+          } else {
+            fetchOrders();
+          }
+        } catch (error) {
+          message.error('Failed to cancel order');
+        }
+      }
+    });
   };
 
   const formatCurrency = (amount) => {
@@ -84,7 +94,9 @@ const MyOrders = () => {
       render: (text, record) => (
         <>
           <Button type="link" onClick={() => handleViewDetails(record._id)}>View</Button>
-          {record.status !== 'Cancelled' && <Button type="link" danger onClick={() => handleCancelOrder(record._id)}>Cancel</Button>}
+          {record.status !== 'Cancelled' && record.status !== 'Completed' && (
+            <Button type="link" danger onClick={() => handleCancelOrder(record._id)}>Cancel</Button>
+          )}
         </>
       )
     }
@@ -111,3 +123,4 @@ const MyOrders = () => {
 };
 
 export default MyOrders;
+
