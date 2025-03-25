@@ -19,7 +19,8 @@ import {
   MoonOutlined,
   SunOutlined,
   ShoppingCartOutlined,
-  OrderedListOutlined
+  OrderedListOutlined,
+  GlobalOutlined
 } from "@ant-design/icons";
 
 import ButtonAntd from "../../component/Button";
@@ -32,7 +33,7 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { t } = useTranslation("header");
-
+  const { i18n } = useTranslation();
   // Redux state selectors
   const { token, _id: userId } = useSelector((state) => state.user?.user || {});
   const { nameApp, logo } = useSelector((state) => state.admin?.app || {});
@@ -61,11 +62,14 @@ const Header = () => {
 
   const handleOrder = () => {
     navigate("/order");
-}
+  }
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
 
   const handleUserProfile = () => navigate("/userProfile");
 
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+  };
   // Profile dropdown menu
   const profileMenu = (
     <Menu
@@ -108,7 +112,16 @@ const Header = () => {
       </Menu.Item>
     </Menu>
   );
-
+  const languageMenu = (
+    <Menu>
+      <Menu.Item key="en" onClick={() => handleLanguageChange("en")}>
+        <span>{t("English")}</span>
+      </Menu.Item>
+      <Menu.Item key="vi" onClick={() => handleLanguageChange("vi")}>
+        <span>{t("Vietnamese")}</span>
+      </Menu.Item>
+    </Menu>
+  );
   return (
     <Layout.Header
       style={{
@@ -173,7 +186,20 @@ const Header = () => {
             aria-label={`Cart with ${cartCount} items`}
           />
         </Badge>
-
+        <Dropdown
+          overlay={languageMenu}
+          trigger={["click"]}
+          placement="bottomRight"
+        >
+          <GlobalOutlined
+            style={{
+              fontSize: "24px",
+              color: "#fff",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+          />
+        </Dropdown>
         <Dropdown
           overlay={profileMenu}
           trigger={["click"]}

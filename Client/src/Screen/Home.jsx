@@ -7,6 +7,8 @@ import SidebarMenuAntd from "../Component/SidebarMenu";
 import FeaturedProducts from "../Component/FearturedProducts";
 import SaleProducts from "../Component/SaleProducts";
 import TopSoldProducts from "../Component/TopSoldProducts";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -29,6 +31,7 @@ const Home = () => {
         transition: "all 0.3s ease",
       }}
     >
+      <ToastContainer position="top-right" autoClose={3000} />
       <Header />
       <Content
         style={{

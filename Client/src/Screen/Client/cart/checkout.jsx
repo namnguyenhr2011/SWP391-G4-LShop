@@ -207,7 +207,7 @@ const CheckoutPage = () => {
           transition: "background-color 0.3s ease, color 0.3s ease",
         }}
       >
-        <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000" }}>
+        <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000", marginTop: "20px" }}>
           Thanh toán đơn hàng
         </h2>
 
