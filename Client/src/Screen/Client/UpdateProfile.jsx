@@ -1,67 +1,43 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input, Form, Card, Upload, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { editProfile } from "../../Service/Client/ApiServices";
+import { Button, Input, Form, Card, Upload, message, Avatar } from "antd";
+
+import { editProfile, uploadAvatar } from "../../Service/Client/ApiServices";
 import Header from "../layout/Header";
 import AppFooter from "../layout/Footer";
 import { toast } from "react-toastify";
-
+import UploadImage from '../../Component/UploadImage'
 const ProfileEditor = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]);
 
-    const handleUpload = (info) => {
-        if (info.file.status === "done") {
-            message.success(`${info.file.name} uploaded successfully.`);
-            setFileList([info.file]);
-        } else if (info.file.status === "error") {
-            message.error(`${info.file.name} upload failed.`);
-        }
-    };
+
 
     const onFinish = async (values) => {
         try {
             setLoading(true);
             const { name, phone, address } = values;
             const res = await editProfile(name, phone, address);
-            console.log("Response:", res.data);
             toast.success("Profile updated successfully!");
             navigate("/");
         } catch (error) {
-            console.error("Profile update failed:", error);
             message.error("Profile update failed! " + (error.message || ""));
         } finally {
             setLoading(false);
         }
     };
 
-
     return (
-        <>
+        <div style={{ maxHeight: "120vh", width: "100%" }}>
             <Header />
             <div className="container mt-4" style={{ height: "60vh" }}>
                 <div className="row" style={{ marginTop: "20vh" }}>
                     {/* Avatar */}
                     <div className="col-md-7">
                         <Card title="Profile Picture" bordered={true}>
-                            <Upload
-                                fileList={fileList}
-                                showUploadList={false}
-                                customRequest={({ file, onSuccess }) => {
-                                    setTimeout(() => {
-                                        onSuccess("ok");
-                                        setFileList([file]);
-                                    }, 1000);
-                                }}
-                                onChange={handleUpload}
-                            >
-                                <Button type="primary" icon={<UploadOutlined />}>
-                                    Update Avatar
-                                </Button>
-                            </Upload>
+                            <UploadImage />
                         </Card>
                     </div>
 
@@ -91,8 +67,8 @@ const ProfileEditor = () => {
                     </div>
                 </div>
             </div>
-            <AppFooter />
-        </>
+            {/* <AppFooter /> */}
+        </div>
     );
 };
 

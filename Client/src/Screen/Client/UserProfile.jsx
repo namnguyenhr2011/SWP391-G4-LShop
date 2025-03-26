@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { Table, Card, Typography, Avatar, Tag, Spin, Layout, Button } from "antd";
 import { Container, Row, Col } from "react-bootstrap";
 import { UserOutlined } from "@ant-design/icons";
-import { userProfile } from "../../service/client/ApiServices";
+import { userProfile } from "../../Service/Client/ApiServices";
 import { useSelector } from "react-redux";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
-
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -33,31 +32,29 @@ const UserProfile = () => {
         fetchUserProfile();
     }, []);
 
-  const columns = [
-    { title: "Field", dataIndex: "field", key: "field", width: "30%" },
-    { title: "Value", dataIndex: "value", key: "value" },
-  ];
+    const columns = [
+        { title: "Field", dataIndex: "field", key: "field", width: "30%" },
+        { title: "Value", dataIndex: "value", key: "value" },
+    ];
 
-  const userData = user
-    ? [
-        { key: "1", field: "ID", value: user._id },
-        { key: "2", field: "Email", value: user.email },
-        { key: "3", field: "User Name", value: user.userName },
-        { key: "4", field: "Phone", value: user.phone },
-        { key: "5", field: "Address", value: user.address },
-        {
-          key: "6",
-          field: "Status",
-          value: <Tag color="green">{user.status}</Tag>,
-        },
-        { key: "7", field: "Role", value: <Tag color="blue">{user.role}</Tag> },
-        {
-          key: "8",
-          field: "Created At",
-          value: new Date(user.createdAt).toLocaleString(),
-        },
-      ]
-    : [];
+    const userData = user
+        ? [
+            { key: "1", field: "Email", value: user.email },
+            { key: "2", field: "User Name", value: user.userName },
+            { key: "3", field: "Phone", value: user.phone },
+            { key: "4", field: "Address", value: user.address },
+            {
+                key: "5",
+                field: "Status",
+                value: <Tag color="green">{user.status}</Tag>,
+            },
+            {
+                key: "6",
+                field: "Created At",
+                value: new Date(user.createdAt).toLocaleString(),
+            },
+        ]
+        : [];
 
     return (
         <Layout
@@ -75,7 +72,15 @@ const UserProfile = () => {
                         <Col md={8}>
                             <Card className="p-4 shadow-lg">
                                 <div className="text-center mb-4">
-                                    <Avatar size={100} icon={<UserOutlined />} style={{ backgroundColor: "#87d068" }} />
+                                    <Avatar
+                                        size={100}
+                                        icon={<UserOutlined />}
+                                        style={{ backgroundColor: "#87d068" }}
+                                        src={
+                                            user?.avatar ||
+                                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVva9csN-zOiY2wG9CXNuAI1VRsFunaiD3nQ&s"
+                                        }
+                                    />
                                     {loading ? (
                                         <Spin size="large" className="mt-3" />
                                     ) : user ? (
@@ -92,11 +97,8 @@ const UserProfile = () => {
                                     <Table columns={columns} dataSource={userData} pagination={false} bordered />
                                 )}
 
-                                {/* Nút Update Profile */}
                                 <div className="text-center mt-4">
-                                    <Button type="primary" size="large" onClick={() => navigate("/update-profile")}>
-                                        Update Profile
-                                    </Button>
+                                    <Button type="primary" size="large" onClick={() => navigate("/update-profile")}>Update Profile</Button>
                                 </div>
                             </Card>
                         </Col>
@@ -109,3 +111,4 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
+
