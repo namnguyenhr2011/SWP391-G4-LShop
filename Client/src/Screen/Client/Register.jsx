@@ -5,8 +5,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Form, Button, Container, Row, Col, Card, InputGroup } from "react-bootstrap";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import Header from "../layout/Header";
+import AppFooter from "../layout/Footer";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
+    const { t } = useTranslation("signup");
+    const isDarkMode = useSelector((state) => state.user.darkMode);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         userName: "",
@@ -42,22 +48,22 @@ const Register = () => {
         const { userName, email, password, confirmPassword, phone, address } = formData;
 
         if (!userName || !email || !password || !confirmPassword || !phone || !address) {
-            toast.error("Please fill in all fields");
+            toast.error(t("Please fill in all fields"));
             return;
         }
 
         if (!validatePhone(phone)) {
-            toast.error("Phone number must be exactly 10 digits.");
+            toast.error(t("Phone number must be exactly 10 digits."));
             return;
         }
 
         if (!validatePassword(password)) {
-            toast.error("Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.");
+            toast.error(t("Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character."));
             return;
         }
 
         if (password !== confirmPassword) {
-            toast.error("Passwords do not match");
+            toast.error(t("Passwords do not match"));
             return;
         }
 
@@ -72,25 +78,26 @@ const Register = () => {
                 navigate(`/verify?email=${encodeURIComponent(email)}`);
             }
         } catch (error) {
-            toast.error(error.message || "An error occurred. Please try again.");
+            toast.error(error.message || t("An error occurred. Please try again."));
         }
     };
 
     return (
-        <Container fluid className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+        <Container fluid className={`d-flex justify-content-center align-items-center min-vh-100 ${isDarkMode ? 'bg-dark' : 'bg-light'}`} style={{ flexDirection: 'column' }}>
             <ToastContainer position="top-right" autoClose={3000} />
-            <Row className="w-100">
+            <Header />
+            <Row className="w-100 flex-grow-1 justify-content-center align-items-center" style={{ height: '100vh', marginTop: "20px" }}>
                 <Col md={6} lg={5} className="mx-auto">
-                    <Card className="shadow-lg p-4 border-0">
+                    <Card className={`shadow-lg p-4 border-0 ${isDarkMode ? 'bg-dark text-white' : 'bg-white'}`}>
                         <Card.Body>
-                            <h3 className="text-center text-primary mb-4">Sign Up</h3>
+                            <h3 className="text-center text-primary mb-4">{t("Sign Up")}</h3>
                             <Form onSubmit={handleRegister}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>userName</Form.Label>
+                                    <Form.Label>{t("User Name")}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="userName"
-                                        placeholder="Enter your userName"
+                                        placeholder={t("Enter your userName")}
                                         value={formData.userName}
                                         onChange={handleChange}
                                         required
@@ -98,11 +105,11 @@ const Register = () => {
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Email</Form.Label>
+                                    <Form.Label>{t("Email")}</Form.Label>
                                     <Form.Control
                                         type="email"
                                         name="email"
-                                        placeholder="Enter your email"
+                                        placeholder={t("Enter your email")}
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
@@ -110,11 +117,11 @@ const Register = () => {
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Phone</Form.Label>
+                                    <Form.Label>{t("Phone")}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="phone"
-                                        placeholder="Enter your phone number"
+                                        placeholder={t("Enter your phone number")}
                                         value={formData.phone}
                                         onChange={handleChange}
                                         required
@@ -122,11 +129,11 @@ const Register = () => {
                                 </Form.Group>
 
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Address</Form.Label>
+                                    <Form.Label>{t("Address")}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="address"
-                                        placeholder="Enter your address"
+                                        placeholder={t("Enter your address")}
                                         value={formData.address}
                                         onChange={handleChange}
                                         required
@@ -135,12 +142,12 @@ const Register = () => {
 
                                 {/* Password Field */}
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Password</Form.Label>
+                                    <Form.Label>{t("Password")}</Form.Label>
                                     <InputGroup>
                                         <Form.Control
                                             type={showPassword ? "text" : "password"}
                                             name="password"
-                                            placeholder="Enter your password"
+                                            placeholder={t("Enter your password")}
                                             value={formData.password}
                                             onChange={handleChange}
                                             required
@@ -153,18 +160,18 @@ const Register = () => {
                                         </Button>
                                     </InputGroup>
                                     <Form.Text className="text-muted">
-                                        Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.
+                                        {t("Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.")}
                                     </Form.Text>
                                 </Form.Group>
 
                                 {/* Confirm Password Field */}
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Confirm Password</Form.Label>
+                                    <Form.Label>{t("Confirm Password")}</Form.Label>
                                     <InputGroup>
                                         <Form.Control
                                             type={showConfirmPassword ? "text" : "password"}
                                             name="confirmPassword"
-                                            placeholder="Confirm your password"
+                                            placeholder={t("Confirm your password")}
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
                                             required
@@ -179,7 +186,7 @@ const Register = () => {
                                 </Form.Group>
 
                                 <Button type="submit" variant="primary" className="w-100">
-                                    Sign Up
+                                    {t("Sign Up")}
                                 </Button>
 
                                 <Button
@@ -187,13 +194,16 @@ const Register = () => {
                                     className="w-100 mt-3"
                                     onClick={() => navigate("/login")}
                                 >
-                                    Already have an account? Sign In
+                                    {t("Already have an account? Sign In")}
                                 </Button>
                             </Form>
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
+            <div style={{ width: "100%", marginTop: "auto", padding: 0 }}>
+                <AppFooter style={{ width: "100%" }} />  {/* Ensure footer spans full width */}
+            </div>
         </Container>
     );
 };

@@ -1,33 +1,36 @@
+import { toast } from "react-toastify";
+import { removeFromCart, clearCart, increaseQuantity, decreaseQuantity } from "../../../Store/reducer/cartReducer";
 import { Layout, List, Button, Typography, Row, Col, Card, Divider } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, clearCart, increaseQuantity, decreaseQuantity } from "../../../Store/reducer/cartReducer";
 import { Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { ShoppingOutlined, ArrowLeftOutlined, CreditCardOutlined, FireOutlined } from "@ant-design/icons";
 import Header from "../../layout/Header";
 import AppFooter from "../../layout/Footer";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 const { Content } = Layout;
 const { Title, Text } = Typography;
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+
 
 const Cart = () => {
+    const { t } = useTranslation("cart");
     const isDarkMode = useSelector((state) => state.user.darkMode);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { _id: userId } = useSelector((state) => state.user?.user) || {};
     const cartItems = useSelector((state) => state.cart.items[userId] || []);
     const dispatch = useDispatch();
 
     const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-    const totalOriginalPrice = cartItems.reduce((total, item) => 
+    const totalOriginalPrice = cartItems.reduce((total, item) =>
         total + (item.originalPrice || item.price) * item.quantity, 0
     );
 
     const handleCheckout = () => {
         if (cartItems.length === 0) {
             toast.error({
-                message: 'Lỗi',
-                description: 'Giỏ hàng của bạn đang trống!',
+                message: t("Error"),
+                description: t("Your cart is empty!"),
             });
             return;
         }
@@ -76,13 +79,13 @@ const Cart = () => {
                                             alignItems: "center"
                                         }}
                                     >
-                                        Tiếp tục mua sắm
+                                        {t("Continue shopping")}
                                     </Button>
                                 </Link>
                             </Col>
                             <Col span={12} style={{ textAlign: "right" }}>
                                 <Title level={2} style={{ margin: 0 }}>
-                                    <ShoppingOutlined /> Giỏ Hàng Của Bạn
+                                    <ShoppingOutlined /> {t("Your Cart")}
                                 </Title>
                             </Col>
                         </Row>
@@ -90,11 +93,11 @@ const Cart = () => {
                         {cartItems.length === 0 ? (
                             <Card style={{ padding: "40px", borderRadius: "20px", boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", textAlign: "center" }}>
                                 <Text strong style={{ display: "block", fontSize: "18px", marginBottom: "20px" }}>
-                                    Giỏ hàng của bạn đang trống! 🛍️
+                                    {t("Your cart is empty! 🛍️")}
                                 </Text>
                                 <Link to="/">
                                     <Button type="primary" size="large" icon={<ShoppingOutlined />}>
-                                        Bắt đầu mua sắm ngay
+                                        {t("Start shopping now")}
                                     </Button>
                                 </Link>
                             </Card>
@@ -108,10 +111,10 @@ const Cart = () => {
                                             <Row gutter={16} style={{ width: "100%", alignItems: "center" }}>
                                                 <Col xs={6} md={4}>
                                                     <div style={{ position: 'relative' }}>
-                                                        <img 
-                                                            src={item.image} 
-                                                            alt={item.name} 
-                                                            style={{ width: "100%", borderRadius: "8px" }} 
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.name}
+                                                            style={{ width: "100%", borderRadius: "8px" }}
                                                         />
                                                         {item.isSale && (
                                                             <div style={{
@@ -125,9 +128,9 @@ const Cart = () => {
                                                                 fontSize: '12px',
                                                                 fontWeight: 'bold'
                                                             }}>
-                                                            <FireOutlined /> Giảm giá
-                                                        </div>
-                                                    )}
+                                                                <FireOutlined /> {t("Discount")}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </Col>
 
@@ -144,17 +147,18 @@ const Cart = () => {
                                                             </Text>
                                                             <br />
                                                             <Text type="success">
-                                                                Giảm: {formatPrice(item.originalPrice - item.price)} ({Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%)
+                                                                {t("Discount")}: {formatPrice(item.originalPrice - item.price)}
+                                                                ({Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%)
                                                             </Text>
                                                             <br />
                                                             <Text>
-                                                                {formatPrice(item.price)} x {item.quantity} = 
+                                                                {formatPrice(item.price)} x {item.quantity} =
                                                                 <strong> {formatPrice(item.price * item.quantity)}</strong>
                                                             </Text>
                                                         </>
                                                     ) : (
                                                         <Text>
-                                                            {formatPrice(item.price)} x {item.quantity} = 
+                                                            {formatPrice(item.price)} x {item.quantity} =
                                                             <strong> {formatPrice(item.price * item.quantity)}</strong>
                                                         </Text>
                                                     )}
@@ -167,7 +171,7 @@ const Cart = () => {
                                                 </Col>
 
                                                 <Col xs={6} md={4} style={{ textAlign: "right" }}>
-                                                    <Button danger onClick={() => dispatch(removeFromCart({ userId, productId: item.productId }))}>❌ Xóa</Button>
+                                                    <Button danger onClick={() => dispatch(removeFromCart({ userId, productId: item.productId }))}>❌ {t("Remove")}</Button>
                                                 </Col>
                                             </Row>
                                         </List.Item>
@@ -182,26 +186,26 @@ const Cart = () => {
                                             onClick={() => dispatch(clearCart({ userId }))}
                                             style={{ borderRadius: "6px" }}
                                         >
-                                            🗑 Xóa Tất Cả
+                                            🗑 {t("Clear All")}
                                         </Button>
                                     </Col>
                                     <Col span={12} style={{ textAlign: "right" }}>
                                         {totalOriginalPrice > totalPrice ? (
                                             <>
                                                 <Text delete style={{ color: "#999", marginRight: "10px" }}>
-                                                    Tổng gốc: {formatPrice(totalOriginalPrice)}
+                                                    {t("Original total")}: {formatPrice(totalOriginalPrice)}
                                                 </Text>
                                                 <Title level={4} style={{ color: "#ff4d4f", margin: 0 }}>
-                                                    Tổng Tiền: {formatPrice(totalPrice)}
+                                                    {t("Total")}: {formatPrice(totalPrice)}
                                                 </Title>
                                                 <Text type="success">
-                                                    Bạn đã tiết kiệm: {formatPrice(totalOriginalPrice - totalPrice)} 
+                                                    {t("You saved")}: {formatPrice(totalOriginalPrice - totalPrice)}
                                                     {` (${Math.round(((totalOriginalPrice - totalPrice) / totalOriginalPrice) * 100)}%)`}
                                                 </Text>
                                             </>
                                         ) : (
                                             <Title level={4}>
-                                                Tổng Tiền: {formatPrice(totalPrice)}
+                                                {t("Total")}: {formatPrice(totalPrice)}
                                             </Title>
                                         )}
                                     </Col>
@@ -223,7 +227,7 @@ const Cart = () => {
                                                 }}
                                                 onClick={handleCheckout}
                                             >
-                                                Thanh toán
+                                                {t("Checkout")}
                                             </Button>
                                         </Link>
                                     </Col>

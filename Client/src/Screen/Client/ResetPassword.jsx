@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
+import { Typography } from "antd";
 import { toast, ToastContainer } from "react-toastify";
-import { resetPassword as userResetPassword } from "../../service/client/ApiServices";
+import { resetPassword as userResetPassword } from "../../Service/Client/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import Header from "../layout/Header";
+import AppFooter from "../layout/Footer";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+const { Title, Text } = Typography;
+
 
 const ResetPassword = () => {
+    const { t } = useTranslation("resetpass");
+    const isDarkMode = useSelector((state) => state.user.darkMode);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -18,16 +27,16 @@ const ResetPassword = () => {
         if (storedToken) {
             setToken(storedToken);
         } else {
-            toast.error("Invalid or expired token. Please verify OTP again.");
+            toast.error(t("Invalid or expired token. Please verify OTP again."));
             navigate("/verify");
         }
-    }, [navigate]);
+    }, [navigate, t]);
 
     const handleResetPassword = async (e) => {
         e.preventDefault();
         try {
             if (!newPassword || !confirmPassword) {
-                toast.error("Please enter both password fields.");
+                toast.error(t("Please enter both password fields."));
                 return;
             }
 
@@ -43,63 +52,73 @@ const ResetPassword = () => {
                 navigate("/login");
             }
         } catch (error) {
-            toast.error("An error occurred. Please try again.");
-            console.log(error)
+            toast.error(t("An error occurred. Please try again."));
+            console.log(error);
         }
     };
 
     return (
-        <div className="container my-5">
-            <div className="mt-3">
-                <h1>Reset Your Password</h1>
+        <>
+            <Header />
+            <div className={`container-fluid d-flex justify-content-center align-items-center vh-100 ${isDarkMode ? 'bg-dark text-white' : 'bg-light'}`} style={{ padding: 0 }}>
+                <div className="w-100 d-flex justify-content-center align-items-center">
+                    <div className={`card p-4 ${isDarkMode ? 'bg-dark text-white' : 'bg-white'}`} style={{ width: '100%', maxWidth: '450px', borderRadius: '12px' }}>
+                        <Title level={3} className="text-center mb-4">{t("Reset Your Password")}</Title>
+                        <Text className="d-block text-center mb-3">
+                            {t("Enter your password and confirm it to reset.")}
+                        </Text>
+
+                        <Form onSubmit={handleResetPassword}>
+                            <ToastContainer position="top-right" autoClose={3000} />
+                            <Form.Group className="mb-3">
+                                <Form.Label>{t("Password")}</Form.Label>
+                                <InputGroup>
+                                    <Form.Control
+                                        type={showPassword ? "text" : "password"}
+                                        name="password"
+                                        placeholder={t("Enter your password")}
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        required
+                                    />
+                                    <Button
+                                        variant="outline-secondary"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                    </Button>
+                                </InputGroup>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>{t("Confirm Password")}</Form.Label>
+                                <InputGroup>
+                                    <Form.Control
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        name="confirmPassword"
+                                        placeholder={t("Confirm your password")}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        required
+                                    />
+                                    <Button
+                                        variant="outline-secondary"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                    </Button>
+                                </InputGroup>
+                            </Form.Group>
+
+                            <Button type="submit" variant="primary" className="w-100">
+                                {t("Reset Password")}
+                            </Button>
+                        </Form>
+                    </div>
+                </div>
             </div>
-            <Form onSubmit={handleResetPassword} className="mt-3">
-                <ToastContainer position="top-right" autoClose={3000} />
-                <Form.Group className="mb-3">
-                    <Form.Label>Password</Form.Label>
-                    <InputGroup>
-                        <Form.Control
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Enter your password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            required
-                        />
-                        <Button
-                            variant="outline-secondary"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </Button>
-                    </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <InputGroup>
-                        <Form.Control
-                            type={showConfirmPassword ? "text" : "password"}
-                            name="confirmPassword"
-                            placeholder="Confirm your password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                        <Button
-                            variant="outline-secondary"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                            {showConfirmPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        </Button>
-                    </InputGroup>
-                </Form.Group>
-
-                <Button type="submit" variant="primary" className="w-100">
-                    Reset Password
-                </Button>
-            </Form>
-        </div>
+            <AppFooter />
+        </>
     );
 };
 

@@ -7,17 +7,19 @@ import SidebarMenuAntd from "../Component/SidebarMenu";
 import FeaturedProducts from "../Component/FearturedProducts";
 import SaleProducts from "../Component/SaleProducts";
 import TopSoldProducts from "../Component/TopSoldProducts";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const Home = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  const navigate = useNavigate();
 
-  // Hàm xử lý khi click nút View More
+ 
   const handleViewMore = () => {
-    navigate("/all-products"); // Điều hướng đến trang all-products
+    navigate("/all-products");
   };
 
   return (
@@ -29,6 +31,7 @@ const Home = () => {
         transition: "all 0.3s ease",
       }}
     >
+      <ToastContainer position="top-right" autoClose={3000} />
       <Header />
       <Content
         style={{
@@ -122,6 +125,24 @@ const Home = () => {
 
         <SaleProducts isDarkMode={isDarkMode} />
       </Content>
+      <div style={{ textAlign: "center", margin: "40px 0" }}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleViewMore}
+            style={{
+              borderRadius: "8px",
+              padding: "6px 24px",
+              background: isDarkMode
+                ? "linear-gradient(90deg, #4a90e2 0%, #63b3ed 100%)"
+                : "linear-gradient(90deg, #3498db 0%, #2980b9 100%)",
+              border: "none",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            }}
+          >
+            View More Products
+          </Button>
+        </div>
       <Footer />
     </Layout>
   );

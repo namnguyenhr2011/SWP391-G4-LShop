@@ -11,6 +11,8 @@
     "start": "vite "
   },
   "dependencies": {
+    "@ant-design/charts": "^2.2.7",
+    "@ant-design/charts-util": "^0.0.1-alpha.7",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
@@ -18,14 +20,16 @@
     "antd": "^5.24.1",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
-    "i18next": "^24.2.2",
+    "i18next": "^24.2.3",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.4.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.2.0",
+    "react-spring": "^9.7.5",
     "react-toastify": "^11.0.3",
+    "recharts": "^2.15.1",
     "redux-persist": "^6.0.0"
   },
   "devDependencies": {

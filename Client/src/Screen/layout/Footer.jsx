@@ -1,17 +1,13 @@
-import {
-  FacebookOutlined,
-  GithubOutlined,
-  GoogleOutlined,
-  LinkedinOutlined,
-  TwitterOutlined,
-} from "@ant-design/icons";
+import { FacebookOutlined, GithubOutlined, GoogleOutlined, LinkedinOutlined, TwitterOutlined } from "@ant-design/icons";
 import { Layout, Row, Col, Typography, Space, Divider, Input } from "antd";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";  
 
 const { Footer } = Layout;
 const { Title, Text } = Typography;
 
 const AppFooter = () => {
+  const { t } = useTranslation("footer"); 
   const isDarkMode = useSelector((state) => state.user.darkMode) || false;
 
   const footerStyle = {
@@ -31,46 +27,46 @@ const AppFooter = () => {
       <Row gutter={[32, 32]} justify="center">
         <Col xs={24} sm={12} md={6}>
           <Title level={4} style={{ color: textColor }}>
-            L-Shop
+            {t("L-Shop")}
           </Title>
           <Text style={{ color: textColor }}>
-            L-Shop chuyên cung cấp điện thoại, laptop và phụ kiện chính hãng.
+            {t("L-Shop Description")}
           </Text>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
           <Title level={5} style={{ color: textColor }}>
-            Danh Mục
+            {t("Category")}
           </Title>
           <Space direction="vertical">
-            <Text style={{ color: textColor }}>📱 Điện thoại</Text>
-            <Text style={{ color: textColor }}>💻 Laptop</Text>
-            <Text style={{ color: textColor }}>🎧 Phụ kiện</Text>
-            <Text style={{ color: textColor }}>⌚ Đồng hồ thông minh</Text>
+            <Text style={{ color: textColor }}>📱 {t("Phone")}</Text>
+            <Text style={{ color: textColor }}>💻 {t("Laptop")}</Text>
+            <Text style={{ color: textColor }}>🎧 {t("Accessories")}</Text>
+            <Text style={{ color: textColor }}>⌚ {t("Smartwatch")}</Text>
           </Space>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
           <Title level={5} style={{ color: textColor }}>
-            Hỗ Trợ
+            {t("Support")}
           </Title>
           <Space direction="vertical">
-            <Text style={{ color: textColor }}>📞 Hotline: 1900 8888</Text>
+            <Text style={{ color: textColor }}>📞 {t("Hotline")}</Text>
             <Text style={{ color: textColor }}>
-              📍 Địa chỉ: 123 Nguyễn Văn Cừ, TP.HCM
+              📍 {t("Address")}
             </Text>
             <Text style={{ color: textColor }}>
-              📧 Email: support@lshop.com
+              📧 {t("Email")}
             </Text>
           </Space>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
           <Title level={5} style={{ color: textColor }}>
-            Nhận Tin Khuyến Mãi
+            {t("Subscribe")}
           </Title>
           <Input
-            placeholder="Nhập email của bạn"
+            placeholder={t("Enter email")}
             style={{ borderRadius: "8px", marginBottom: "10px" }}
           />
           <Space size="middle">
@@ -103,7 +99,7 @@ const AppFooter = () => {
           color: textColor,
         }}
       >
-        © 2024 L-Shop. All Rights Reserved.
+        {t("All Rights Reserved")}
       </div>
     </Footer>
   );

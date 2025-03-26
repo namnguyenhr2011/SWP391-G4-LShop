@@ -11,8 +11,11 @@ routes.post('/addSalePrice', authorization.Authorization, controller.addSalePric
 routes.put('/updateSalePrice/:saleId', authorization.Authorization, controller.updateSalePrice);
 routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteSale)
 routes.get('/productWithSaleID', controller.getAllProductsWithSaleID)
+routes.get('/getProductWithSaleById/:id', controller.getProductWithSaleById);
 
-routes.get('/getAllOrderBySaleId/:saleId', controller.getAllOrderBySaleId)
-routes.get('/saleClaims', controller.getAllSaleClaims)
+routes.get("/getAssignedOrders", controller.getAssignedOrders);
+routes.post("/acceptOrder", authorization.Authorization, controller.acceptOrder);
+routes.post("/completeOrder", authorization.Authorization, controller.completeOrder);
+routes.post("/cancelOrder", authorization.Authorization, controller.cancelOrder);
 
 module.exports = routes

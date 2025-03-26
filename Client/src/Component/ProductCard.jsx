@@ -10,7 +10,7 @@ const { Title, Text } = Typography;
 const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user._id);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   if (loading) {
     return (
       <Spin
@@ -109,6 +109,11 @@ const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
               style={{
                 marginBottom: "8px",
                 color: themeStyles.textColor,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "100%",
+                display: "block",
               }}
             >
               {product.name}

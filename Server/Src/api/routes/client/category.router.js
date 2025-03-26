@@ -14,7 +14,7 @@ routes.get('/getAllSubCategory/:id', controller.getSubCategoryById);
 routes.post('/addSubCategory/:id', authorization.Authorization, controller.addSubCategory)
 routes.put('/updateSubCategory/:id', authorization.Authorization, controller.updateSubCategory)
 routes.delete('/managerDeleteSubCategory/:id', authorization.Authorization, controller.managerDeleteSubCategory)
-
+routes.get("/subcategories/:categoryId", controller.getAllSubCategoriesByCategory);
 
 
 module.exports = routes;

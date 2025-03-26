@@ -5,6 +5,11 @@ export const getAllCategory = async () => {
     return response.data;
 };
 
+export const getAllSubCategory = async (categoryId) => {
+    const response = await axios.get(`/category/subcategories/${categoryId}`, { withCredentials: true });
+    return response.data;
+};
+
 export const getSubCategory = async (id) => {
     const response = await axios.get(`category/getSubCategory/${id}`, { withCredentials: true });
     return response.data;
@@ -43,7 +48,7 @@ export const updateSubCategory = async (id, name, description, image) => {
 export const deleteSubCategory = async (id) => {
     const response = await axios.delete(`category/managerDeleteSubCategory/${id}`, { withCredentials: true });
     return response.data;
-};
+  };
 
 export const getAllProduct = async (page) => {
     const response = await axios.get('product/getAllProduct', { params: { page }, withCredentials: true });
@@ -51,7 +56,7 @@ export const getAllProduct = async (page) => {
 };
 
 export const getAllProductBySubCategory = async (id, page) => {
-    const response = await axios.put(`product/getProductBySubCategory/${id }`, { params: { page }, withCredentials: true });
+    const response = await axios.put(`product/getProductBySubCategory/${id}`, { params: { page }, withCredentials: true });
     return response.data;
 };
 
@@ -119,4 +124,19 @@ export const uploadImage = async (id, base64Image) => {
 export const getAllProductsWithSale = async () => {
     const response = await axios.get(`product/getAllProductsWithSale`, { withCredentials: true });
     return response.data;
+};
+
+export const getTopRatedProduct = async () => {
+    const response = await axios.get(`product/getTopRatedProduct`, { withCredentials: true });
+    return response.data;
+};
+
+export const getSoldProductsData = async () => {
+    try {
+        const response = await axios.get("/api/products/sold-data");
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu sản phẩm đã bán:", error);
+        return { soldThisMonth: 0, soldChartData: [] };
+    }
 };

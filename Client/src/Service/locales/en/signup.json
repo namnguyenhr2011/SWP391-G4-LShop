@@ -1,0 +1,22 @@
+{
+    "Sign Up": "Sign Up",
+    "User Name": "User Name",
+    "Enter your userName": "Enter your userName",
+    "Email": "Email",
+    "Enter your email": "Enter your email",
+    "Phone": "Phone",
+    "Enter your phone number": "Enter your phone number",
+    "Address": "Address",
+    "Enter your address": "Enter your address",
+    "Password": "Password",
+    "Enter your password": "Enter your password",
+    "Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.": "Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character.",
+    "Confirm Password": "Confirm Password",
+    "Confirm your password": "Confirm your password",
+    "Already have an account? Sign In": "Already have an account? Sign In",
+    "Passwords do not match": "Passwords do not match",
+    "Please fill in all fields": "Please fill in all fields",
+    "Phone number must be exactly 10 digits.": "Phone number must be exactly 10 digits.",
+    "An error occurred. Please try again.": "An error occurred. Please try again."
+  }
+  

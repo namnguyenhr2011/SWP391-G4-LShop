@@ -11,4 +11,5 @@ routes.get('/getAllProductsWithSale', controller.getAllProductsWithSale)
 // routes.put('/updateSale/:id', authorization.Authorization, controller.updateSale)
 // routes.delete('/deleteSale/:id', authorization.Authorization, controller.deleteSale)
 
+
 module.exports = routes

@@ -96,7 +96,7 @@ const ProductDetail = () => {
             message.error("Có lỗi khi gửi đánh giá!", err);
         }
     };
-
+    
 
     if (loading) {
         return (
@@ -122,17 +122,7 @@ const ProductDetail = () => {
             message.error(`Số lượng không thể vượt quá ${product.quantity}`);
             return;
         }
-        console.log("item", {
-            item: {
-                productId: product._id,
-                name: product.name,
-                price: product.sale?.salePrice || product.price,
-                image: product.image,
-                quantity: quantity,
-                originalPrice: product.price,
-                isSale: product.sale?.isSale || false,
-            },
-        })
+       
         dispatch(
             addToCart({
                 userId,

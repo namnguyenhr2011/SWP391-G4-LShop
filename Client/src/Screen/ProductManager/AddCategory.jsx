@@ -41,9 +41,9 @@ const AddCategory = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header />
-      <Layout style={{ marginTop: 64 }}>
+      <Layout style={{ marginTop: 64, marginLeft: 200}}>
         <Sidebar />
-        <Layout style={{ padding: "20px", marginLeft: 200 }}>
+        <Layout style={{ padding: "20px" }}>
           <Content style={{ background: "#fff", padding: "20px", borderRadius: "8px", paddingTop: 80 }}>
             <h3>ADD CATEGORY</h3>
             <Form layout="vertical" onFinish={handleSubmit}>
@@ -52,11 +52,6 @@ const AddCategory = () => {
               </Form.Item>
               <Form.Item label="Description">
                 <Input name="description" placeholder="Description" onChange={handleChange} />
-              </Form.Item>
-              <Form.Item label="Image">
-                <Upload name="image" listType="picture" action="/upload" onChange={handleUpload}>
-                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                </Upload>
               </Form.Item>
               <Button type="primary" block htmlType="submit">
                 Add Category

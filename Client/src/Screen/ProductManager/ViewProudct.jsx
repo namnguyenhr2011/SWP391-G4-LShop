@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, Layout, message, Table, Input } from "antd";
+import { Select, Layout, message, Table, Input, Modal } from "antd";
 import Sidebar from "./Sidebar";
 import Header from "../layout/ProductManageHeader";
 import { getAllCategory, getAllProductBySubCategory, getAllProduct } from "../../Service/Client/ApiProduct";
@@ -15,7 +15,9 @@ const ProductView = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 8 }); // Đổi pageSize thành 8
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -23,7 +25,7 @@ const ProductView = () => {
         const response = await getAllCategory();
         setCategories(response.categories);
       } catch (error) {
-        message.error("Failed to load categories");
+        message.error("Không thể tải danh mục sản phẩm!");
       }
     };
     fetchCategories();
@@ -41,7 +43,7 @@ const ProductView = () => {
             setProducts([]);
           }
         } catch (error) {
-          message.error("Failed to load products");
+          message.error("Không thể tải danh sách sản phẩm!");
         }
       }
     };
@@ -64,10 +66,10 @@ const ProductView = () => {
         setProducts(response.products);
         setFilteredProducts(response.products);
       } else {
-        message.error("No products found for this subcategory.");
+        message.error("Không tìm thấy sản phẩm cho danh mục này!");
       }
     } catch (error) {
-      message.error("Failed to load products");
+      message.error("Không thể tải sản phẩm!");
     }
   };
 
@@ -85,21 +87,39 @@ const ProductView = () => {
     setPagination({ current: page, pageSize: pageSize });
   };
 
-  const paginatedProducts = filteredProducts.slice(
-    (pagination.current - 1) * pagination.pageSize,
-    pagination.current * pagination.pageSize
-  );
+  const handleRowClick = (record) => {
+    setSelectedProduct(record);
+    setModalVisible(true);
+  };
 
   const columns = [
     {
-      title: "Product Name",
+      title: "Ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          src={image || "https://via.placeholder.com/50"}
+          alt="Sản phẩm"
+          style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 5 }}
+        />
+      ),
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Price",
+      title: "Giá",
       dataIndex: "price",
       key: "price",
+      render: (price) => `${new Intl.NumberFormat("vi-VN").format(price)} VND`,
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
     },
   ];
 
@@ -117,17 +137,17 @@ const ProductView = () => {
               paddingTop: 80,
             }}
           >
-            <h3>VIEW PRODUCT LIST</h3>
+            <h3>Danh sách sản phẩm</h3>
 
             <div className="mb-3">
-              <label className="form-label">Category:</label>
+              <label className="form-label">Danh mục:</label>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Choose category"
+                placeholder="Chọn danh mục"
                 onChange={handleCategoryChange}
               >
                 <Option key={0} value={null}>
-                  All Products
+                  Tất cả sản phẩm
                 </Option>
                 {categories?.map((category) => (
                   <Option key={category._id} value={category._id}>
@@ -138,10 +158,10 @@ const ProductView = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">SubCategory:</label>
+              <label className="form-label">Danh mục con:</label>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Choose sub category"
+                placeholder="Chọn danh mục con"
                 onChange={handleSubCategoryChange}
                 disabled={!selectedCategory}
               >
@@ -154,9 +174,9 @@ const ProductView = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Search Product:</label>
+              <label className="form-label">Tìm kiếm sản phẩm:</label>
               <Input
-                placeholder="Search by product name"
+                placeholder="Nhập tên sản phẩm"
                 value={searchKeyword}
                 onChange={handleSearchChange}
               />
@@ -164,15 +184,35 @@ const ProductView = () => {
 
             <Table
               columns={columns}
-              dataSource={paginatedProducts}
+              dataSource={filteredProducts}
               rowKey="_id"
               pagination={{
                 current: pagination.current,
-                pageSize: pagination.pageSize,
+                pageSize: pagination.pageSize, // Hiển thị 8 sản phẩm mỗi trang
                 total: filteredProducts.length,
                 onChange: handlePaginationChange,
               }}
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+              })}
+              rowClassName="clickable-row"
             />
+
+            <Modal
+              title="Chi tiết sản phẩm"
+              open={modalVisible}
+              onCancel={() => setModalVisible(false)}
+              footer={null}
+            >
+              {selectedProduct && (
+                <>
+                  <p><b>Tên:</b> {selectedProduct.name}</p>
+                  <p><b>Giá:</b> {new Intl.NumberFormat("vi-VN").format(selectedProduct.price)} VND</p>
+                  <p><b>Số lượng:</b> {selectedProduct.quantity}</p>
+                  <p><b>Mô tả:</b> {selectedProduct.description}</p>
+                </>
+              )}
+            </Modal>
           </Content>
         </Layout>
       </Layout>
