@@ -5,8 +5,10 @@ import { notification, Result, Spin } from 'antd';
 import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const ReturnQR = () => {
+    const { t } = useTranslation("returnQR");
     const isDarkMode = useSelector((state) => state.user.darkMode);
     const [loading, setLoading] = useState(true);
     const [paymentStatus, setPaymentStatus] = useState(null);
@@ -49,20 +51,20 @@ const ReturnQR = () => {
                 setPaymentStatus(isSuccess);
                 if (isSuccess) {
                     notification.success({
-                        message: 'Thanh toán thành công',
-                        description: `Giao dịch ${transactionNo} đã được xác nhận.`
+                        message: t('payment_success'),
+                        description: `${t('transaction_no')}: ${transactionNo}`
                     });
                 } else {
                     notification.error({
-                        message: 'Thanh toán thất bại',
-                        description: 'Giao dịch không thành công hoặc đã bị hủy.'
+                        message: t('payment_failed'),
+                        description: t('transaction_failed_or_cancelled')
                     });
                 }
             } catch (error) {
                 console.error('Error processing payment return:', error);
                 notification.error({
-                    message: 'Lỗi xử lý',
-                    description: 'Đã xảy ra lỗi khi xử lý kết quả thanh toán.'
+                    message: t('processing_error'),
+                    description: t('error_processing_payment')
                 });
                 setPaymentStatus(false);
             } finally {
@@ -71,7 +73,7 @@ const ReturnQR = () => {
         };
 
         processPaymentResult();
-    }, [location]);
+    }, [location, t]);
 
     const formatDateTime = (payDateStr) => {
         if (!payDateStr || payDateStr.length < 14) return 'N/A';
@@ -92,14 +94,14 @@ const ReturnQR = () => {
                 {loading ? (
                     <div className="text-center py-5">
                         <Spin size="large" />
-                        <p className="mt-3" style={{ color: isDarkMode ? '#e6edf3' : '#000000' }}>Đang xử lý kết quả thanh toán...</p>
+                        <p className="mt-3" style={{ color: isDarkMode ? '#e6edf3' : '#000000' }}>{t('processing_payment')}</p>
                     </div>
                 ) : (
                     <>
                         {paymentStatus === true ? (
                             <Result
                                 status="success"
-                                title="Thanh toán thành công!"
+                                title={t('payment_success_title')}
                                 subTitle={
                                     <span
                                         style={{
@@ -108,7 +110,7 @@ const ReturnQR = () => {
                                             borderRadius: '5px',
                                         }}
                                     >
-                                        Mã giao dịch: {paymentDetails.transactionNo}
+                                        {t('transaction_no')}: {paymentDetails.transactionNo}
                                     </span>
                                 }
                                 extra={[
@@ -117,15 +119,14 @@ const ReturnQR = () => {
                                         variant="primary"
                                         onClick={() => navigate('/')}
                                         style={{
-                                            backgroundColor: isDarkMode ? '#007bff' : '#007bff', // Đặt nền màu xanh phù hợp với cả 2 chế độ
-                                            color: isDarkMode ? '#ffffff' : '#ffffff', // Đảm bảo chữ màu trắng trong cả 2 chế độ
-                                            border: isDarkMode ? '1px solid #007bff' : '1px solid #007bff', // Màu border phù hợp
-                                            padding: '10px 20px', // Thêm padding cho nút
-                                            borderRadius: '5px', // Bo góc cho nút
-                                            boxShadow: isDarkMode ? 'none' : '0px 2px 5px rgba(0,0,0,0.1)', // Thêm bóng cho nút trong chế độ sáng
+                                            backgroundColor: isDarkMode ? '#007bff' : '#007bff', 
+                                            color: isDarkMode ? '#ffffff' : '#ffffff', 
+                                            border: isDarkMode ? '1px solid #007bff' : '1px solid #007bff', 
+                                            padding: '10px 20px', 
+                                            borderRadius: '5px',
                                         }}
                                     >
-                                        Tiếp tục mua sắm
+                                        {t('continue_shopping')}
                                     </Button>,
                                 ]}
                                 style={{ color: isDarkMode ? '#e6edf3' : '#000000' }}
@@ -133,8 +134,8 @@ const ReturnQR = () => {
                         ) : (
                             <Result
                                 status="error"
-                                title="Thanh toán không thành công"
-                                subTitle="Giao dịch của bạn không thể hoàn tất hoặc đã bị hủy."
+                                title={t('payment_failed_title')}
+                                subTitle={t('payment_failed_message')}
                                 extra={[
                                     <Button
                                         key="cart"
@@ -142,7 +143,7 @@ const ReturnQR = () => {
                                         onClick={() => navigate('/cart')}
                                         style={{ backgroundColor: isDarkMode ? '#0d1117' : '#007bff', border: 'none' }}
                                     >
-                                        Quay lại giỏ hàng
+                                        {t('back_to_cart')}
                                     </Button>,
                                 ]}
                                 style={{ color: isDarkMode ? '#e6edf3' : '#000000' }}
@@ -154,76 +155,76 @@ const ReturnQR = () => {
                                 <Col md={8} className="mx-auto">
                                     <Card
                                         style={{
-                                            backgroundColor: isDarkMode ? '#1c1e21' : '#ffffff', // Nền sáng trong chế độ sáng
-                                            border: isDarkMode ? 'none' : '1px solid #dcdcdc', // Thêm viền sáng trong chế độ sáng
-                                            boxShadow: isDarkMode ? 'none' : '0px 2px 10px rgba(0,0,0,0.1)', // Thêm bóng nhẹ trong chế độ sáng
+                                            backgroundColor: isDarkMode ? '#1c1e21' : '#ffffff',
+                                            border: isDarkMode ? 'none' : '1px solid #dcdcdc',
+                                            boxShadow: isDarkMode ? 'none' : '0px 2px 10px rgba(0,0,0,0.1)',
                                         }}
                                     >
                                         <Card.Header
                                             className="bg-primary text-white"
                                             style={{
-                                                backgroundColor: isDarkMode ? '#1c1e21' : '#007bff', // Nền màu xanh trong chế độ sáng
+                                                backgroundColor: isDarkMode ? '#1c1e21' : '#007bff',
                                             }}
                                         >
-                                            Chi tiết giao dịch
+                                            {t('transaction_details')}
                                         </Card.Header>
                                         <Card.Body
                                             style={{
-                                                color: isDarkMode ? '#e6edf3' : '#000000', // Màu chữ đen trong chế độ sáng
+                                                color: isDarkMode ? '#e6edf3' : '#000000',
                                             }}
                                         >
                                             <Row>
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Số tiền:</strong>
+                                                    <strong>{t('amount')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.amount.toLocaleString()} VND
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Ngân hàng:</strong>
+                                                    <strong>{t('bank')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.bankCode}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Loại thẻ:</strong>
+                                                    <strong>{t('card_type')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.cardType}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Mã giao dịch VNPay:</strong>
+                                                    <strong>{t('vnp_transaction_no')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.transactionNo}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Mã giao dịch ngân hàng:</strong>
+                                                    <strong>{t('bank_transaction_no')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.bankTranNo}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Thời gian thanh toán:</strong>
+                                                    <strong>{t('payment_date')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {formatDateTime(paymentDetails.payDate)}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Mã tham chiếu:</strong>
+                                                    <strong>{t('reference_code')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {paymentDetails.txnRef}
                                                 </Col>
 
                                                 <Col xs={6} className="mb-3">
-                                                    <strong>Nội dung thanh toán:</strong>
+                                                    <strong>{t('order_info')}:</strong>
                                                 </Col>
                                                 <Col xs={6} className="mb-3">
                                                     {decodeURIComponent(paymentDetails.orderInfo).replace(/\+/g, ' ')}
@@ -234,7 +235,6 @@ const ReturnQR = () => {
                                 </Col>
                             </Row>
                         )}
-
                     </>
                 )}
             </Container>

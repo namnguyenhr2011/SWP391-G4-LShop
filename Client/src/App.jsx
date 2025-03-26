@@ -56,6 +56,7 @@ import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
 import ProductList from "./Screen/Client/product/productList";
 import OrderManager from "./Screen/Sale/OrderManager";
 
+
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (

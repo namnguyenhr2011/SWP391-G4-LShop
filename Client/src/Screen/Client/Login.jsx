@@ -5,10 +5,13 @@ import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { doLogin } from "../../store/reducer/userReducer";
 import { Form, Button, Container, Row, Col, Card, InputGroup } from "react-bootstrap";
-import { EyeOutlined, EyeInvisibleOutlined, HomeOutlined } from "@ant-design/icons";
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { useSpring, animated } from "react-spring";
 import { useTranslation } from "react-i18next";
 import { Image } from "antd";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
+import { useSelector } from "react-redux";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,8 +19,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  const { t } = useTranslation(); // 
+  const isDarkMode = useSelector((state) => state.user.darkMode);
+  const { t } = useTranslation('signin');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,12 +33,7 @@ const Login = () => {
     try {
       const res = await userLogin(email.trim(), password.trim());
 
-      if (
-        !res ||
-        typeof res !== "object" ||
-        !("code" in res) ||
-        !("message" in res)
-      ) {
+      if (!res || typeof res !== "object" || !("code" in res) || !("message" in res)) {
         throw new Error("Invalid response format from server");
       }
 
@@ -78,46 +76,41 @@ const Login = () => {
   return (
     <Container
       fluid
-      className="d-flex justify-content-center align-items-center min-vh-100 bg-light position-relative"
+      className={`d-flex justify-content-center align-items-center ${isDarkMode ? 'bg-dark' : 'bg-light'} position-relative`}
+      style={{ padding: 0, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
     >
       <ToastContainer position="top-right" autoClose={3000} />
-      <Button
-        variant="link"
-        onClick={() => navigate("/")}
-        className="position-absolute top-0 start-0 mt-3 ms-3 p-0"
-        style={{ zIndex: 1000 }}
-        aria-label="Back to home"
-      >
-        <HomeOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
-      </Button>
 
-      <Row className="w-100" >
-        {/* Image Section */}
-        <Col md={6} lg={5} className="d-none d-md-block">
-          <Image
-            width="100%"
-            src="/L.png"
-            alt={t("Login Illustration")}
-            preview={false}
-            style={{
-              objectFit: "cover",
-              maxHeight: "55vh",
-              maxWidth: "100%",
-              marginLeft: "120px"
-            }}
-          />
-        </Col>
+      <Header />
+
+      <Row className="w-100 m-0 flex-grow-1 justify-content-center align-items-center" style={{ height: "90vh", width: "90vw" }}>
 
         {/* Login Form Section */}
-        <Col md={6} lg={5} className="mx-auto" >
+        <Col xs={12} md={6} lg={5} className="p-6 d-flex justify-content-center align-items-center">
           <animated.div style={cardProps}>
-            <Card className="shadow-lg p-4 border-0 rounded-lg">
+            <Card
+              className={`shadow-lg p-4 border-0 rounded-lg ${isDarkMode ? 'bg-dark text-white' : 'bg-white'}`}
+            >
               <Card.Body>
-                <h3 className="text-center text-primary mb-4">{t("Sign In")}</h3>
+                {/* Logo Section */}
+                <Form.Group className="mb-5 text-center">
+                  <Image
+                    src="/L.png"
+                    alt="Logo"
+                    width={120}
+                    className="mb-3"
+                  />
+                </Form.Group>
+
+                <h3 className={`text-center ${isDarkMode ? 'text-light' : 'text-primary'} mb-4`}>
+                  {t("Sign In")}
+                </h3>
                 <Form onSubmit={handleLogin}>
                   {/* Email Field */}
                   <Form.Group className="mb-3" controlId="email">
-                    <Form.Label className="fw-bold">{t("Email Address")}</Form.Label>
+                    <Form.Label className={`fw-bold ${isDarkMode ? 'text-light' : ''}`}>
+                      {t("Email Address")}
+                    </Form.Label>
                     <Form.Control
                       type="email"
                       placeholder={t("Enter your email")}
@@ -130,7 +123,9 @@ const Login = () => {
 
                   {/* Password Field */}
                   <Form.Group className="mb-3" controlId="password">
-                    <Form.Label className="fw-bold">{t("Password")}</Form.Label>
+                    <Form.Label className={`fw-bold ${isDarkMode ? 'text-light' : ''}`}>
+                      {t("Password")}
+                    </Form.Label>
                     <InputGroup>
                       <Form.Control
                         type={showPassword ? "text" : "password"}
@@ -150,7 +145,7 @@ const Login = () => {
                     </InputGroup>
                     <Link
                       to="/forgot"
-                      className="text-decoration-none text-primary mt-2 d-block"
+                      className={`text-decoration-none ${isDarkMode ? 'text-light' : 'text-primary'} mt-2 d-block`}
                     >
                       {t("Forgot Password?")}
                     </Link>
@@ -179,8 +174,16 @@ const Login = () => {
           </animated.div>
         </Col>
       </Row>
+
+      {/* Fixed Footer */}
+      <div style={{ width: "100%" }}>
+
+        <Footer style={{ width: "100%", position: "absolute", bottom: 0, left: 0 }}>
+        </Footer>
+      </div>
     </Container>
   );
+
 };
 
 export default Login;

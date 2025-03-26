@@ -20,7 +20,7 @@ import { clearCart } from "../../../store/reducer/cartReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { useTranslation } from "react-i18next";
 
 
 const { TextArea } = Input;
@@ -28,6 +28,7 @@ const { Text } = Typography;
 const { Option } = Select;
 
 const CheckoutPage = () => {
+  const { t } = useTranslation("checkout");
   const dispatch = useDispatch();
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const token = useSelector((state) => state.user?.user?.token) || "";
@@ -208,7 +209,7 @@ const CheckoutPage = () => {
         }}
       >
         <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000", marginTop: "20px" }}>
-          Thanh toán đơn hàng
+          {t("Order Checkout")}
         </h2>
 
         <Container fluid className="px-lg-5">
@@ -216,7 +217,7 @@ const CheckoutPage = () => {
             <Col md={6}>
               <Card className="mb-3" style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
                 <Card.Header className="bg-primary text-white">
-                  <ShoppingOutlined /> Thông tin giỏ hàng
+                  <ShoppingOutlined /> {t("Cart Information")}
                 </Card.Header>
                 <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                   <List
@@ -260,7 +261,7 @@ const CheckoutPage = () => {
                                     whiteSpace: "nowrap",
                                   }}
                                 >
-                                  <FireOutlined /> Giảm giá
+                                  <FireOutlined /> {t("Discount")}
                                 </div>
                               )}
                             </div>
@@ -285,7 +286,7 @@ const CheckoutPage = () => {
                                 </Text>
                                 <br />
                                 <Text type="success">
-                                  Giảm:{" "}
+                                  {t("Discount")}:{" "}
                                   {formatPrice(item.originalPrice - item.price)}{" "}
                                   (
                                   {Math.round(
@@ -326,13 +327,13 @@ const CheckoutPage = () => {
                           delete
                           style={{ color: "#999", marginRight: "10px" }}
                         >
-                          Tổng gốc: {formatPrice(totalOriginalPrice)}
+                          {t("Original total")}: {formatPrice(totalOriginalPrice)}
                         </Text>
                         <Text strong style={{ color: "#ff4d4f" }}>
-                          Tổng cộng: {formatPrice(totalAmount)}
+                          {t("Total")}: {formatPrice(totalAmount)}
                         </Text>
                         <Text type="success">
-                          Bạn đã tiết kiệm:{" "}
+                          {t("You saved")}:{" "}
                           {formatPrice(totalOriginalPrice - totalAmount)}
                           {` (${Math.round(
                             ((totalOriginalPrice - totalAmount) /
@@ -343,7 +344,7 @@ const CheckoutPage = () => {
                       </>
                     ) : (
                       <h5 style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        Tổng cộng: {formatPrice(totalAmount)}
+                        {t("Total")}: {formatPrice(totalAmount)}
                       </h5>
                     )}
                   </div>
@@ -354,13 +355,13 @@ const CheckoutPage = () => {
             <Col md={6}>
               <Card style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
                 <Card.Header className="bg-primary text-white">
-                  <CreditCardOutlined /> Thông tin thanh toán
+                  <CreditCardOutlined /> {t("Payment Information")}
                 </Card.Header>
                 <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
                   <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <UserOutlined /> Họ và tên
+                        <UserOutlined /> {t("Full Name")}
                       </Form.Label>
                       <Input
                         value={profile?.userName || "Chưa có thông tin"}
@@ -371,7 +372,7 @@ const CheckoutPage = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <MailOutlined /> Email
+                        <MailOutlined /> {t("Email")}
                       </Form.Label>
                       <Input
                         value={profile?.email || "Chưa có email"}
@@ -382,7 +383,7 @@ const CheckoutPage = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <CreditCardOutlined /> Phương thức thanh toán
+                        <CreditCardOutlined /> {t("Payment Method")}
                       </Form.Label>
                       <div>
                         <Radio.Group
@@ -390,10 +391,10 @@ const CheckoutPage = () => {
                           value={formData.paymentMethod}
                         >
                           <Radio value="COD">
-                            Thanh toán khi nhận hàng (COD)
+                            {t("Cash on delivery (COD)")}
                           </Radio>
                           <Radio value="Bank Transfer">
-                            Ví điện tử (VN Pay)
+                            {t("Bank Transfer")}
                           </Radio>
                         </Radio.Group>
                       </div>
@@ -402,7 +403,7 @@ const CheckoutPage = () => {
                     {formData.paymentMethod === "Bank Transfer" && (
                       <Form.Group className="mb-3">
                         <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                          <BankOutlined /> Chọn ngân hàng thanh toán
+                          <BankOutlined /> {t("Select bank")}
                         </Form.Label>
                         <Select
                           style={{ width: "100%" }}
@@ -421,10 +422,10 @@ const CheckoutPage = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <HomeOutlined /> Địa chỉ giao hàng
+                        <HomeOutlined /> {t("Shipping Address")}
                       </Form.Label>
                       <Input
-                        placeholder="Nhập địa chỉ giao hàng"
+                        placeholder={t("Enter shipping address")}
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
@@ -433,10 +434,10 @@ const CheckoutPage = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <PhoneOutlined /> Số điện thoại
+                        <PhoneOutlined /> {t("Phone Number")}
                       </Form.Label>
                       <Input
-                        placeholder="Nhập số điện thoại"
+                        placeholder={t("Enter phone number")}
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
@@ -445,11 +446,11 @@ const CheckoutPage = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <CommentOutlined /> Ghi chú đơn hàng
+                        <CommentOutlined /> {t("Order Note")}
                       </Form.Label>
                       <TextArea
                         rows={4}
-                        placeholder="Nhập ghi chú (nếu có)"
+                        placeholder={t("Enter notes (optional)")}
                         name="note"
                         value={formData.note}
                         onChange={handleChange}
@@ -463,7 +464,7 @@ const CheckoutPage = () => {
                         size="lg"
                         disabled={loading}
                       >
-                        {loading ? "Đang xử lý..." : "Đặt hàng"}
+                        {loading ? t("Processing...") : t("Place Order")}
                       </Button>
                     </div>
                   </Form>
