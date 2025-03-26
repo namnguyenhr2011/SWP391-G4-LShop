@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Spin, message, Button } from "antd";
 import { getOrderDetails } from "../../../Service/Client/ApiOrder";
@@ -12,14 +12,29 @@ const OrderDetails = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const fetchOrderDetails = async () => {
+            try {
+                const response = await getOrderDetails(id);
+                console.log("Order Data:", response);
+
+                if (response && response.order) {
+                    setOrder(response.order);
+                    setTransaction(response.transaction || null);
+                } else {
+                    message.error("Order not found");
+                }
+            } catch {
+                message.error("Failed to fetch order details");
+            }
+            setLoading(false);
+        };
+
         if (id) {
             fetchOrderDetails();
         } else {
             message.error("Invalid Order ID");
         }
     }, [id]);
-
-    const fetchOrderDetails = async () => {
         try {
             const response = await getOrderDetails(id);
             console.log("Order Data:", response);
@@ -30,7 +45,7 @@ const OrderDetails = () => {
             } else {
                 message.error("Order not found");
             }
-        } catch (error) {
+        } catch {
             message.error("Failed to fetch order details");
         }
         setLoading(false);

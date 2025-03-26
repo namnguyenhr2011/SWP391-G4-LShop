@@ -29,7 +29,7 @@ const MyOrders = () => {
       } else {
         message.error("No orders found.");
       }
-    } catch (error) {
+    } catch {
       message.error('Failed to fetch orders');
     }
     setLoading(false);
@@ -52,7 +52,7 @@ const MyOrders = () => {
           } else {
             fetchOrders();
           }
-        } catch (error) {
+        } catch {
           message.error('Failed to cancel order');
         }
       }
