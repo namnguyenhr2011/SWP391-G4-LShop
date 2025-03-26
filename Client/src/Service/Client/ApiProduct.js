@@ -50,13 +50,8 @@ export const getAllProduct = async (page) => {
     return response.data;
 };
 
-export const getAllProductByCategory = async (category, page) => {
-    const response = await axios.get(`getProductByCategory/${category}`, { params: { page }, withCredentials: true });
-    return response.data;
-};
-
 export const getAllProductBySubCategory = async (id, page) => {
-    const response = await axios.get(`product/getProductBySubCategory/${id}`, { params: { page }, withCredentials: true });
+    const response = await axios.put(`product/getProductBySubCategory/${id }`, { params: { page }, withCredentials: true });
     return response.data;
 };
 
@@ -65,18 +60,32 @@ export const getProductById = async (id) => {
     return response.data;
 };
 
+export const getTop8 = async () => {
+    const response = await axios.get(`product/getTop8`, { withCredentials: true });
+    return response.data;
+};
+
+export const getTopSold = async () => {
+    const response = await axios.get(`product/getTopSold`, { withCredentials: true });
+    return response.data;
+};
+
+export const getTopView = async () => {
+    const response = await axios.get(`product/getTopView`, { withCredentials: true });
+    return response.data;
+};
 
 export const searchProduct = async (data, page) => {
     return await axios.post(`product/search`, data, { params: { page }, withCredentials: true });
 };
 
-export const addProduct = async (id, data) => {
-    const response = await axios.post(`product/addProduct/${id}`, data);
+export const addProduct = async (subCategoryId, data) => {
+    const response = await axios.post(`product/addProduct/${subCategoryId}`, data);
     return response.data;
 };
 
-export const updateProduct = async (id, data) => {
-    const response = await axios.put(`product/updateProduct/${id}`, data);
+export const updateProduct = async (data) => {
+    const response = await axios.put(`product/updateProduct`, data);
     return response.data;
 };
 
@@ -92,19 +101,19 @@ export const adminDeleteProduct = async (id) => {
 
 
 
-export const getTop8 = async () => {
-    const response = await axios.get(`product/getTop8`, { withCredentials: true });
-    return response.data;
-};
+export const uploadImage = async (id, base64Image) => {
+    try {
+        // const base64String = base64Image.split(',')[1];
 
-export const getTopSold = async () => {
-    const response = await axios.get(`product/getTopSold`, { withCredentials: true });
-    return response.data;
-};
-
-export const getTopView = async () => {
-    const response = await axios.get(`product/getTopView`, { withCredentials: true });
-    return response.data;
+        const response = await axios.put(
+            `product/updateImage/${id}`,
+            { image: base64Image },
+        );
+        return response.data;
+    } catch (error) {
+        console.error("❌ Error uploading image:", error.response?.data || error.message);
+        throw error;
+    }
 };
 
 export const getAllProductsWithSale = async () => {

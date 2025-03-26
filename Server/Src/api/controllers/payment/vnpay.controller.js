@@ -38,7 +38,7 @@ module.exports.createPaymentUrl = async (req, res) => {
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
 
-    let locale = req.body.language || 'vn';  // Default to 'vn' if no language is provided
+    let locale = req.body.language || 'vn';  
     let currCode = 'VND';
 
     let vnp_Params = {};

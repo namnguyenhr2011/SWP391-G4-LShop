@@ -1,8 +1,8 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import storageSession from 'redux-persist/lib/storage/session'; // Dùng sessionStorage
-import userReducer from './reducer/user-reducer';
-import cartReducer from './reducer/cart-reducer';
+import userReducer from './reducer/userReducer';
+import cartReducer from './reducer/cartReducer';
 
 const persistConfig = {
     key: 'root',
@@ -25,4 +25,3 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
-

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Card, Typography, Avatar, Tag, Spin, Layout } from "antd";
+import { Table, Card, Typography, Avatar, Tag, Spin, Layout, Button } from "antd";
 import { Container, Row, Col } from "react-bootstrap";
 import { UserOutlined } from "@ant-design/icons";
 import { userProfile } from "../../service/client/ApiServices";
@@ -7,30 +7,31 @@ import { useSelector } from "react-redux";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 
+import { useNavigate } from "react-router-dom";
+
 const { Title, Text } = Typography;
 const { Content } = Layout;
 
 const UserProfile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const isDarkMode = useSelector((state) => state.user.darkMode);
 
-  const isDarkMode = useSelector((state) => state.user.darkMode);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await userProfile();
-        console.log(response);
-        setUser(response.user);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await userProfile();
+                console.log(response);
+                setUser(response.user);
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUserProfile();
+    }, []);
 
   const columns = [
     { title: "Field", dataIndex: "field", key: "field", width: "30%" },
@@ -58,58 +59,53 @@ const UserProfile = () => {
       ]
     : [];
 
-  return (
-    <Layout
-      style={{
-        minHeight: "100vh",
-        backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
-        color: isDarkMode ? "#e6edf3" : "#1c1e21",
-        transition: "background-color 0.3s ease, color 0.3s ease",
-      }}
-    >
-      <Header />
-      <Content
-        style={{ padding: "20px 50px", minHeight: "100vh", marginTop: "80px" }}
-      >
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={8}>
-              <Card className="p-4 shadow-lg">
-                <div className="text-center mb-4">
-                  <Avatar
-                    size={100}
-                    icon={<UserOutlined />}
-                    style={{ backgroundColor: "#87d068" }}
-                  />
-                  {loading ? (
-                    <Spin size="large" className="mt-3" />
-                  ) : user ? (
-                    <>
-                      <Title level={3} className="mt-2">
-                        {user.userName}
-                      </Title>
-                      <Text type="secondary">{user.email}</Text>
-                    </>
-                  ) : (
-                    <Text type="danger">User not found!</Text>
-                  )}
-                </div>
-                {!loading && user && (
-                  <Table
-                    columns={columns}
-                    dataSource={userData}
-                    pagination={false}
-                    bordered
-                  />
-                )}
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </Content>
-      <Footer />
-    </Layout>
-  );
+    return (
+        <Layout
+            style={{
+                minHeight: "100vh",
+                backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
+                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                transition: "background-color 0.3s ease, color 0.3s ease",
+            }}
+        >
+            <Header />
+            <Content style={{ padding: "20px 50px", minHeight: "100vh", marginTop: "80px" }}>
+                <Container>
+                    <Row className="justify-content-center">
+                        <Col md={8}>
+                            <Card className="p-4 shadow-lg">
+                                <div className="text-center mb-4">
+                                    <Avatar size={100} icon={<UserOutlined />} style={{ backgroundColor: "#87d068" }} />
+                                    {loading ? (
+                                        <Spin size="large" className="mt-3" />
+                                    ) : user ? (
+                                        <>
+                                            <Title level={3} className="mt-2">{user.userName}</Title>
+                                            <Text type="secondary">{user.email}</Text>
+                                        </>
+                                    ) : (
+                                        <Text type="danger">User data not found!</Text>
+                                    )}
+                                </div>
+
+                                {!loading && user && (
+                                    <Table columns={columns} dataSource={userData} pagination={false} bordered />
+                                )}
+
+                                {/* Nút Update Profile */}
+                                <div className="text-center mt-4">
+                                    <Button type="primary" size="large" onClick={() => navigate("/update-profile")}>
+                                        Update Profile
+                                    </Button>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            </Content>
+            <Footer />
+        </Layout>
+    );
 };
 
 export default UserProfile;

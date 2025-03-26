@@ -1,14 +1,16 @@
+// src/Component/ProductCard.jsx
 import { Row, Col, Card, Typography, Spin, Button } from "antd";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../store/reducer/cart-reducer";
+import { addToCart } from "../Store/reducer/cartReducer";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 
-const ProductCard = ({ products, loading, isDarkMode }) => {
+const ProductCard = ({ products, loading, isDarkMode, onProductClick }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user._id);
-
+  const navigate = useNavigate();
   if (loading) {
     return (
       <Spin
@@ -22,7 +24,12 @@ const ProductCard = ({ products, loading, isDarkMode }) => {
     );
   }
 
-  const handleAddToCart = (product) => {
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation(); // Ngăn sự kiện click lan sang Card
     if (!userId) {
       toast.error("Vui lòng đăng nhập để mua hàng.");
       return;
@@ -71,7 +78,7 @@ const ProductCard = ({ products, loading, isDarkMode }) => {
                   height: "200px",
                   width: "100%",
                   padding: "15px",
-                  objectFit: "contain", // Hiển thị toàn bộ ảnh mà không bị cắt
+                  objectFit: "contain",
                   borderTopLeftRadius: "10px",
                   borderTopRightRadius: "10px",
                 }}
@@ -84,12 +91,14 @@ const ProductCard = ({ products, loading, isDarkMode }) => {
               border: themeStyles.cardBorder,
               boxShadow: themeStyles.cardShadow,
               transition: "transform 0.2s ease",
+              cursor: "pointer", // Thêm con trỏ để báo hiệu có thể click
             }}
             bodyStyle={{
               padding: "16px",
               textAlign: "center",
               color: themeStyles.textColor,
             }}
+            onClick={() => handleProductClick(product._id)} // Chuyển hướng khi click vào Card
             onMouseEnter={(e) =>
               (e.currentTarget.style.transform = "scale(1.03)")
             }
@@ -100,6 +109,11 @@ const ProductCard = ({ products, loading, isDarkMode }) => {
               style={{
                 marginBottom: "8px",
                 color: themeStyles.textColor,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "100%",
+                display: "block",
               }}
             >
               {product.name}
@@ -123,7 +137,7 @@ const ProductCard = ({ products, loading, isDarkMode }) => {
             >
               <Button
                 type="primary"
-                onClick={() => handleAddToCart(product)}
+                onClick={(e) => handleAddToCart(product, e)} // Gọi hàm thêm vào giỏ hàng
                 style={{
                   backgroundColor: themeStyles.buttonBg,
                   borderColor: themeStyles.buttonBg,
@@ -161,6 +175,7 @@ ProductCard.propTypes = {
   ).isRequired,
   loading: PropTypes.bool.isRequired,
   isDarkMode: PropTypes.bool.isRequired,
+  onProductClick: PropTypes.func.isRequired, // Thêm propTypes cho onProductClick
 };
 
 export default ProductCard;

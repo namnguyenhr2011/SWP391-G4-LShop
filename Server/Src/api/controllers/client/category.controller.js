@@ -154,7 +154,7 @@ module.exports.managerDeleteCategory = async (req, res) => {
             return res.status(403).json({ message: 'User not authorized to delete category or User not found!' });
         }
 
-        const deletedCategory = await Category.findOneAndUpdate(
+        const deletedCategory = await Category.findOneAndDelete(
             { _id: id, deleted: false },
             { deleted: true },
             { new: true }
@@ -296,4 +296,3 @@ module.exports.managerDeleteSubCategory = async (req, res) => {
         });
     }
 };
-

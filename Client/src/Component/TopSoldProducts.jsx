@@ -1,12 +1,15 @@
+// src/Component/TopSoldProducts.jsx
 import { useEffect, useState } from "react";
 import { Typography } from "antd";
 import { StarOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 import ProductCard from "./ProductCard";
-import { getTopSold } from "../service/client/ApiProduct";
+import { getTopSold } from "../Service/Client/ApiProduct";
 
 const { Title } = Typography;
 
 const TopSoldProducts = ({ isDarkMode }) => {
+  const navigate = useNavigate(); // Khởi tạo useNavigate
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +27,11 @@ const TopSoldProducts = ({ isDarkMode }) => {
     fetchProducts();
   }, []);
 
+  // Hàm xử lý khi click vào sản phẩm
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
   return (
     <div style={{ marginBottom: "40px" }}>
       <div
@@ -39,7 +47,11 @@ const TopSoldProducts = ({ isDarkMode }) => {
           Top bán chạy
         </Title>
       </div>
-      <ProductCard products={products} loading={loading} />
+      <ProductCard
+        products={products}
+        loading={loading}
+        onProductClick={handleProductClick}
+      />
     </div>
   );
 };

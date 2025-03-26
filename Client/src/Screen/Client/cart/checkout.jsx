@@ -16,7 +16,7 @@ import Header from "../../layout/Header";
 import AppFooter from "../../layout/Footer";
 import { userProfile } from "../../../service/client/ApiServices";
 import { createOrder, create_VnPay } from "../../../service/client/ApiOrder";
-import { clearCart } from "../../../store/reducer/cart-reducer";
+import { clearCart } from "../../../store/reducer/cartReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -57,7 +57,7 @@ const CheckoutPage = () => {
           phone: userData?.user?.phone || "",
         }));
       } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
+        toast.error("Lỗi khi lấy thông tin người dùng:", error);
       }
     };
     fetchUserProfile();
@@ -203,9 +203,11 @@ const CheckoutPage = () => {
         navigate("/");
         toast.success("Đặt hàng thành công!");
       }
+      toast.success("Đặt hàng thành công!");
+      dispatch(clearCart({ userId }));
+      navigate("/");
     } catch (error) {
-      console.error(error);
-      toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!", error);
     } finally {
       setLoading(false);
     }
@@ -435,7 +437,12 @@ const CheckoutPage = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label style={{ color: themeStyles.textColor }}>
+                    <Form.Label
+                      style={{
+                        color: themeStyles.textColor,
+                        paddingRight: "10px",
+                      }}
+                    >
                       <CreditCardOutlined /> Phương thức thanh toán
                     </Form.Label>
                     <Radio.Group

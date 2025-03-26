@@ -1,14 +1,15 @@
 import { Row, Col, Card, Typography, Spin, Button, Badge } from "antd";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../store/reducer/cart-reducer";
+import { addToCart } from "../store/reducer/cartReducer";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 
 const SaleProductCard = ({ products, loading, isDarkMode }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user?._id);
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -23,7 +24,8 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
     );
   }
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product, e) => {
+    e.stopPropagation();
     if (!userId) {
       toast.error("Vui lòng đăng nhập để mua hàng.");
       return;
@@ -46,6 +48,13 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
     toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
   };
 
+  const handleProductClick = (productId) => {
+    console.log("Navigating to:", `/product-sale/${productId}`);
+    navigate(`/product-sale/${productId}`);
+  };
+
+  const formatPrice = (price) => price.toLocaleString() + " VND";
+
   const themeStyles = {
     cardBackground: isDarkMode ? "#2b2e34" : "#fff",
     cardBorder: isDarkMode ? "1px solid #444" : "1px solid #e8e8e8",
@@ -58,14 +67,12 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
     buttonHoverBg: isDarkMode ? "#4285f4" : "#0958d9",
   };
 
-  const formatPrice = (price) => price.toLocaleString() + " VND";
-
   return (
     <Row gutter={[24, 24]} justify="center">
       {products.map((product) => (
         <Col key={product._id} xs={24} sm={12} md={6}>
           <Badge.Ribbon
-            text={`Giảm ${formatPrice(product.sale?.discount || 0)}`}
+            text={`Chỉ còn ${formatPrice(product.sale?.salePrice || 0)}`}
             color="red"
             style={{ display: product.sale?.isSale ? "block" : "none" }}
           >
@@ -98,6 +105,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                 textAlign: "center",
                 color: themeStyles.textColor,
               }}
+              onClick={() => handleProductClick(product._id)} // Gắn sự kiện onClick
               onMouseEnter={(e) =>
                 (e.currentTarget.style.transform = "scale(1.03)")
               }
@@ -110,27 +118,33 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                 style={{
                   marginBottom: "8px",
                   color: themeStyles.textColor,
-                  whiteSpace: "nowrap", // Giữ tiêu đề trên 1 dòng
-                  overflow: "hidden", // Ẩn phần nội dung vượt quá
-                  textOverflow: "ellipsis", // Thêm dấu ba chấm khi nội dung bị cắt
-                  maxWidth: "100%", // Giới hạn chiều rộng tối đa của tiêu đề
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "100%",
+                  display: "block",
                 }}
+                title={product.name}
               >
                 {product.name}
               </Title>
 
-              {product.sale?.isSale ? (
-                <div>
-                  <Text
-                    delete
-                    style={{
-                      fontSize: "14px",
-                      color: isDarkMode ? "#999" : "#666",
-                      display: "block",
-                    }}
-                  >
-                    {formatPrice(product.price)}
-                  </Text>
+              <div>
+                <Text
+                  delete={product.sale?.isSale}
+                  style={{
+                    fontSize: "14px",
+                    color: product.sale?.isSale
+                      ? isDarkMode
+                        ? "#999"
+                        : "#666"
+                      : themeStyles.priceColor,
+                    display: "block",
+                  }}
+                >
+                  {formatPrice(product.price)}
+                </Text>
+                {product.sale?.isSale && (
                   <Text
                     strong
                     style={{
@@ -140,18 +154,8 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                   >
                     {formatPrice(product.sale.salePrice)}
                   </Text>
-                </div>
-              ) : (
-                <Text
-                  strong
-                  style={{
-                    fontSize: "16px",
-                    color: themeStyles.priceColor,
-                  }}
-                >
-                  {formatPrice(product.price)}
-                </Text>
-              )}
+                )}
+              </div>
 
               <div
                 style={{
@@ -162,7 +166,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
               >
                 <Button
                   type="primary"
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => handleAddToCart(product, e)}
                   style={{
                     width: "100%",
                     height: "36px",

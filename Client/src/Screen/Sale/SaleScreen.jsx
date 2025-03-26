@@ -1,37 +1,444 @@
-import { getAllProductBySale } from "../../Service/sale/ApiSale"
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import { getProductWithSaleID, deleteSale } from "../../Service/sale/ApiSale";
+import { Button, Input, Table, Select, message, Spin } from "antd";
+import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { doLogout } from "../../store/reducer/userReducer";
+import SaleOrderManagement from "./SaleOrderManagement";
+
+const { Option } = Select;
+
+// Header Component
+const Header = ({ onLogout }) => (
+  <Navbar
+    expand="lg"
+    style={{
+      background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)",
+      padding: "0.5rem 1.5rem",
+      borderRadius: "15px",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+      width: "90%",
+      maxWidth: "1800px",
+      margin: "20px auto 20px",
+    }}
+  >
+    <Container fluid>
+      <Navbar.Brand
+        style={{
+          color: "#ffd700",
+          fontSize: "1.3rem", // Reduced font size
+          fontWeight: "700",
+          textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        Sale Manager
+      </Navbar.Brand>
+      <Button
+        type="primary"
+        danger
+        size="small" // Smaller button size
+        onClick={onLogout}
+        style={{
+          borderRadius: "8px",
+          padding: "0.2rem 1rem",
+          fontSize: "12px", // Smaller font size
+          fontWeight: "600",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+        }}
+        onMouseOver={(e) => (e.target.style.backgroundColor = "#c82333")}
+        onMouseOut={(e) => (e.target.style.backgroundColor = "#dc3545")}
+      >
+        Logout
+      </Button>
+    </Container>
+  </Navbar>
+);
+
+// Sidebar Component
+const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
+  <div
+    style={{
+      background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)",
+      padding: "1.5rem", // Reduced padding
+      borderRadius: "15px",
+      boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
+      color: "#ffffff",
+      height: "calc(90vh - 50px)",
+      minWidth: "200px", // Reduced width
+      maxWidth: "200px",
+      overflowY: "auto",
+      overflowX: "hidden",
+      position: "sticky",
+      top: "50px",
+    }}
+  >
+    <h4
+      style={{
+        color: "#ffd700",
+        fontWeight: "600",
+        fontSize: "1.2rem", // Reduced font size
+        marginBottom: "1rem",
+        textAlign: "center",
+        whiteSpace: "nowrap",
+      }}
+    >
+      Navigation
+    </h4>
+    <Nav className="flex-column">
+      <Nav.Link
+        onClick={onViewSalePrice}
+        style={{
+          color: "#ffffff",
+          fontSize: "1rem", // Reduced font size
+          padding: "0.5rem 0.75rem",
+          borderRadius: "8px",
+          backgroundColor: !activeView ? "#28a745" : "transparent",
+          marginBottom: "0.75rem",
+          transition: "all 0.3s",
+          textAlign: "center",
+        }}
+        onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
+        onMouseOut={(e) =>
+          (e.target.style.backgroundColor = !activeView
+            ? "#28a745"
+            : "transparent")
+        }
+      >
+        Sale Management
+      </Nav.Link>
+      <Nav.Link
+        onClick={onViewOrder}
+        style={{
+          color: "#ffffff",
+          fontSize: "1rem", // Reduced font size
+          padding: "0.5rem 0.75rem",
+          borderRadius: "8px",
+          backgroundColor: activeView ? "#007bff" : "transparent",
+          transition: "all 0.3s",
+          textAlign: "center",
+        }}
+        onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
+        onMouseOut={(e) =>
+          (e.target.style.backgroundColor = activeView
+            ? "#007bff"
+            : "transparent")
+        }
+      >
+        Order Management
+      </Nav.Link>
+    </Nav>
+  </div>
+);
+
+// MainContent Component
+const MainContent = ({
+  products,
+  loading,
+  searchTerm,
+  sortOrder,
+  onSearchChange,
+  onSortChange,
+  columns,
+  showOrderManagement,
+  setLoading,
+}) => (
+  <div
+    style={{
+      padding: "1rem", // Reduced padding
+      background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
+      borderRadius: "15px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+      height: "calc(90vh - 50px)",
+      display: "flex",
+      flexDirection: "column",
+      overflowY: "auto",
+    }}
+  >
+    {showOrderManagement ? (
+      <SaleOrderManagement loading={loading} setLoading={setLoading} />
+    ) : (
+      <>
+        <Row className="mb-3" align="middle">
+          <Col md={8} xs={12}>
+            <Input
+              placeholder="🔍 Search..."
+              value={searchTerm}
+              onChange={onSearchChange}
+              style={{
+                borderRadius: "8px",
+                border: "none",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                fontSize: "0.9rem", // Reduced font size
+                width: "90%",
+              }}
+            />
+          </Col>
+          <Col md={4} xs={12} className="mt-2 mt-md-0">
+            <Select
+              defaultValue="default"
+              onChange={onSortChange}
+              style={{ width: "100%", fontSize: "0.9rem" }} // Reduced font size
+            >
+              <Option value="default">Default</Option>
+              <Option value="desc">Price: High to Low</Option>
+              <Option value="asc">Price: Low to High</Option>
+            </Select>
+          </Col>
+        </Row>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "4rem 0" }}>
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <Table
+              columns={columns}
+              dataSource={products}
+              rowKey="_id"
+              bordered
+              style={{
+                background: "#fff",
+                borderRadius: "10px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+              }}
+              scroll={{ x: "max-content" }}
+              pagination={{
+                pageSize: 5,
+                position: ["bottomCenter"],
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} products`,
+              }}
+              // Add smaller font size to table cells
+              className="small-font-table"
+            />
+          </div>
+        )}
+      </>
+    )}
+  </div>
+);
 
 const SaleScreen = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("default");
+  const [activeView, setActiveView] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const [product, setProduct] = useState("");
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await getAllProductBySale()
-            setProduct(response)
+  useEffect(() => {
+    if (!activeView) {
+      const fetchProducts = async () => {
+        try {
+          setLoading(true);
+          const response = await getProductWithSaleID();
+          const updatedProducts = response.products.map((product) => ({
+            ...product,
+            saleId: product.sale?.saleID || null,
+          }));
+          setProducts(updatedProducts);
+        } catch {
+          message.error("Unable to fetch product data");
+        } finally {
+          setLoading(false);
         }
-        fetchData()
-    }, [])
+      };
+      fetchProducts();
+    }
+  }, [activeView]);
 
+  const handleLogout = () => {
+    dispatch(doLogout());
+    message.success("Logged out successfully!");
+    navigate("/");
+  };
 
-    return (
-        <div>
-            <h2>Sale Screen</h2>
-            {product.products?.map((item) => (
-                <div key={item._id} className="col-3">
-                    <div className="card" style={{ width: "18rem" }}>
-                        <img src={item.image} className="card-img-top" alt="..." />
-                        <div className="card-body">
-                            <h5 className="card-title">{item.name}</h5>
-                            <p className="card-text">{item.description}</p>
-                            <p className="card-text">Price: {item.price.toLocaleString()} VND</p>
-                        </div>
-                    </div>
-                </div>
-            ))}
+  const handleAddSale = (product) =>
+    navigate("/sale/add", { state: { product } });
+  const handleUpdateSale = (product) =>
+    navigate("/sale/update", { state: { product } });
 
+  const handleDelete = async (saleId) => {
+    if (!saleId) return message.error("No sale found to delete");
+    try {
+      setLoading(true);
+      const response = await deleteSale(saleId);
+      message.success(response.message);
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.sale?.saleID === saleId
+            ? { ...product, sale: null, saleId: null }
+            : product
+        )
+      );
+    } catch (error) {
+      message.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products
+    .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) =>
+      sortOrder === "desc"
+        ? b.price - a.price
+        : sortOrder === "asc"
+        ? a.price - b.price
+        : 0
+    );
+
+  const columns = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <img
+          src={image}
+          alt="product"
+          style={{
+            width: 60, // Reduced image size
+            height: 60,
+            borderRadius: "8px",
+            objectFit: "cover",
+          }}
+        />
+      ),
+    },
+    {
+      title: "Product Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text) => (
+        <span style={{ fontSize: "12px", whiteSpace: "normal", wordBreak: "break-word" }}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: "Original Price",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => (
+        <span style={{ fontSize: "12px" }}>
+          {price.toLocaleString()} VND
+        </span>
+      ),
+    },
+    {
+      title: "Sale Price",
+      dataIndex: "sale",
+      key: "salePrice",
+      render: (sale) => (
+        <span style={{ fontSize: "12px" }}>
+          {sale?.salePrice
+            ? `${sale.salePrice.toLocaleString()} VND`
+            : "Not Available"}
+        </span>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "action",
+      render: (_, record) => (
+        <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+          <Button
+            size="small"
+            type="primary"
+            onClick={() => handleAddSale(record)}
+            style={{ fontSize: "12px", padding: "0 8px" }}
+          >
+            Add Sale
+          </Button>
+          <Button
+            size="small"
+            type="primary"
+            onClick={() => handleUpdateSale(record)}
+            disabled={!record.sale}
+            style={{ fontSize: "12px", padding: "0 8px" }}
+          >
+            Update
+          </Button>
+          <Button
+            size="small"
+            type="primary"
+            danger
+            onClick={() => handleDelete(record.sale?.saleID)}
+            disabled={!record.sale}
+            style={{ fontSize: "12px", padding: "0 8px" }}
+          >
+            Delete
+          </Button>
         </div>
-    )
-}
+      ),
+    },
+  ];
 
-export default SaleScreen
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#e9ecef",
+        padding: "20px",
+      }}
+    >
+      <Header onLogout={handleLogout} />
+      <Container
+        style={{
+          width: "90%",
+          maxWidth: "1800px",
+          margin: "0 auto",
+        }}
+      >
+        <Row>
+          <Col md={2} xs={12}>
+            <Sidebar
+              activeView={activeView}
+              onViewSalePrice={() => setActiveView(false)}
+              onViewOrder={() => setActiveView(true)}
+            />
+          </Col>
+          <Col md={10} xs={12}>
+            <MainContent
+              products={filteredProducts}
+              loading={loading}
+              searchTerm={searchTerm}
+              sortOrder={sortOrder}
+              onSearchChange={(e) => setSearchTerm(e.target.value)}
+              onSortChange={setSortOrder}
+              columns={columns}
+              showOrderManagement={activeView}
+              setLoading={setLoading}
+            />
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
+
+// Add some custom CSS to reduce font sizes in the table
+const styles = `
+  .small-font-table .ant-table-thead > tr > th,
+  .small-font-table .ant-table-tbody > tr > td {
+    font-size: 12px !important;
+    padding: 8px !important; /* Reduce padding for more compact rows */
+  }
+  .small-font-table .ant-select-selector {
+    font-size: 12px !important;
+  }
+  .small-font-table .ant-select-item {
+    font-size: 12px !important;
+  }
+`;
+
+// Inject the styles into the document
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
+
+export default SaleScreen;

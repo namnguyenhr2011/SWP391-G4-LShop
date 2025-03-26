@@ -19,11 +19,12 @@ import {
   MoonOutlined,
   SunOutlined,
   ShoppingCartOutlined,
+  OrderedListOutlined,
 } from "@ant-design/icons";
 
 import ButtonAntd from "../../component/Button";
 import InputSearch from "../../component/InputSearch";
-import { doLogout, doDarkMode } from "../../store/reducer/user-reducer";
+import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
 
 const DEFAULT_LOGO = "/L.png";
 
@@ -41,7 +42,7 @@ const Header = () => {
 
   // Effects
   useEffect(() => {
-    document.title = nameApp || "My App";
+    document.title = nameApp || "L-Shop";
     const iconLink = document.querySelector("link[rel='icon']");
     if (logo && iconLink) {
       iconLink.href = logo;
@@ -58,6 +59,9 @@ const Header = () => {
     navigate("/");
   };
 
+  const handleOrder = () => {
+    navigate("/order");
+  };
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
 
   const handleUserProfile = () => navigate("/userProfile");
@@ -77,6 +81,14 @@ const Header = () => {
         onClick={handleUserProfile}
       >
         {t("Profile")}
+      </Menu.Item>
+
+      <Menu.Item
+        key="order"
+        icon={<OrderedListOutlined />}
+        onClick={handleOrder}
+      >
+        Your Order
       </Menu.Item>
 
       <Menu.Item key="darkmode">

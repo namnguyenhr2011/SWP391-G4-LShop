@@ -1,4 +1,4 @@
-import { Table, Select, message, Skeleton } from "antd";
+import { Table, Select, message, Skeleton, Button } from "antd";
 import { useState, useEffect } from "react";
 import {
   getAllOrder,
@@ -9,8 +9,9 @@ import {
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [sales, setSales] = useState([]);
-  const [loadingOrders, setLoadingOrders] = useState(true); // Tách loading cho orders
-  const [loadingSales, setLoadingSales] = useState(true); // Tách loading cho sales
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingSales, setLoadingSales] = useState(true);
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -25,7 +26,7 @@ const OrderManagement = () => {
       setOrders(data.orders || []);
     } catch (error) {
       message.error("Failed to fetch orders");
-      setOrders([]); 
+      setOrders([]);
     } finally {
       setLoadingOrders(false);
     }
@@ -38,7 +39,7 @@ const OrderManagement = () => {
       const salesData = data.users.filter(
         (user) => user.role.toLowerCase() === "sale"
       );
-      setSales(salesData || []); 
+      setSales(salesData || []);
     } catch (error) {
       message.error("Failed to fetch sales data");
       setSales([]);
@@ -54,6 +55,67 @@ const OrderManagement = () => {
       await fetchOrders();
     } catch (error) {
       message.error(error.message || "Failed to assign saler");
+    }
+  };
+
+  const handleAutoAssignSalers = async () => {
+    if (!sales.length) {
+      message.error("No salers available to assign!");
+      return;
+    }
+
+    setAssigning(true);
+    try {
+      // Lọc các order chưa có saler
+      const unassignedOrders = orders.filter(
+        (order) => !order.saleClaim?.salerId
+      );
+
+      if (unassignedOrders.length === 0) {
+        message.info("All orders already have salers!");
+        setAssigning(false);
+        return;
+      }
+
+      // Đếm số order pending của mỗi saler
+      const salerOrderCount = sales.map((saler) => {
+        const pendingCount = orders.filter(
+          (order) =>
+            order.saleClaim?.salerId === saler._id &&
+            order.status.toLowerCase() === "pending"
+        ).length;
+        return { salerId: saler._id, pendingCount };
+      });
+
+      // Sắp xếp saler theo số lượng order pending (ít nhất lên đầu)
+      salerOrderCount.sort((a, b) => a.pendingCount - b.pendingCount);
+
+      // Chia đều order cho các saler
+      const assignPromises = [];
+      const salerQueue = [...salerOrderCount]; // Hàng đợi saler để phân bổ
+
+      unassignedOrders.forEach((order) => {
+        // Lấy saler có ít order pending nhất
+        const assignedSaler = salerQueue.shift(); // Lấy saler đầu tiên
+        assignPromises.push(
+          assignSalerToOrder(order._id, assignedSaler.salerId)
+        );
+
+        // Tăng số lượng pending của saler này và đưa lại vào hàng đợi
+        assignedSaler.pendingCount += 1;
+        salerQueue.push(assignedSaler);
+        salerQueue.sort((a, b) => a.pendingCount - b.pendingCount); // Sắp xếp lại
+      });
+
+      await Promise.all(assignPromises);
+      message.success(
+        `Successfully assigned salers to ${unassignedOrders.length} orders evenly!`
+      );
+      await fetchOrders();
+    } catch (error) {
+      message.error("Failed to auto-assign salers");
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -78,7 +140,17 @@ const OrderManagement = () => {
     },
     { title: "Phonenumber", dataIndex: "phone", key: "phone" },
     { title: "Address", dataIndex: "address", key: "address" },
-    { title: "Total", dataIndex: "totalAmount", key: "totalAmount" },
+    {
+      title: "Total",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (amount) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+          minimumFractionDigits: 0,
+        }).format(amount),
+    },
     {
       title: "Saler",
       dataIndex: "saleClaim",
@@ -91,7 +163,7 @@ const OrderManagement = () => {
             value={selectedSalerId}
             onChange={(value) => handleSalerChange(record._id, value)}
             placeholder="Select a saler"
-            disabled={loadingSales} 
+            disabled={loadingSales}
             loading={loadingSales}
           >
             {sales.map((s) => (
@@ -108,7 +180,7 @@ const OrderManagement = () => {
   if (loadingOrders) {
     return (
       <div style={{ padding: 24 }}>
-        <Skeleton active paragraph={{ rows: 8 }} /> 
+        <Skeleton active paragraph={{ rows: 8 }} />
       </div>
     );
   }
@@ -120,12 +192,26 @@ const OrderManagement = () => {
         transition: "opacity 0.3s ease",
       }}
     >
+      <div style={{ marginBottom: 16 }}>
+        <Button
+          type="primary"
+          onClick={handleAutoAssignSalers}
+          loading={assigning}
+          disabled={loadingSales || loadingOrders}
+        >
+          Auto Assign Salers Evenly
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={orders}
         rowKey="_id"
-        loading={loadingOrders} 
-        pagination={{ pageSize: 10 }} 
+        loading={loadingOrders}
+        pagination={{
+          pageSizeOptions: ["10", "20", "50", "100"], // Các tùy chọn số lượng dòng
+          showSizeChanger: true, // Hiển thị dropdown chọn số lượng dòng
+          defaultPageSize: 10, // Giá trị mặc định
+        }}
       />
     </div>
   );

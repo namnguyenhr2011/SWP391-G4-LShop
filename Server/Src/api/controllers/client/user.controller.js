@@ -38,7 +38,7 @@ module.exports.register = async (req, res) => {
             }
             const vertifyEmail = new VerifyEmail(objVrtify);
             await vertifyEmail.save();
-            const subject = "Your One-Time Password (OTP) for Account reset password";
+            const subject = "Your One-Time Password (OTP) for Verify Account ";
             const html = `
                             <!DOCTYPE html>
                             <html>
@@ -96,18 +96,18 @@ module.exports.register = async (req, res) => {
                             <body>
                                 <div class="email-container">
                                     <div class="email-header">
-                                        Account reset password
+                                        Account Verify email
                                     </div>
                                     <div class="email-body">
                                         <p>Dear User,</p>
-                                        <p>To complete the reset password process for your account, please use the following One-Time Password (OTP):</p>
+                                        <p>To complete verify your process for your account, please use the following One-Time Password (OTP):</p>
                                         <h3 class="otp">${otp}</h3>
                                         <p>This OTP is valid for the next <strong>3 minutes</strong>. For your security, please do not share this OTP with anyone.</p>
                                         <p>If you did not request this, please ignore this email or contact our support team immediately.</p>
-                                        <p>Thank you,<br>The LaptopShopingApp Team</p>
+                                        <p>Thank you,<br>The L-Shop Team</p>
                                     </div>
                                     <div class="email-footer">
-                                        © 2025 LaptopShopingApp. All rights reserved.
+                                        © 2025 L-Shop. All rights reserved.
                                     </div>
                                 </div>
                             </body>
@@ -135,7 +135,7 @@ module.exports.login = async (req, res) => {
             email: email,
             status: "Inactive",
         })
-        console.log(userInactive);
+       
         if (userInactive) {
             res.json({
                 code: 606,
@@ -333,7 +333,7 @@ module.exports.forgot = async (req, res) => {
                             <body>
                                 <div class="email-container">
                                     <div class="email-header">
-                                        Account Verification
+                                        Account Reset Password
                                     </div>
                                     <div class="email-body">
                                         <p>Dear User,</p>
@@ -341,10 +341,10 @@ module.exports.forgot = async (req, res) => {
                                         <h3 class="otp">${otp}</h3>
                                         <p>This OTP is valid for the next <strong>3 minutes</strong>. For your security, please do not share this OTP with anyone.</p>
                                         <p>If you did not request this, please ignore this email or contact our support team immediately.</p>
-                                        <p>Thank you,<br>The LaptopShopingApp Team</p>
+                                        <p>Thank you,<br>The L-Shop Team</p>
                                     </div>
                                     <div class="email-footer">
-                                        © 2025 LaptopShopingApp. All rights reserved.
+                                        © 2025 L-Shop. All rights reserved.
                                     </div>
                                 </div>
                             </body>
@@ -475,27 +475,6 @@ module.exports.editProfile = async (req, res) => {
 }
 
 
-
-module.exports.addImage = async (req, res) => {
-    try {
-        const authHeader = req.header('Authorization');
-        const token = authHeader && authHeader.split(' ')[1];
-        const { image } = req.body;
-        if (token) {
-            const user = await Users.updateOne({
-                token: token
-            }, { image: image })
-            res.json({
-                code: 200,
-                message: "Update Successfull."
-            })
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-
 module.exports.getAllUser = async (req, res) => {
     try {
         const users = await Users.find({})
@@ -507,3 +486,47 @@ module.exports.getAllUser = async (req, res) => {
         console.log(error)
     }
 }
+
+
+// api/user/change-password
+module.exports.changePassword = async (req, res) => {
+    try {
+        const authHeader = req.header('Authorization');
+        const token = authHeader && authHeader.split(' ')[1];
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+
+        if (!token) {
+            return res.status(401).json({ code: 401, message: 'Unauthorized! Token is missing' });
+        }
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({ code: 400, message: 'All fields are required!' });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ code: 400, message: 'New password and confirm password do not match!' });
+        }
+
+        const user = await Users.findOne({ token: token });
+
+        if (!user) {
+            return res.status(404).json({ code: 404, message: 'User not found!' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({ code: 400, message: 'Old password is incorrect!' });
+        }
+
+        const salt = await bcrypt.genSalt(saltRounds);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await Users.updateOne({ token: token }, { password: hashedPassword });
+
+        res.status(200).json({ code: 200, message: 'Password changed successfully!' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ code: 500, message: 'Internal Server Error', error });
+    }
+};

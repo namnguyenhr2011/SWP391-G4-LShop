@@ -14,7 +14,7 @@ import {
   clearCart,
   increaseQuantity,
   decreaseQuantity,
-} from "../../../store/reducer/cart-reducer";
+} from "../../../store/reducer/cartReducer";
 import { Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import {

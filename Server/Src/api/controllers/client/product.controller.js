@@ -62,8 +62,7 @@ module.exports.addProduct = async (req, res) => {
 //[Put] api/products/updateProduct/:id
 module.exports.updateProduct = async (req, res) => {
     try {
-        const { productId } = req.params;
-        const { name, price, image, description, subCategory, quantity, sold, saleOf, salePrice } = req.body;
+        const { productId, name, price, description, subCategory } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -73,28 +72,35 @@ module.exports.updateProduct = async (req, res) => {
 
         const productManager = await User.findOne({ token });
         if (!productManager || productManager.role !== 'productManager') {
-            return res.status(401).json({ message: 'User not authorized to update product or User not found!' });
+            return res.status(403).json({ message: 'User not authorized to update product!' });
         }
 
+        // Kiểm tra xem productId có hợp lệ không
+        if (!productId) {
+            return res.status(400).json({ message: 'Invalid product ID!' });
+        }
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: 'Product not found!' });
         }
 
-        const subCategoryDoc = await SubCategory.findById(subCategory);
-        if (!subCategoryDoc) {
-            return res.status(400).json({ message: 'SubCategory not found!' });
+        // Kiểm tra subCategory nếu được gửi
+        if (subCategory) {
+            return res.status(400).json({ message: 'Invalid subCategory ID!' });
         }
 
+        if (subCategory) {
+            const subCategoryDoc = await SubCategory.findById(subCategory);
+            if (!subCategoryDoc) {
+                return res.status(400).json({ message: 'SubCategory not found!' });
+            }
+        }
+
+        // Cập nhật chỉ những trường có thay đổi
         product.name = name || product.name;
         product.price = price || product.price;
-        product.image = image || product.image;
         product.description = description || product.description;
         product.subCategory = subCategory || product.subCategory;
-        product.quantity = quantity || product.quantity;
-        product.sold = sold || product.sold;
-        product.saleOf = saleOf || product.saleOf;
-        product.salePrice = salePrice || product.salePrice;
 
         await product.save();
 
@@ -320,13 +326,24 @@ module.exports.getProductByCategory = async (req, res) => {
 module.exports.getProductBySubCategory = async (req, res) => {
     try {
         const { subcategoryId } = req.params;
+        const { page } = req.body;
         const subcategoryDoc = await SubCategory.findOne({ _id: subcategoryId });
 
         if (!subcategoryDoc) {
-            return res.status(400).json({ code: 400, message: 'Please provide a subcategory.' })
+            return res.status(400).json({ code: 400, message: 'Please provide a valid subcategory.' });
         }
 
-        const products = await Product.find({ subCategory: subcategoryDoc._id, deleted: false }).populate('subCategory', 'name');
+        const totalProducts = await Product.countDocuments({ subCategory: subcategoryDoc._id, deleted: false });
+
+        const paginationData = {
+            currentPage: page ? parseInt(page) : 1,
+            limit: 12,
+        };
+
+        const products = await Product.find({ subCategory: subcategoryDoc._id, deleted: false })
+            .populate('subCategory', 'name')
+            .skip((paginationData.currentPage - 1) * paginationData.limit)
+            .limit(paginationData.limit);
 
         if (products.length === 0) {
             return res.status(404).json({ message: `No products found under SubCategory: ${subcategoryId}` });
@@ -334,10 +351,11 @@ module.exports.getProductBySubCategory = async (req, res) => {
 
         res.status(200).json({
             products,
+            pagination: paginationData,
             message: `Products under SubCategory: ${subcategoryId}`
-        })
+        });
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json({ message: 'Internal server error', error });
     }
 }
 
@@ -422,36 +440,49 @@ module.exports.getTopView = async (req, res) => {
 //[GET] api/products/getTopSold
 module.exports.getTopSold = async (req, res) => {
     try {
-        const products = await Product.find({ deleted: false })
-            .sort({ sold: -1 })
-            .limit(8);
-
-        const activeSales = await Sale.find({
-            productId: { $in: products.map(product => product._id) },
-        });
-
-        const salesMap = {};
-        activeSales.forEach(sale => {
-            salesMap[sale.productId.toString()] = {
-                isSale: sale.isSale,
-                discount: sale.salePrice,
-                discountType: sale.discountType,
-                startDate: sale.startDate,
-                endDate: sale.endDate,
-                salePrice: sale.salePrice,
-            };
-        });
-
-        const productsWithSales = products.map(product => {
-            const productObj = product.toObject();
-            productObj.sale = salesMap[product._id.toString()] || null;
-            return productObj;
-        });
-
-        res.status(200).json({
-            products: productsWithSales
-        });
+        const products = await Product.find({ deleted: false }).sort({ numSold: -1 }).limit(8);
+        res.status(200).json({ products });
     } catch (error) {
         res.status(500).json(error);
     }
 }
+
+
+module.exports.updateImage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let { image } = req.body;
+
+        if (!image) {
+            return res.status(400).json({ message: 'Image is required!' });
+        }
+
+        // Kiểm tra xem chuỗi đã có tiền tố chưa
+        if (!image.startsWith('data:image/')) {
+            return res.status(400).json({ message: 'Invalid image format! Missing Base64 prefix.' });
+        }
+
+        // Xác thực người dùng
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const productManager = await User.findOne({ token: token });
+        if (!productManager || productManager.role !== 'productManager') {
+            return res.status(401).json({ message: 'User not authorized to update product image!' });
+        }
+
+        // Cập nhật ảnh sản phẩm
+        const product = await Product.findByIdAndUpdate(id, { image: image }, { new: true });
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+
+        res.status(200).json({ message: 'Product image updated successfully.', product });
+    } catch (error) {
+        console.error("❌ Lỗi trong updateImage:", error);
+        res.status(500).json({ error: error.message + ': update product image error' });
+    }
+};

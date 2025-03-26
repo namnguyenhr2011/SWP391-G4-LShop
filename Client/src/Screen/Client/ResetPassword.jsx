@@ -30,7 +30,9 @@ const ResetPassword = () => {
                 toast.error("Please enter both password fields.");
                 return;
             }
+
             const res = await userResetPassword(newPassword.trim(), confirmPassword.trim(), token);
+
             if (res && (res.code === 400 || res.code === 401 || res.code === 402)) {
                 toast.error(res.message);
                 return;
@@ -41,7 +43,8 @@ const ResetPassword = () => {
                 navigate("/login");
             }
         } catch (error) {
-            toast.error("An error occurred. Please try again :" + error);
+            toast.error("An error occurred. Please try again.");
+            console.log(error)
         }
     };
 

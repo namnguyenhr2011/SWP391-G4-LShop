@@ -4,7 +4,7 @@ import { userLogin } from "../../service/client/ApiServices";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
-import { doLogin } from "../../store/reducer/user-reducer";
+import { doLogin } from "../../store/reducer/userReducer";
 import {
   Form,
   Button,
@@ -60,7 +60,7 @@ const Login = () => {
             navigate("/");
             break;
           case "productManager":
-            navigate("/productManager");
+            navigate("/Productdashboard");
             break;
           case "admin":
             navigate("/admin");
@@ -143,7 +143,6 @@ const Login = () => {
                     Forgot Password?
                   </Link>
                 </Form.Group>
-
                 <Button type="submit" variant="primary" className="w-100">
                   Sign In
                 </Button>

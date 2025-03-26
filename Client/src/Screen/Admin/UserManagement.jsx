@@ -22,7 +22,10 @@ const UserManagement = () => {
     setLoading(true);
     try {
       const data = await getAllUser();
-      setUsers(data.users);
+      const userData = data.users.filter(
+        (user) => user.role.toLowerCase() === "user"
+      );
+      setUsers(userData);
     } catch (error) {
       message.error(error.message);
     } finally {
@@ -33,7 +36,7 @@ const UserManagement = () => {
   const handleChangeRole = async (id, newRole) => {
     try {
       await changeRole(id, newRole);
-      message.success("Cập nhật vai trò thành công!");
+      message.success("Role update successful!");
       fetchUsers(); // Load lại danh sách
     } catch (error) {
       console.error("Error changing role:", error);
@@ -43,11 +46,11 @@ const UserManagement = () => {
 
   const showConfirmDelete = (id) => {
     confirm({
-      title: "Bạn có chắc chắn muốn xóa người dùng này?",
-      content: "Hành động này không thể hoàn tác.",
-      okText: "Xóa",
+      title: "Are you sure you want to delete this user?",
+      content: "This action cannot be undone.",
+      okText: "Comfirm",
       okType: "danger",
-      cancelText: "Hủy",
+      cancelText: "Cancel",
       onOk() {
         handleDeleteUser(id);
       },
@@ -57,7 +60,7 @@ const UserManagement = () => {
   const handleDeleteUser = async (id) => {
     try {
       await deleteUser(id);
-      message.success("Xóa người dùng thành công!");
+      message.success("User deleted successfully!");
       fetchUsers();
     } catch (error) {
       message.error(error.message);
@@ -66,16 +69,39 @@ const UserManagement = () => {
 
   const handleChangeStatus = async (userId, currentStatus) => {
     try {
-      setLoading(true);
+      setLoading(true); // Bật hiệu ứng loading
+
       const newStatus = currentStatus === "active" ? "inactive" : "active";
+
+      // Gọi API đổi trạng thái
       await changeStatus(userId, newStatus);
       message.success("Status updated successfully");
-      fetchUsers();
+
+      // Cập nhật trạng thái mới vào danh sách người dùng
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, status: newStatus } : user
+        )
+      );
     } catch (error) {
       message.error(error.message || "Failed to change status");
     } finally {
-      setLoading(false);
+      setLoading(false); // Tắt hiệu ứng loading sau khi hoàn thành
     }
+  };
+
+  const showConfirmStatusChange = (userId, currentStatus) => {
+    const action = currentStatus === "active" ? "ban" : "unban";
+    confirm({
+      title: `Are you sure you want to ${action} this user?`,
+      content: "This action will change the user's access rights.",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      okType: "danger",
+      onOk() {
+        handleChangeStatus(userId, currentStatus);
+      },
+    });
   };
 
   const columns = [
@@ -102,7 +128,6 @@ const UserManagement = () => {
             handleChangeRole(record._id, value);
           }}
         >
-          <Option value="admin">Admin</Option>
           <Option value="user">User</Option>
           <Option value="sale">Sale</Option>
           <Option value="productManager">Product Manager</Option>
@@ -145,7 +170,7 @@ const UserManagement = () => {
                 ? { background: "#52c41a", color: "white" }
                 : {}
             }
-            onClick={() => handleChangeStatus(record._id, record.status)}
+            onClick={() => showConfirmStatusChange(record._id, record.status)}
           >
             {record.status === "active" ? "Ban" : "Unban"}
           </Button>

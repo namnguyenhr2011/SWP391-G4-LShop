@@ -34,6 +34,8 @@ yarn-error.*
 server/.env
 .env
 
+<<<<<<< HEAD
+# typescript
 default.json
 
 app-example

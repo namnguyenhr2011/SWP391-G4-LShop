@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Typography, Spin } from "antd";
 import { FireOutlined } from "@ant-design/icons";
-import SaleProductCard from "./SaleProductCard";
-import { getAllProductsWithSale } from "../service/client/ApiProduct";
+import SaleProductCard from "./SaleProductCard.jsx";
+import { getAllProductsWithSale } from "../Service/Client/ApiProduct";
 
 const { Title } = Typography;
 
