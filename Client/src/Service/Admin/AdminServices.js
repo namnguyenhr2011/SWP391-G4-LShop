@@ -73,3 +73,26 @@ export const assignSalerToOrder = async (orderId, salerId) => {
     throw new Error(error.response?.data?.message || 'Failed to assign saler to order');
   }
 };
+
+export const getAllFeedback = async () => {
+  try {
+    const response = await axios.get("/admin/getAllFeedback", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch feedbacks");
+  }
+};
+
+export const toggleFeedbackVisibility = async (id) => {
+  try {
+    const response = await axios.put(
+      `/admin/toggleFeedbackVisibility/${id}`,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to change status feedback");
+  }
+};

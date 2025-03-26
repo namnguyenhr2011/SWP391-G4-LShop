@@ -50,8 +50,7 @@ const TopSoldProducts = ({ isDarkMode }) => {
       <ProductCard
         products={products}
         loading={loading}
-        isDarkMode={isDarkMode} 
-        onProductClick={handleProductClick} 
+        onProductClick={handleProductClick}
       />
     </div>
   );

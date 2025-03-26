@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { removeFromCart, clearCart, increaseQuantity, decreaseQuantity } from "../../../Store/reducer/cartReducer";
 import { Layout, List, Button, Typography, Row, Col, Card, Divider } from "antd";
 import { useSelector, useDispatch } from "react-redux";
@@ -13,6 +12,7 @@ import { useTranslation } from "react-i18next";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
+
 const Cart = () => {
     const { t } = useTranslation("cart");
     const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -22,7 +22,7 @@ const Cart = () => {
     const dispatch = useDispatch();
 
     const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-    const totalOriginalPrice = cartItems.reduce((total, item) => 
+    const totalOriginalPrice = cartItems.reduce((total, item) =>
         total + (item.originalPrice || item.price) * item.quantity, 0
     );
 
@@ -111,10 +111,10 @@ const Cart = () => {
                                             <Row gutter={16} style={{ width: "100%", alignItems: "center" }}>
                                                 <Col xs={6} md={4}>
                                                     <div style={{ position: 'relative' }}>
-                                                        <img 
-                                                            src={item.image} 
-                                                            alt={item.name} 
-                                                            style={{ width: "100%", borderRadius: "8px" }} 
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.name}
+                                                            style={{ width: "100%", borderRadius: "8px" }}
                                                         />
                                                         {item.isSale && (
                                                             <div style={{
@@ -128,9 +128,9 @@ const Cart = () => {
                                                                 fontSize: '12px',
                                                                 fontWeight: 'bold'
                                                             }}>
-                                                            <FireOutlined /> {t("Discount")}
-                                                        </div>
-                                                    )}
+                                                                <FireOutlined /> {t("Discount")}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </Col>
 
@@ -147,18 +147,18 @@ const Cart = () => {
                                                             </Text>
                                                             <br />
                                                             <Text type="success">
-                                                                {t("Discount")}: {formatPrice(item.originalPrice - item.price)} 
+                                                                {t("Discount")}: {formatPrice(item.originalPrice - item.price)}
                                                                 ({Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%)
                                                             </Text>
                                                             <br />
                                                             <Text>
-                                                                {formatPrice(item.price)} x {item.quantity} = 
+                                                                {formatPrice(item.price)} x {item.quantity} =
                                                                 <strong> {formatPrice(item.price * item.quantity)}</strong>
                                                             </Text>
                                                         </>
                                                     ) : (
                                                         <Text>
-                                                            {formatPrice(item.price)} x {item.quantity} = 
+                                                            {formatPrice(item.price)} x {item.quantity} =
                                                             <strong> {formatPrice(item.price * item.quantity)}</strong>
                                                         </Text>
                                                     )}
@@ -199,7 +199,7 @@ const Cart = () => {
                                                     {t("Total")}: {formatPrice(totalPrice)}
                                                 </Title>
                                                 <Text type="success">
-                                                    {t("You saved")}: {formatPrice(totalOriginalPrice - totalPrice)} 
+                                                    {t("You saved")}: {formatPrice(totalOriginalPrice - totalPrice)}
                                                     {` (${Math.round(((totalOriginalPrice - totalPrice) / totalOriginalPrice) * 100)}%)`}
                                                 </Text>
                                             </>

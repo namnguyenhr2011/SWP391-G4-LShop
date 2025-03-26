@@ -1,6 +1,7 @@
 const User = require('../../models/user')
 const Order = require('../../models/order')
 const SaleClaim = require('../../models/saleClaim')
+const Feedback = require('../../models/feedback')
 const PaginationHelper = require('../../../helper/pagination')
 const Generate = require('../../../helper/generateRandom')
 const bcrypt = require('bcrypt');
@@ -217,21 +218,6 @@ module.exports.searchUser = async (req, res) => {
     }
 };
 
-
-//[Get]/api/admin/getUserByRole
-module.exports.getUserByRole = async (req, res) => {
-    try {
-        const role = req.query.role;
-        const users = await User.find({ role: role });
-        if (!users) {
-            return res.status(404).json({ message: 'No users found.' });
-        }
-        res.status(200).json({ users });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
-
 module.exports.getAllOrder = async (req, res) => {
     try {
         const orders = await Order.find().populate("userId", "userName");
@@ -331,5 +317,44 @@ module.exports.assignSalerToOrder = async (req, res) => {
             code: 500,
             message: error.message || 'Internal server error',
         });
+    }
+};
+
+module.exports.getAllFeedback = async (req, res) => {
+    try {
+        const feedbacks = await Feedback.find()
+            .populate("productId", "name") // Lấy thông tin sản phẩm
+            .populate("userId", "userName email") // Lấy thông tin người dùng
+            .sort({ createdAt: -1 }); // Sắp xếp theo thời gian mới nhất
+
+        res.status(200).json({ success: true, feedbacks });
+    } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+module.exports.toggleFeedbackVisibility = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Tìm feedback theo ID
+        const feedback = await Feedback.findById(id);
+        if (!feedback) {
+            return res.status(404).json({ success: false, message: 'Feedback not found' });
+        }
+
+        // Đảo ngược trạng thái isHidden
+        feedback.isHidden = !feedback.isHidden;
+        await feedback.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `Feedback ${feedback.isHidden ? 'hidden' : 'shown'} successfully`,
+            feedback
+        });
+    } catch (error) {
+        console.error('Error toggling feedback visibility:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 };

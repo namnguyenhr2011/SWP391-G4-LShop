@@ -1,3 +1,5 @@
+import { I18nextProvider } from "react-i18next";
+import i18n from "./Service/locales/i18n";
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./Screen/Client/Login";
 import Register from "./Screen/Client/Register";
 import Forgot from "./Screen/Client/Forgot";
-import Home from "./screen/Home";
+import Home from "./Screen/Home";
 import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
@@ -26,54 +28,57 @@ import Cart from "./Screen/Client/cart/cart";
 import Checkout from "./Screen/Client/cart/checkout";
 import ReturnQR from "./Screen/Client/cart/ReturnQR";
 import UpdateProfile from "./Screen/Client/UpdateProfile";
-import ChangePassword from "./Screen/Client/ChangePassword"
+import ChangePassword from "./Screen/Client/ChangePassword";
 
-import OrderDetails from "./Screen/Client/order/OrderDetail"
-import OrderScreen from "./Screen/Client/order/Order"
+import OrderDetails from "./Screen/Client/order/OrderDetail";
+import OrderScreen from "./Screen/Client/order/Order";
 
 import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";
 import AddCategory from "./Screen/ProductManager/AddCategory";
 import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
-import ViewProduct from "./Screen/ProductManager/ViewProudct"
+import ViewProduct from "./Screen/ProductManager/ViewProudct";
 import ProductDetail from "./Screen/Client/product/productDetail";
 import AddSubCategory  from "./Screen/ProductManager/AddSubCategory";
 import ViewCategory from "./Screen/ProductManager/ViewCategory";
 
-import AdminLayout from "./screen/admin/AdminLayout";
-import AdminDashboard from "./screen/admin/AdminDashboard";
-import UserManagement from "./screen/admin/UserManagement";
-import SaleManagement from "./screen/admin/SaleManagement";
-import OrderManagement from "./screen/admin/OrderManagement";
+//Admin Page
+import AdminLayout from "./Screen/Admin/AdminLayout";
+import AdminDashboard from "./Screen/Admin/AdminDashboard";
+import UserManagement from "./Screen/Admin/UserManagement";
+import SaleManagement from "./Screen/Admin/SaleManagement";
+import OrderManagement from "./Screen/Admin/OrderManagement";
+import ManagerProductManagement from "./Screen/Admin/ManagerProductManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
-
 
 //sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
 import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
 import ProductList from "./Screen/Client/product/productList";
-import OrderManager from "./Screen/Sale/OrderManager";
+import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
+import SaleProductCard from "./Component/SaleProductCard";
+import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
-    <>
+    <I18nextProvider i18n={i18n}>
       <ToastContainer position="top-right" autoClose={3000} />
       <ConfigProvider
         theme={{
           token: {
-            colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Chữ trắng trong dark mode
-            colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền phù hợp
-            colorBorder: isDarkMode ? "#3a3f44" : "#d9d9d9", // Viền phù hợp
-            colorTextPlaceholder: isDarkMode ? "#b0c4de" : "#8c8c8c", // Placeholder
+            colorText: isDarkMode ? "#ffffff" : "#1c1e21",
+            colorBgBase: isDarkMode ? "#1e2a3c" : "#fff",
+            colorBorder: isDarkMode ? "#3a3f44" : "#d9d9d9",
+            colorTextPlaceholder: isDarkMode ? "#b0c4de" : "#8c8c8c",
           },
           components: {
             Menu: {
-              colorText: isDarkMode ? "#ffffff" : "#1c1e21", // Đảm bảo chữ trong Menu là trắng
-              colorBgBase: isDarkMode ? "#1e2a3c" : "#fff", // Nền của Menu
+              colorText: isDarkMode ? "#ffffff" : "#1c1e21",
+              colorBgBase: isDarkMode ? "#1e2a3c" : "#fff",
             },
           },
         }}
@@ -127,24 +132,29 @@ const App = () => {
               <Route path="manage-user" element={<UserManagement />} />
               <Route path="saler-list" element={<SaleManagement />} />
               <Route path="order-list" element={<OrderManagement />} />
+              <Route
+                path="manage-productmanager"
+                element={<ManagerProductManagement />}
+              />
               <Route path="manage-feedback" element={<FeedbackManagement />} />
             </Route>
 
             {/* tuan */}
-            <Route path="/product-list" element={<ProductList />} />
+            <Route path="/all-products" element={<ProductList />} />
             <Route path="/product-list/:subcategoryId" element={<ProductList />} />
             <Route path="/sale" element={<SaleScreen />} />
             <Route path="/sale/add" element={<AddSaleScreen />} />
             <Route path="/sale/update" element={<UpdateSaleScreen />} />
-            <Route path="/sale/order-manager" element={<OrderManager />} />
-
+            <Route path="/sale/orders" element={<SaleOrderManagement />} />
+            <Route path="/product-sale/:id" element={<ProductSaleDetail />} />;
+            <Route path="/products-sale" element={<SaleProductCard />} />;
 
             {/* end */}
             <Route path="*" element={<NotFound />} />
-          </Routes >
-        </Router >
-      </ConfigProvider >
-    </>
+          </Routes>
+        </Router>
+      </ConfigProvider>
+    </I18nextProvider>
   );
 };
 
@@ -170,5 +180,19 @@ const AdminProtectedRoute = ({ children }) => {
 AdminProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+// const SaleProtectedRoute = ({ children }) => {
+//   const user = useSelector((state) => state.user.user);
+
+//   if (!user || user.role !== "sale") {
+//     return <NotFound />;
+//   }
+
+//   return children;
+// };
+
+// SaleProtectedRoute.propTypes = {
+//   children: PropTypes.node.isRequired,
+// };
 
 export default App;

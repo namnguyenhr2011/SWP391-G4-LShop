@@ -56,7 +56,7 @@ const AdminLayout = () => {
     {
       key: "",
       icon: <ShopOutlined />,
-      label: "Manage Sales",
+      label: "Manage Salers",
       children: [
         {
           key: "/admin/saler-list",
@@ -67,6 +67,13 @@ const AdminLayout = () => {
           label: <Link to="/admin/order-list">Order List</Link>,
         },
       ],
+    },
+    {
+      key: "/admin/manage-productmanager",
+      icon: <UserOutlined />,
+      label: (
+        <Link to="/admin/manage-productmanager">Manage ManagerProducts</Link>
+      ),
     },
     {
       key: "/admin/manage-feedback",

@@ -89,7 +89,11 @@ const Header = () => {
         {t("Profile")}
       </Menu.Item>
 
-      <Menu.Item key="order" icon={<OrderedListOutlined />} onClick={handleOrder}>
+      <Menu.Item
+        key="order"
+        icon={<OrderedListOutlined />}
+        onClick={handleOrder}
+      >
         Your Order
       </Menu.Item>
 
