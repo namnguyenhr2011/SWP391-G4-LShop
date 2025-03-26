@@ -13,7 +13,7 @@ import {
   Input,
   Tabs,
 } from "antd";
-import { getProductById } from "../../../Service/Client/ApiProduct";
+import { getProductById } from "../../../service/client/ApiProduct";
 import {
   addFeedback,
   getFeedbackByProductId,
@@ -21,8 +21,7 @@ import {
 } from "../../../Service/Client/ApiFeedBack";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
-import { ShoppingCartOutlined } from "@ant-design/icons";
-import { DeleteOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../store/reducer/cartReducer";
 
@@ -49,28 +48,34 @@ const ProductDetail = () => {
   const fetchProductAndFeedbacks = async () => {
     try {
       const productResponse = await getProductById(id);
-      console.log(productResponse);
       if (productResponse?.product) {
         setProduct(productResponse.product);
         setSelectedImage(productResponse.product.image || "");
       } else {
-        setError("Không tìm thấy sản phẩm");
+        throw new Error("Không tìm thấy sản phẩm");
       }
 
       const feedbackResponse = await getFeedbackByProductId(id);
-      console.log(feedbackResponse);
       if (feedbackResponse?.feedback) {
         setFeedbacks(feedbackResponse.feedback);
+        const totalRating = feedbackResponse.feedback.reduce(
+          (sum, fb) => sum + fb.rating,
+          0
+        );
+        const avgRating = feedbackResponse.feedback.length
+          ? totalRating / feedbackResponse.feedback.length
+          : 0;
+        setProduct((prev) => ({ ...prev, rating: avgRating }));
       }
     } catch (err) {
-      message.error("Có lỗi khi tải dữ liệu!", err);
-      setError("Đã xảy ra lỗi khi tải dữ liệu.");
+      message.error("Có lỗi khi tải dữ liệu!");
+      setError(err.message || "Đã xảy ra lỗi khi tải dữ liệu.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmitFdback = async (values) => {
+  const handleSubmitFeedback = async (values) => {
     if (!values.rating || !values.comment) {
       message.error("Vui lòng chọn đầy đủ đánh giá và nhận xét!");
       return;
@@ -83,37 +88,18 @@ const ProductDetail = () => {
     };
 
     try {
-      console.log("Dữ liệu gửi đi:", feedbackData);
       const response = await addFeedback(feedbackData);
-      console.log("Phản hồi API:", response);
-
-      if (response && response.success) {
+      if (response?.success) {
         message.success("Đánh giá của bạn đã được gửi!");
         form.resetFields();
         fetchProductAndFeedbacks();
       } else {
-        message.error("Có lỗi xảy ra, vui lòng thử lại.");
+        throw new Error("Có lỗi xảy ra, vui lòng thử lại.");
       }
     } catch (err) {
-      console.error("Lỗi khi gửi đánh giá:", err);
-      message.error("Có lỗi khi gửi đánh giá!");
+      message.error(err.message || "Có lỗi khi gửi đánh giá!");
     }
   };
-
-  if (loading) {
-    return (
-      <Container
-        style={{
-          minHeight: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Spin size="large" />
-      </Container>
-    );
-  }
 
   const handleDelete = async (feedbackId) => {
     try {
@@ -121,7 +107,7 @@ const ProductDetail = () => {
       message.success("Feedback đã được xóa!");
       fetchProductAndFeedbacks();
     } catch (err) {
-      message.error("Xóa feedback thất bại!", err);
+      message.error("Xóa feedback thất bại!");
     }
   };
 
@@ -131,51 +117,28 @@ const ProductDetail = () => {
       message.error(`Số lượng không thể vượt quá ${product.quantity}`);
       return;
     }
-    console.log("item", {
-      item: {
-        productId: product._id,
-        name: product.name,
-        price: product.sale?.salePrice || product.price,
-        image: product.image,
-        quantity: quantity,
-        originalPrice: product.price,
-        isSale: product.sale?.isSale || false,
-      },
-    });
-    dispatch(
-      addToCart({
-        userId,
-        item: {
-          productId: product._id,
-          name: product.name,
-          price: product.sale?.salePrice || product.price,
-          image: product.image,
-          quantity: quantity,
-          originalPrice: product.price,
-          isSale: product.sale?.isSale || false,
-        },
-      })
-    );
+    const cartItem = {
+      productId: product._id,
+      name: product.name,
+      price: product.sale?.salePrice || product.price,
+      image: product.image,
+      quantity,
+      originalPrice: product.price,
+      isSale: product.sale?.isSale || false,
+    };
+    dispatch(addToCart({ userId, item: cartItem }));
     message.success("Sản phẩm đã được thêm vào giỏ hàng!");
   };
 
-  const handleIncreaseQuantity = () => {
-    setQuantity((prev) => prev + 1);
-  };
-
-  const handleDecreaseQuantity = () => {
+  const handleIncreaseQuantity = () => setQuantity((prev) => prev + 1);
+  const handleDecreaseQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-  };
 
   if (loading) {
     return (
       <Container
-        style={{
-          minHeight: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "80vh" }}
       >
         <Spin size="large" />
       </Container>
@@ -185,12 +148,8 @@ const ProductDetail = () => {
   if (error) {
     return (
       <Container
-        style={{
-          minHeight: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "80vh" }}
       >
         <Text type="danger" strong>
           {error}
@@ -205,7 +164,6 @@ const ProductDetail = () => {
       <Container
         fluid
         style={{
-          background: "#fff",
           padding: "50px 0",
           paddingTop: "80px",
           backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
@@ -215,14 +173,10 @@ const ProductDetail = () => {
       >
         <Container>
           <Row
-            style={{
-              alignItems: "center",
-              padding: "20px 0",
-              maxWidth: "1200px",
-              width: "100%",
-            }}
+            className="align-items-center"
+            style={{ maxWidth: "1200px", width: "100%" }}
           >
-            <Col md={6} style={{ textAlign: "center" }}>
+            <Col md={6} className="text-center">
               <img
                 src={selectedImage}
                 alt={product.name}
@@ -250,7 +204,6 @@ const ProductDetail = () => {
                 disabled
                 style={{ marginBottom: "15px" }}
               />
-              <br />
               <Text
                 style={{
                   fontSize: "32px",
@@ -267,13 +220,11 @@ const ProductDetail = () => {
               <Text style={{ fontSize: "24px", color: "#666" }}>
                 Còn lại: {product.quantity}
               </Text>
-              <br />
               <Space size="large" style={{ marginTop: "20px" }}>
                 <Button onClick={handleDecreaseQuantity}>-</Button>
                 <Text>{quantity}</Text>
                 <Button onClick={handleIncreaseQuantity}>+</Button>
               </Space>
-              <br />
               <Button
                 style={{ marginTop: "20px" }}
                 type="primary"
@@ -318,7 +269,7 @@ const ProductDetail = () => {
                       <>
                         <Form
                           form={form}
-                          onFinish={handleSubmitFdback}
+                          onFinish={handleSubmitFeedback}
                           layout="vertical"
                         >
                           <Form.Item
@@ -336,7 +287,12 @@ const ProductDetail = () => {
                           <Form.Item
                             name="comment"
                             label="Nhận xét"
-                            rules={[{ required: true }]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng nhập nhận xét!",
+                              },
+                            ]}
                           >
                             <TextArea rows={4} />
                           </Form.Item>
@@ -346,7 +302,6 @@ const ProductDetail = () => {
                             </Button>
                           </Form.Item>
                         </Form>
-
                         <List
                           itemLayout="horizontal"
                           dataSource={[...feedbacks].sort(
@@ -354,40 +309,34 @@ const ProductDetail = () => {
                               new Date(b.createdAt) - new Date(a.createdAt)
                           )}
                           renderItem={(feedback) => (
-                            <List.Item>
+                            <List.Item
+                              actions={
+                                userId &&
+                                String(feedback.userId?._id) === String(userId)
+                                  ? [
+                                      <Button
+                                        danger
+                                        icon={<DeleteOutlined />}
+                                        onClick={() =>
+                                          handleDelete(feedback._id)
+                                        }
+                                      >
+                                        Xóa
+                                      </Button>,
+                                    ]
+                                  : []
+                              }
+                            >
                               <List.Item.Meta
-                                title={feedback.userId?.userName}
+                                title={
+                                  feedback.userId?.userName ||
+                                  "Người dùng ẩn danh"
+                                }
                                 description={
                                   <>
-                                    <Row>
-                                      <Col md={8} xs={12}>
-                                        <Text>{feedback.comment}</Text>
-                                        <br />
-                                        <Rate
-                                          disabled
-                                          value={feedback.rating}
-                                        />
-                                      </Col>
-                                      <Col md={4} xs={12}>
-                                        {userId &&
-                                          String(feedback.userId?._id) ===
-                                            String(userId) && (
-                                            <Button
-                                              danger
-                                              icon={<DeleteOutlined />}
-                                              onClick={() =>
-                                                handleDelete(feedback._id)
-                                              }
-                                              style={{
-                                                marginTop: 4,
-                                                marginLeft: 10,
-                                              }}
-                                            >
-                                              Xóa
-                                            </Button>
-                                          )}
-                                      </Col>
-                                    </Row>
+                                    <Text>{feedback.comment}</Text>
+                                    <br />
+                                    <Rate disabled value={feedback.rating} />
                                   </>
                                 }
                               />

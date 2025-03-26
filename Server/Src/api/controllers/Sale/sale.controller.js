@@ -3,6 +3,8 @@ const PaginationHelper = require('../../../helper/pagination')
 const User = require('../../models/user')
 const Product = require('../../models/product')
 const Transaction = require('../../models/transaction')
+const SaleClaim = require('../../models/saleClaim')
+const Order = require('../../models/order')
 
 
 module.exports.getAllProductsWithSale = async (req, res) => {
@@ -61,7 +63,38 @@ module.exports.getAllProductsWithSale = async (req, res) => {
     }
 };
 
+module.exports.getProductWithSaleById = async (req, res) => {
+    try {
+        const { id } = req.params; // Lấy productId từ params
 
+        // Kiểm tra xem productId có tồn tại không
+        if (!id) {
+            return res.status(400).json({ message: 'Product ID is required.' });
+        }
+
+        // Tìm sản phẩm theo ID và populate subCategory
+        const product = await Product.findOne({ _id: id, deleted: false })
+            .populate('subCategory', 'name description')
+
+        // Kiểm tra nếu không tìm thấy sản phẩm
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
+
+        // Tìm thông tin sale liên quan đến sản phẩm này
+        const sale = await Sale.findOne({ productId: id })
+
+        // Kết hợp thông tin sản phẩm và sale để trả về
+        res.status(200).json({
+            product: {
+                ...product.toObject(), // Chuyển đổi document thành object để thêm sale
+                sale: sale ? sale.toObject() : null // Nếu không có sale thì trả về null
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
 
 module.exports.addSalePrice = async (req, res) => {
     try {
@@ -313,45 +346,200 @@ module.exports.getAllProductsWithSaleID = async (req, res) => {
     }
 };
 
-module.exports.getAllSaleClaims = async (req, res) => {
+module.exports.getAssignedOrders = async (req, res) => {
     try {
-        const saleClaims = await SaleClaim.find({});
-        
-        if (!saleClaims || saleClaims.length === 0) {
-            return res.status(404).json({ message: 'No sale claims found.' });
-        }
-
-        res.status(200).json({
-            saleClaims: saleClaims,
-            total: saleClaims.length
-        });
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Token bị thiếu hoặc không hợp lệ!" });
+      }
+  
+      const saler = await User.findOne({ token });
+      if (!saler || saler.role.toLowerCase() !== "sale") {
+        return res.status(403).json({ message: "Không có quyền truy cập! Chỉ vai trò sale mới được phép." });
+      }
+  
+      // Tìm bản ghi SaleClaim của người dùng sale hiện tại
+      const saleClaim = await SaleClaim.findOne({ salerId: saler._id });
+      if (!saleClaim || !saleClaim.orderIds.length) {
+        return res.status(404).json({ message: "Không có đơn hàng nào được gán cho người dùng này." });
+      }
+  
+      // Lấy tất cả đơn hàng trong mảng orderIds và populate thông tin user và sản phẩm
+      const orders = await Order.find({
+        $or: [
+          { _id: { $in: saleClaim.orderIds } },
+          { status: "Cancelled", salerId: saler._id }
+        ]
+      })
+      .populate("userId", "userName")
+      .populate("products.productId", "name price");
+  
+      res.status(200).json({
+        message: "Lấy danh sách đơn hàng được gán thành công",
+        orders,
+      });
     } catch (error) {
-        console.error('Error in getAllSaleClaims:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+      console.error("Lỗi khi lấy danh sách đơn hàng được gán:", error);
+      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
     }
-};
-
-module.exports.getAllOrderBySaleId = async (req, res) => {
+  };
+  
+  // Chấp nhận đơn hàng
+  module.exports.acceptOrder = async (req, res) => {
     try {
-        const { saleId } = req.params;
-
-        // Kiểm tra saleId hợp lệ
-        if (!saleId) {
-            return res.status(400).json({ message: 'Sale ID is required.' });
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Token bị thiếu hoặc không hợp lệ!" });
+      }
+  
+      const saler = await User.findOne({ token });
+      if (!saler || saler.role.toLowerCase() !== "sale") {
+        return res.status(403).json({ message: "Không có quyền truy cập! Chỉ vai trò sale mới được phép." });
+      }
+  
+      const { orderId } = req.body;
+      if (!orderId) {
+        return res.status(400).json({ message: "orderId là bắt buộc!" });
+      }
+  
+      const saleClaim = await SaleClaim.findOne({ salerId: saler._id });
+      if (!saleClaim || !saleClaim.orderIds.includes(orderId)) {
+        return res.status(403).json({ message: "Đơn hàng này không được gán cho bạn!" });
+      }
+  
+      const order = await Order.findById(orderId).populate("products.productId");
+      if (!order) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+      }
+  
+      if (order.status !== "Pending") {
+        return res.status(400).json({ message: "Chỉ có thể chấp nhận đơn hàng đang ở trạng thái Pending!" });
+      }
+  
+      // Kiểm tra số lượng tồn kho
+      for (const item of order.products) {
+        const product = await Product.findById(item.productId);
+        if (!product) {
+          return res.status(404).json({ message: `Sản phẩm với ID ${item.productId} không tồn tại!` });
         }
-
-        const orders = await Order.find({ saleId: saleId }); // Giả sử bạn có model Order
-        
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: 'No orders found for this sale ID.' });
+  
+        if (product.quantity < item.quantity) {
+          return res.status(400).json({
+            message: `Sản phẩm ${product.name} không đủ số lượng tồn kho! Hiện có: ${product.quantity}, cần: ${item.quantity}`,
+          });
         }
-
-        res.status(200).json({
-            orders: orders,
-            total: orders.length
+      }
+  
+      // Trừ số lượng tồn kho và tăng số lượng đã bán
+      for (const item of order.products) {
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: {
+            quantity: -item.quantity,
+            sold: item.quantity,
+          },
         });
+      }
+  
+      // Cập nhật trạng thái đơn hàng thành Processing
+      order.status = "Processing";
+      await order.save();
+  
+      res.status(200).json({ message: "Chấp nhận đơn hàng thành công và đã cập nhật số lượng tồn kho!" });
     } catch (error) {
-        console.error('Error in getAllOrderBySaleId:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+      console.error("Lỗi khi chấp nhận đơn hàng:", error);
+      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
     }
-};
+  };
+  
+  // Complete Order: Changes status from "Processing" to "Completed"
+  module.exports.completeOrder = async (req, res) => {
+    try {
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Token bị thiếu hoặc không hợp lệ!" });
+      }
+  
+      const saler = await User.findOne({ token });
+      if (!saler || saler.role.toLowerCase() !== "sale") {
+        return res.status(403).json({ message: "Không có quyền truy cập! Chỉ vai trò sale mới được phép." });
+      }
+  
+      const { orderId } = req.body;
+      if (!orderId) {
+        return res.status(400).json({ message: "orderId là bắt buộc!" });
+      }
+  
+      const saleClaim = await SaleClaim.findOne({ salerId: saler._id });
+      if (!saleClaim || !saleClaim.orderIds.includes(orderId)) {
+        return res.status(403).json({ message: "Đơn hàng này không được gán cho bạn!" });
+      }
+  
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+      }
+  
+      if (order.status !== "Processing") {
+        return res.status(400).json({ message: "Chỉ có thể hoàn thành đơn hàng đang ở trạng thái Processing!" });
+      }
+  
+      // Cập nhật trạng thái đơn hàng thành Completed
+      order.status = "Completed";
+      await order.save();
+  
+      res.status(200).json({ message: "Hoàn thành đơn hàng thành công!" });
+    } catch (error) {
+      console.error("Lỗi khi hoàn thành đơn hàng:", error);
+      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
+    }
+  };
+  
+  // Hủy đơn hàng
+  module.exports.cancelOrder = async (req, res) => {
+    try {
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({ message: "Token bị thiếu hoặc không hợp lệ!" });
+      }
+  
+      const saler = await User.findOne({ token });
+      if (!saler || saler.role.toLowerCase() !== "sale") {
+        return res.status(403).json({ message: "Không có quyền truy cập! Chỉ vai trò sale mới được phép." });
+      }
+  
+      const { orderId } = req.body;
+      if (!orderId) {
+        return res.status(400).json({ message: "orderId là bắt buộc!" });
+      }
+  
+      const saleClaim = await SaleClaim.findOne({ salerId: saler._id });
+      if (!saleClaim || !saleClaim.orderIds.includes(orderId)) {
+        return res.status(403).json({ message: "Đơn hàng này không được gán cho bạn!" });
+      }
+  
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng!" });
+      }
+  
+      if (order.status !== "Pending") {
+        return res.status(400).json({ message: "Chỉ có thể hủy đơn hàng đang ở trạng thái Pending!" });
+      }
+  
+      order.status = "Cancelled";
+      await order.save();
+  
+      // Xóa đơn hàng khỏi SaleClaim
+      saleClaim.orderIds = saleClaim.orderIds.filter((id) => id.toString() !== orderId.toString());
+      await saleClaim.save();
+  
+      res.status(200).json({ message: "Hủy đơn hàng thành công!" });
+    } catch (error) {
+      console.error("Lỗi khi hủy đơn hàng:", error);
+      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error: error.message });
+    }
+  };
