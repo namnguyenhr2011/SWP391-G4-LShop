@@ -96,7 +96,7 @@ const ProductDetail = () => {
             message.error("Có lỗi khi gửi đánh giá!", err);
         }
     };
-
+    
 
     if (loading) {
         return (

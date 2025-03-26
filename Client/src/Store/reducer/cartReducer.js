@@ -10,25 +10,32 @@ const cartSlice = createSlice({
     reducers: {
         addToCart: (state, action) => {
             const { userId, item } = action.payload;
-
+        
             if (!state.items[userId]) {
                 state.items[userId] = [];
             }
-
+        
             const existingItem = state.items[userId].find(cartItem => cartItem.productId === item.productId);
-
+        
             if (existingItem) {
-                existingItem.quantity += item.quantity || 1;
+                const newQuantity = existingItem.quantity + (item.quantity || 1);
+                if (newQuantity <= 10) {
+                    existingItem.quantity = newQuantity;
+                } else {
+                    existingItem.quantity = 10;
+                }
             } else {
-                state.items[userId].push({ 
+                const newItem = { 
                     ...item, 
-                    quantity: item.quantity || 1,
+                    quantity: Math.min(item.quantity || 1, 10),
                     originalPrice: item.originalPrice || item.price, 
                     isSale: item.isSale || false 
-                });
+                };
+        
+                state.items[userId].push(newItem);
             }
         },
-
+        
         removeFromCart: (state, action) => {
             const { userId, productId } = action.payload;
             if (state.items[userId]) {
