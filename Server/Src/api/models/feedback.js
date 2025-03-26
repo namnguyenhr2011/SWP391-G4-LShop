@@ -20,8 +20,9 @@ const feedbackSchema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      required: false, 
+      required: false,
     },
+    isHidden: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

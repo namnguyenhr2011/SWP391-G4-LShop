@@ -19,7 +19,7 @@ import {
   MoonOutlined,
   SunOutlined,
   ShoppingCartOutlined,
-  OrderedListOutlined
+  OrderedListOutlined,
 } from "@ant-design/icons";
 
 import ButtonAntd from "../../component/Button";
@@ -61,7 +61,7 @@ const Header = () => {
 
   const handleOrder = () => {
     navigate("/order");
-}
+  };
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
 
   const handleUserProfile = () => navigate("/userProfile");
@@ -83,7 +83,11 @@ const Header = () => {
         {t("Profile")}
       </Menu.Item>
 
-      <Menu.Item key="order" icon={<OrderedListOutlined />} onClick={handleOrder}>
+      <Menu.Item
+        key="order"
+        icon={<OrderedListOutlined />}
+        onClick={handleOrder}
+      >
         Your Order
       </Menu.Item>
 

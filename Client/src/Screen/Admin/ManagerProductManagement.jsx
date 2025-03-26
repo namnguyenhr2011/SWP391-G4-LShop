@@ -10,7 +10,7 @@ import {
 const { Option } = Select;
 const { confirm } = Modal;
 
-const UserManagement = () => {
+const ManagerProductManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,10 +22,10 @@ const UserManagement = () => {
     setLoading(true);
     try {
       const data = await getAllUser();
-      const userData = data.users.filter(
-        (user) => user.role.toLowerCase() === "user"
+      const productManagerData = data.users.filter(
+        (user) => user.role === "productManager"
       );
-      setUsers(userData);
+      setUsers(productManagerData);
     } catch (error) {
       message.error(error.message);
     } finally {
@@ -190,4 +190,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default ManagerProductManagement;

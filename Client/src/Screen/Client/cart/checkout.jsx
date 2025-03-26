@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { Radio, Input, Divider, List, Typography, Select } from "antd";
 import {
   ShoppingOutlined,
@@ -14,17 +14,15 @@ import {
 } from "@ant-design/icons";
 import Header from "../../layout/Header";
 import AppFooter from "../../layout/Footer";
-import { userProfile } from "../../../Service/Client/ApiServices";
-import { createOrder, create_VnPay } from "../../../Service/Client/ApiOrder";
+import { userProfile } from "../../../service/client/ApiServices";
+import { createOrder, create_VnPay } from "../../../service/client/ApiOrder";
 import { clearCart } from "../../../store/reducer/cartReducer";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-
-
 const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Option } = Select;
 
 const CheckoutPage = () => {
@@ -34,14 +32,25 @@ const CheckoutPage = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const { _id: userId } = useSelector((state) => state.user?.user) || {};
+  const cartItems = useSelector((state) => state.cart.items[userId] || []);
+
+  // Theme styles từ Cart
+  const themeStyles = {
+    textColor: isDarkMode ? "#e6edf3" : "#1c1e21",
+    cardBackground: isDarkMode ? "#1c2526" : "#fff",
+    backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
+    buttonBg: isDarkMode ? "#1890ff" : "#1890ff",
+    buttonHoverBg: isDarkMode ? "#40a9ff" : "#40a9ff",
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!token) return;
-
       try {
         const userData = await userProfile(token);
         setProfile(userData.user);
-
         setFormData((prev) => ({
           ...prev,
           address: userData?.user?.address || "",
@@ -52,10 +61,9 @@ const CheckoutPage = () => {
       }
     };
     fetchUserProfile();
+    window.scrollTo(0, 0); // Cuộn lên đầu trang
   }, [token]);
 
-  const { _id: userId } = useSelector((state) => state.user?.user) || {};
-  const cartItems = useSelector((state) => state.cart.items[userId] || []);
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -68,8 +76,9 @@ const CheckoutPage = () => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VND";
   };
+
   const [formData, setFormData] = useState({
-    paymentMethod: "",
+    paymentMethod: "COD",
     address: "",
     phone: "",
     note: "",
@@ -94,10 +103,36 @@ const CheckoutPage = () => {
 
   if (cartItems.length === 0) {
     return (
-      <Container className="py-5 text-center">
-        <h2>Giỏ hàng trống</h2>
-        <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
-        <Button onClick={navigate("/")} />
+      <Container
+        style={{
+          minHeight: "100vh",
+          backgroundColor: themeStyles.backgroundColor,
+          color: themeStyles.textColor,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "20px",
+        }}
+      >
+        <Header />
+        <Title level={2} style={{ color: themeStyles.textColor }}>
+          Giỏ hàng trống
+        </Title>
+        <Text style={{ color: themeStyles.textColor, marginBottom: "20px" }}>
+          Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.
+        </Text>
+        <Button
+          onClick={() => navigate("/")}
+          style={{
+            backgroundColor: themeStyles.buttonBg,
+            borderColor: themeStyles.buttonBg,
+            color: "#fff",
+          }}
+        >
+          Quay lại mua sắm
+        </Button>
+        <AppFooter style={{ marginTop: "auto" }} />
       </Container>
     );
   }
@@ -107,17 +142,11 @@ const CheckoutPage = () => {
   };
 
   const handlePaymentMethodChange = (e) => {
-    setFormData({
-      ...formData,
-      paymentMethod: e.target.value,
-    });
+    setFormData({ ...formData, paymentMethod: e.target.value });
   };
 
   const handleBankChange = (value) => {
-    setFormData({
-      ...formData,
-      bankCode: value,
-    });
+    setFormData({ ...formData, bankCode: value });
   };
 
   const handleSubmit = async (e) => {
@@ -129,17 +158,10 @@ const CheckoutPage = () => {
         toast.error("Vui lòng nhập địa chỉ giao hàng");
         return;
       }
-
       if (!formData.phone) {
         toast.error("Vui lòng nhập số điện thoại");
         return;
       }
-
-      if (cartItems.length === 0) {
-        toast.error("Giỏ hàng trống!");
-        return;
-      }
-
       if (formData.paymentMethod === "Bank Transfer" && !formData.bankCode) {
         toast.error("Vui lòng chọn ngân hàng thanh toán");
         return;
@@ -151,11 +173,8 @@ const CheckoutPage = () => {
           quantity: item.quantity || 1,
           price: item.price || 0,
         })),
-        totalAmount: cartItems.reduce(
-          (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
-          0
-        ),
-        paymentMethod: formData.paymentMethod || "COD",
+        totalAmount,
+        paymentMethod: formData.paymentMethod,
         paymentStatus: "Pending",
         address: formData.address,
         phone: formData.phone,
@@ -172,19 +191,19 @@ const CheckoutPage = () => {
           language: "vn",
           orderId: orderId,
         };
-
         const vnPayResponse = await create_VnPay(vnpayData);
-
         dispatch(clearCart({ userId }));
-        navigate("/");
-        toast.success("Đặt hàng thành công!");
         if (vnPayResponse && vnPayResponse.url) {
           localStorage.setItem("pendingOrderId", orderId);
           window.location.href = vnPayResponse.url;
           return;
         }
+      } else {
+        dispatch(clearCart({ userId }));
+        navigate("/");
+        toast.success("Đặt hàng thành công!");
       }
-      toast.success("Đặt hàng thành công!")
+      toast.success("Đặt hàng thành công!");
       dispatch(clearCart({ userId }));
       navigate("/");
     } catch (error) {
@@ -199,285 +218,363 @@ const CheckoutPage = () => {
       <Header />
       <Container
         fluid
-        className="py-5"
         style={{
           minHeight: "100vh",
-          backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
-          color: isDarkMode ? "#e6edf3" : "#1c1e21",
-          transition: "background-color 0.3s ease, color 0.3s ease",
+          backgroundColor: themeStyles.backgroundColor,
+          color: themeStyles.textColor,
+          padding: "0",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000" }}>
-          Thanh toán đơn hàng
-        </h2>
+        <Container style={{ flex: "1 0 auto", padding: "20px 0" }}>
+          <Title
+            level={2}
+            style={{
+              color: themeStyles.textColor,
+              textAlign: "center",
+              marginTop: "80px",
+              marginBottom: "40px",
+            }}
+          >
+            <CreditCardOutlined /> Thanh Toán Đơn Hàng
+          </Title>
 
-        <Container fluid className="px-lg-5">
-          <Row justify="space-around">
-            <Col md={6}>
-              <Card className="mb-3" style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
-                <Card.Header className="bg-primary text-white">
-                  <ShoppingOutlined /> Thông tin giỏ hàng
-                </Card.Header>
-                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={cartItems}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <Row
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "flex-start",
-                            width: "100%",
-                          }}
-                        >
-                          <Col xs={6} md={4}>
-                            <div
-                              style={{ position: "relative", width: "80px" }}
-                            >
-                              <img
-                                src={item.image}
-                                alt={item.name}
+          <Row gutter={[16, 16]}>
+            {/* Giỏ hàng - Bên trái */}
+            <Col xs={24} md={6}>
+              <div
+                style={{
+                  backgroundColor: themeStyles.cardBackground,
+                  padding: "20px",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                  border: isDarkMode ? "1px solid #444" : "1px solid #e8e8e8",
+                }}
+              >
+                <Title level={4} style={{ color: themeStyles.textColor }}>
+                  <ShoppingOutlined /> Thông Tin Giỏ Hàng
+                </Title>
+                <List
+                  itemLayout="horizontal"
+                  dataSource={cartItems}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <Row style={{ width: "100%", alignItems: "center" }}>
+                        <Col xs={3}>
+                          <div
+                            style={{
+                              position: "relative",
+                              width: "100%",
+                              maxWidth: "100px",
+                            }}
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              style={{
+                                width: "100%",
+                                borderRadius: "8px",
+                                backgroundColor: "#fff",
+                                padding: "5px",
+                                objectFit: "cover",
+                              }}
+                            />
+                            {item.isSale && (
+                              <div
                                 style={{
-                                  width: "100%",
-                                  borderRadius: "8px",
-                                  display: "block",
+                                  position: "absolute",
+                                  top: "5px",
+                                  right: "5px",
+                                  background: "rgba(255, 77, 79, 0.9)",
+                                  color: "white",
+                                  padding: "2px 6px",
+                                  borderRadius: "4px",
+                                  fontSize: "10px",
+                                  fontWeight: "bold",
                                 }}
-                              />
-                              {item.isSale && (
-                                <div
-                                  style={{
-                                    position: "absolute",
-                                    top: "5px",
-                                    right: "5px",
-                                    background: "rgba(255, 77, 79, 0.9)",
-                                    color: "white",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    fontSize: "10px",
-                                    fontWeight: "bold",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  <FireOutlined /> Giảm giá
-                                </div>
-                              )}
-                            </div>
-                          </Col>
-
-                          {/* Thông tin sản phẩm */}
-                          <Col flex="auto" style={{ overflow: "hidden" }}>
-                            <Text strong style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                              {item.name}
-                            </Text>
-                            <br />
-                            {item.isSale ? (
-                              <>
-                                <Text
-                                  delete
-                                  style={{ color: "#999", marginRight: "10px" }}
-                                >
-                                  {formatPrice(item.originalPrice)}
-                                </Text>
-                                <Text strong style={{ color: "#ff4d4f" }}>
-                                  {formatPrice(item.price)}
-                                </Text>
-                                <br />
-                                <Text type="success">
-                                  Giảm:{" "}
-                                  {formatPrice(item.originalPrice - item.price)}{" "}
-                                  (
-                                  {Math.round(
-                                    ((item.originalPrice - item.price) /
-                                      item.originalPrice) *
+                              >
+                                <FireOutlined /> Sale
+                              </div>
+                            )}
+                          </div>
+                        </Col>
+                        <Col xs={9}>
+                          <Text strong style={{ color: themeStyles.textColor }}>
+                            {item.name}
+                          </Text>
+                          <br />
+                          {item.isSale ? (
+                            <>
+                              <Text
+                                delete
+                                style={{
+                                  color: isDarkMode ? "#999" : "#666",
+                                  marginRight: "10px",
+                                }}
+                              >
+                                {formatPrice(item.originalPrice)}
+                              </Text>
+                              <Text strong style={{ color: "#ff4d4f" }}>
+                                {formatPrice(item.price)}
+                              </Text>
+                              <br />
+                              <Text type="success">
+                                Giảm:{" "}
+                                {formatPrice(item.originalPrice - item.price)} (
+                                {Math.round(
+                                  ((item.originalPrice - item.price) /
+                                    item.originalPrice) *
                                     100
-                                  )}
-                                  %)
-                                </Text>
-                                <br />
-                                <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                                  {formatPrice(item.price)} x {item.quantity} =
-                                  <strong>
-                                    {" "}
-                                    {formatPrice(item.price * item.quantity)}
-                                  </strong>
-                                </Text>
-                              </>
-                            ) : (
-                              <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                                {formatPrice(item.price)} x {item.quantity} =
+                                )}
+                                %)
+                              </Text>
+                              <br />
+                              <Text style={{ color: themeStyles.textColor }}>
+                                {formatPrice(item.price)} x {item.quantity} ={" "}
                                 <strong>
-                                  {" "}
                                   {formatPrice(item.price * item.quantity)}
                                 </strong>
                               </Text>
-                            )}
-                          </Col>
-                        </Row>
-                      </List.Item>
-                    )}
-                  />
-                  <Divider />
-                  <div className="d-flex justify-content-between">
-                    {totalOriginalPrice > totalAmount ? (
-                      <>
+                            </>
+                          ) : (
+                            <Text style={{ color: themeStyles.textColor }}>
+                              {formatPrice(item.price)} x {item.quantity} ={" "}
+                              <strong>
+                                {formatPrice(item.price * item.quantity)}
+                              </strong>
+                            </Text>
+                          )}
+                        </Col>
+                      </Row>
+                    </List.Item>
+                  )}
+                />
+                <Divider
+                  style={{ backgroundColor: isDarkMode ? "#444" : "#e8e8e8" }}
+                />
+                <Row justify="space-between">
+                  {totalOriginalPrice > totalAmount ? (
+                    <>
+                      <Col>
                         <Text
                           delete
-                          style={{ color: "#999", marginRight: "10px" }}
+                          style={{
+                            color: isDarkMode ? "#999" : "#666",
+                            marginRight: "10px",
+                          }}
                         >
                           Tổng gốc: {formatPrice(totalOriginalPrice)}
                         </Text>
                         <Text strong style={{ color: "#ff4d4f" }}>
                           Tổng cộng: {formatPrice(totalAmount)}
                         </Text>
+                        <br />
                         <Text type="success">
-                          Bạn đã tiết kiệm:{" "}
-                          {formatPrice(totalOriginalPrice - totalAmount)}
-                          {` (${Math.round(
+                          Tiết kiệm:{" "}
+                          {formatPrice(totalOriginalPrice - totalAmount)} (
+                          {Math.round(
                             ((totalOriginalPrice - totalAmount) /
                               totalOriginalPrice) *
-                            100
-                          )}%)`}
+                              100
+                          )}
+                          %)
                         </Text>
-                      </>
-                    ) : (
-                      <h5 style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        Tổng cộng: {formatPrice(totalAmount)}
-                      </h5>
-                    )}
-                  </div>
-                </Card.Body>
-              </Card>
+                      </Col>
+                    </>
+                  ) : (
+                    <Title level={4} style={{ color: themeStyles.textColor }}>
+                      Tổng cộng: {formatPrice(totalAmount)}
+                    </Title>
+                  )}
+                </Row>
+              </div>
             </Col>
 
-            <Col md={6}>
-              <Card style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
-                <Card.Header className="bg-primary text-white">
-                  <CreditCardOutlined /> Thông tin thanh toán
-                </Card.Header>
-                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                  <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <UserOutlined /> Họ và tên
-                      </Form.Label>
-                      <Input
-                        value={profile?.userName || "Chưa có thông tin"}
-                        disabled
-                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
-                      />
-                    </Form.Group>
+            {/* Thông tin thanh toán - Bên phải */}
+            <Col xs={24} md={6}>
+              <div
+                style={{
+                  backgroundColor: themeStyles.cardBackground,
+                  padding: "20px",
+                  borderRadius: "10px",
+                  boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                  border: isDarkMode ? "1px solid #444" : "1px solid #e8e8e8",
+                }}
+              >
+                <Title level={4} style={{ color: themeStyles.textColor }}>
+                  <CreditCardOutlined /> Thông Tin Thanh Toán
+                </Title>
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: themeStyles.textColor }}>
+                      <UserOutlined /> Họ và tên
+                    </Form.Label>
+                    <Input
+                      value={profile?.name || "Chưa có thông tin"}
+                      disabled
+                      style={{
+                        backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
+                        color: themeStyles.textColor,
+                        borderColor: isDarkMode ? "#444" : "#d9d9d9",
+                      }}
+                    />
+                  </Form.Group>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <MailOutlined /> Email
-                      </Form.Label>
-                      <Input
-                        value={profile?.email || "Chưa có email"}
-                        disabled
-                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
-                      />
-                    </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: themeStyles.textColor }}>
+                      <MailOutlined /> Email
+                    </Form.Label>
+                    <Input
+                      value={profile?.email || "Chưa có email"}
+                      disabled
+                      style={{
+                        backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
+                        color: themeStyles.textColor,
+                        borderColor: isDarkMode ? "#444" : "#d9d9d9",
+                      }}
+                    />
+                  </Form.Group>
 
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <CreditCardOutlined /> Phương thức thanh toán
-                      </Form.Label>
-                      <div>
-                        <Radio.Group
-                          onChange={handlePaymentMethodChange}
-                          value={formData.paymentMethod}
-                        >
-                          <Radio value="COD">
-                            Thanh toán khi nhận hàng (COD)
-                          </Radio>
-                          <Radio value="Bank Transfer">
-                            Ví điện tử (VN Pay)
-                          </Radio>
-                        </Radio.Group>
-                      </div>
-                    </Form.Group>
-
-                    {formData.paymentMethod === "Bank Transfer" && (
-                      <Form.Group className="mb-3">
-                        <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                          <BankOutlined /> Chọn ngân hàng thanh toán
-                        </Form.Label>
-                        <Select
-                          style={{ width: "100%" }}
-                          placeholder="Chọn ngân hàng"
-                          onChange={handleBankChange}
-                          value={formData.bankCode}
-                        >
-                          {bankOptions.map((bank) => (
-                            <Option key={bank.value} value={bank.value}>
-                              {bank.label}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Group>
-                    )}
-
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <HomeOutlined /> Địa chỉ giao hàng
-                      </Form.Label>
-                      <Input
-                        placeholder="Nhập địa chỉ giao hàng"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <PhoneOutlined /> Số điện thoại
-                      </Form.Label>
-                      <Input
-                        placeholder="Nhập số điện thoại"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        <CommentOutlined /> Ghi chú đơn hàng
-                      </Form.Label>
-                      <TextArea
-                        rows={4}
-                        placeholder="Nhập ghi chú (nếu có)"
-                        name="note"
-                        value={formData.note}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-
-                    <div className="d-grid gap-2">
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        size="lg"
-                        disabled={loading}
+                  <Form.Group className="mb-3">
+                    <Form.Label
+                      style={{
+                        color: themeStyles.textColor,
+                        paddingRight: "10px",
+                      }}
+                    >
+                      <CreditCardOutlined /> Phương thức thanh toán
+                    </Form.Label>
+                    <Radio.Group
+                      onChange={handlePaymentMethodChange}
+                      value={formData.paymentMethod}
+                      style={{ color: themeStyles.textColor }}
+                    >
+                      <Radio
+                        value="COD"
+                        style={{ color: themeStyles.textColor }}
                       >
-                        {loading ? "Đang xử lý..." : "Đặt hàng"}
-                      </Button>
-                    </div>
-                  </Form>
-                </Card.Body>
-              </Card>
+                        Thanh toán khi nhận hàng (COD)
+                      </Radio>
+                      <Radio
+                        value="Bank Transfer"
+                        style={{ color: themeStyles.textColor }}
+                      >
+                        Ví điện tử (VN Pay)
+                      </Radio>
+                    </Radio.Group>
+                  </Form.Group>
+
+                  {formData.paymentMethod === "Bank Transfer" && (
+                    <Form.Group className="mb-3">
+                      <Form.Label style={{ color: themeStyles.textColor }}>
+                        <BankOutlined /> Chọn ngân hàng
+                      </Form.Label>
+                      <Select
+                        style={{ width: "100%" }}
+                        placeholder="Chọn ngân hàng"
+                        onChange={handleBankChange}
+                        value={formData.bankCode}
+                        dropdownStyle={{
+                          backgroundColor: themeStyles.cardBackground,
+                          color: themeStyles.textColor,
+                        }}
+                      >
+                        {bankOptions.map((bank) => (
+                          <Option
+                            key={bank.value}
+                            value={bank.value}
+                            style={{ color: themeStyles.textColor }}
+                          >
+                            {bank.label}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Group>
+                  )}
+
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: themeStyles.textColor }}>
+                      <HomeOutlined /> Địa chỉ giao hàng
+                    </Form.Label>
+                    <Input
+                      placeholder="Nhập địa chỉ giao hàng"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      style={{
+                        backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
+                        color: themeStyles.textColor,
+                        borderColor: isDarkMode ? "#444" : "#d9d9d9",
+                      }}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: themeStyles.textColor }}>
+                      <PhoneOutlined /> Số điện thoại
+                    </Form.Label>
+                    <Input
+                      placeholder="Nhập số điện thoại"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      style={{
+                        backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
+                        color: themeStyles.textColor,
+                        borderColor: isDarkMode ? "#444" : "#d9d9d9",
+                      }}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label style={{ color: themeStyles.textColor }}>
+                      <CommentOutlined /> Ghi chú đơn hàng
+                    </Form.Label>
+                    <TextArea
+                      rows={4}
+                      placeholder="Nhập ghi chú (nếu có)"
+                      name="note"
+                      value={formData.note}
+                      onChange={handleChange}
+                      style={{
+                        backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
+                        color: themeStyles.textColor,
+                        borderColor: isDarkMode ? "#444" : "#d9d9d9",
+                      }}
+                    />
+                  </Form.Group>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={loading}
+                    style={{
+                      width: "100%",
+                      backgroundColor: "#52c41a",
+                      borderColor: "#52c41a",
+                      color: "#fff",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 10px rgba(82, 196, 26, 0.3)",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#73d13d")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#52c41a")
+                    }
+                  >
+                    {loading ? "Đang xử lý..." : "Đặt hàng"}
+                  </Button>
+                </Form>
+              </div>
             </Col>
           </Row>
         </Container>
+        <AppFooter style={{ marginTop: "40px" }} />
       </Container>
-      <AppFooter />
     </>
   );
-
-
 };
 
 export default CheckoutPage;

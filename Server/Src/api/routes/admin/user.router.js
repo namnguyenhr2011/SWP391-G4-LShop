@@ -10,5 +10,7 @@ routes.delete('/delete/:id', authorization.Authorization, controller.deleteUser)
 routes.put('/adminChangePass/:id', authorization.Authorization, controller.adminResetPassword)
 routes.get('/getAllOrder', controller.getAllOrder)
 routes.post('/assignSalerToOrder', authorization.Authorization, controller.assignSalerToOrder);
+routes.get('/getAllFeedback', controller.getAllFeedback);
+routes.put('/toggleFeedbackVisibility/:id', authorization.Authorization, controller.toggleFeedbackVisibility);
 
 module.exports = routes;
