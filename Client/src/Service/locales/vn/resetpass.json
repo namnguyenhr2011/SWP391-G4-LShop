@@ -1,0 +1,12 @@
+{
+    "Reset Your Password": "Đặt lại mật khẩu của bạn",
+    "Enter your password": "Nhập mật khẩu của bạn",
+    "Confirm your password": "Xác nhận mật khẩu của bạn",
+    "Password": "Mật khẩu",
+    "Confirm Password": "Xác nhận mật khẩu",
+    "Enter your password and confirm it to reset": "Nhập mật khóa và xác nhận đề đặt lại",
+    "Please enter both password fields.": "Vui lòng nhập cả hai trường mật khẩu.",
+    "Invalid or expired token. Please verify OTP again.": "Mã xác thực không hợp lệ hoặc đã hết hạn. Vui lòng xác thực lại OTP.",
+    "An error occurred. Please try again.": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "Reset Password": "Đặt lại mật khẩu"
+}

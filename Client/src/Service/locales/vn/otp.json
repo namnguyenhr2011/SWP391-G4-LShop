@@ -1,0 +1,8 @@
+{
+    "Input OTP": "Xác thực OTP",
+    "Enter the OTP sent to your email:": "Nhập OTP đã gửi đến email của bạn:",
+    "Please enter the full 6-digit OTP.": "Vui lòng nhập đầy đủ OTP 6 chữ số.",
+    "Invalid response format from server": "Định dạng phản hồi không hợp lệ từ máy chủ",
+    "An error occurred. Please try again.": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "Submit OTP": "Xác thực OTP"
+}

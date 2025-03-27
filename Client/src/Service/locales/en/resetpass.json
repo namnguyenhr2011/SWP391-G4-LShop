@@ -1,0 +1,12 @@
+{
+    "Reset Your Password": "Reset Your Password",
+    "Enter your password": "Enter your password",
+    "Confirm your password": "Confirm your password",
+    "Password": "Password",
+    "Confirm Password": "Confirm Password",
+    "Enter your password and confirm it to reset.": "Enter your password and confirm it to reset.",
+    "Please enter both password fields.": "Please enter both password fields.",
+    "Invalid or expired token. Please verify OTP again.": "Invalid or expired token. Please verify OTP again.",
+    "An error occurred. Please try again.": "An error occurred. Please try again.",
+    "Reset Password": "Reset Password"
+}
