@@ -186,7 +186,10 @@ const Header = () => {
               cursor: "pointer",
               color: "#fff",
               transition: "color 0.3s ease",
-              lineHeight: "100px", // Đảm bảo căn giữa theo chiều cao của Header
+              display: "flex",
+              alignItems: "center", // Đảm bảo căn giữa icon theo chiều cao
+              height: "64px", // Đảm bảo căn giữa theo header
+              marginTop: "5px", // Điều chỉnh vị trí icon
             }}
             onMouseEnter={(e) => (e.target.style.color = "#40c4ff")}
             onMouseLeave={(e) => (e.target.style.color = "#fff")}
@@ -205,6 +208,7 @@ const Header = () => {
               color: "#fff",
               cursor: "pointer",
               lineHeight: "64px", // Đảm bảo căn giữa
+              marginTop: "24px", // Điều chỉnh vị trí icon
             }}
           />
         </Dropdown>

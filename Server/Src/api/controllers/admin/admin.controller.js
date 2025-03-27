@@ -288,7 +288,17 @@ module.exports.assignSalerToOrder = async (req, res) => {
             return res.status(404).json({ message: 'Saler not found or not a valid sale role!' });
         }
 
-        // Tìm hoặc tạo bản ghi SaleClaim cho salerId
+        // Tìm saler cũ (nếu có) đã được gán cho order này
+        const oldSaleClaim = await SaleClaim.findOne({ orderIds: orderId });
+        if (oldSaleClaim && oldSaleClaim.salerId.toString() !== salerId) {
+            // Xóa orderId khỏi mảng orderIds của saler cũ
+            await SaleClaim.updateOne(
+                { salerId: oldSaleClaim.salerId },
+                { $pull: { orderIds: orderId } }
+            );
+        }
+
+        // Tìm hoặc tạo bản ghi SaleClaim cho salerId mới
         let saleClaim = await SaleClaim.findOne({ salerId });
         if (saleClaim) {
             // Nếu đã tồn tại, thêm orderId vào mảng orderIds nếu chưa có
@@ -298,13 +308,17 @@ module.exports.assignSalerToOrder = async (req, res) => {
                 await saleClaim.save();
             }
         } else {
-            // Nếu chưa tồn tại, tạo mới với mảng orderIds chứa orderId đầu tiên
+            // Nếu chưa tồn tại, tạo mới với mảng orderIds chứa orderId
             saleClaim = new SaleClaim({
                 salerId,
                 orderIds: [orderId],
             });
             await saleClaim.save();
         }
+
+        // Cập nhật trường saleClaim trong Order (nếu cần)
+        order.saleClaim = { salerId }; // Đảm bảo Order cũng lưu salerId
+        await order.save();
 
         res.status(200).json({
             code: 200,
