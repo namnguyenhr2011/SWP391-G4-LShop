@@ -58,6 +58,7 @@ import ProductList from "./Screen/Client/product/productList";
 import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
 import SaleProductCard from "./Component/SaleProductCard";
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
+import SaleDashboard from "./Screen/Sale/SaleDashboard";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -142,6 +143,7 @@ const App = () => {
             <Route path="/sale/orders" element={<SaleOrderManagement />} />
             <Route path="/product-sale/:id" element={<ProductSaleDetail />} />;
             <Route path="/products-sale" element={<SaleProductCard />} />;
+            <Route path="/sale/dashboard" element={<SaleDashboard />} />
 
             {/* end */}
             <Route path="*" element={<NotFound />} />
