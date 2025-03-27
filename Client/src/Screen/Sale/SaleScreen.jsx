@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { doLogout } from "../../store/reducer/userReducer";
 import SaleOrderManagement from "./SaleOrderManagement";
+import SaleDashboard from "./SaleDashboard"; // Import SaleDashboard
 
 const { Option } = Select;
 
@@ -27,7 +28,7 @@ const Header = ({ onLogout }) => (
       <Navbar.Brand
         style={{
           color: "#ffd700",
-          fontSize: "1.3rem", // Reduced font size
+          fontSize: "1.3rem",
           fontWeight: "700",
           textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)",
         }}
@@ -37,12 +38,12 @@ const Header = ({ onLogout }) => (
       <Button
         type="primary"
         danger
-        size="small" // Smaller button size
+        size="small"
         onClick={onLogout}
         style={{
           borderRadius: "8px",
           padding: "0.2rem 1rem",
-          fontSize: "12px", // Smaller font size
+          fontSize: "12px",
           fontWeight: "600",
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         }}
@@ -56,16 +57,16 @@ const Header = ({ onLogout }) => (
 );
 
 // Sidebar Component
-const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
+const Sidebar = ({ activeView, onViewSalePrice, onViewOrder, onViewDashboard }) => (
   <div
     style={{
       background: "linear-gradient(145deg, #1e3c72 0%, #2a5298 100%)",
-      padding: "1.5rem", // Reduced padding
+      padding: "1.5rem",
       borderRadius: "15px",
       boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
       color: "#ffffff",
       height: "calc(90vh - 50px)",
-      minWidth: "200px", // Reduced width
+      minWidth: "200px",
       maxWidth: "200px",
       overflowY: "auto",
       overflowX: "hidden",
@@ -77,7 +78,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
       style={{
         color: "#ffd700",
         fontWeight: "600",
-        fontSize: "1.2rem", // Reduced font size
+        fontSize: "1.2rem",
         marginBottom: "1rem",
         textAlign: "center",
         whiteSpace: "nowrap",
@@ -90,19 +91,17 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
         onClick={onViewSalePrice}
         style={{
           color: "#ffffff",
-          fontSize: "1rem", // Reduced font size
+          fontSize: "1rem",
           padding: "0.5rem 0.75rem",
           borderRadius: "8px",
-          backgroundColor: !activeView ? "#28a745" : "transparent",
+          backgroundColor: activeView === "sale" ? "#28a745" : "transparent",
           marginBottom: "0.75rem",
           transition: "all 0.3s",
           textAlign: "center",
         }}
         onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
         onMouseOut={(e) =>
-          (e.target.style.backgroundColor = !activeView
-            ? "#28a745"
-            : "transparent")
+          (e.target.style.backgroundColor = activeView === "sale" ? "#28a745" : "transparent")
         }
       >
         Sale Management
@@ -111,21 +110,38 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder }) => (
         onClick={onViewOrder}
         style={{
           color: "#ffffff",
-          fontSize: "1rem", // Reduced font size
+          fontSize: "1rem",
           padding: "0.5rem 0.75rem",
           borderRadius: "8px",
-          backgroundColor: activeView ? "#007bff" : "transparent",
+          backgroundColor: activeView === "order" ? "#007bff" : "transparent",
+          marginBottom: "0.75rem",
           transition: "all 0.3s",
           textAlign: "center",
         }}
         onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
         onMouseOut={(e) =>
-          (e.target.style.backgroundColor = activeView
-            ? "#007bff"
-            : "transparent")
+          (e.target.style.backgroundColor = activeView === "order" ? "#007bff" : "transparent")
         }
       >
         Order Management
+      </Nav.Link>
+      <Nav.Link
+        onClick={onViewDashboard}
+        style={{
+          color: "#ffffff",
+          fontSize: "1rem",
+          padding: "0.5rem 0.75rem",
+          borderRadius: "8px",
+          backgroundColor: activeView === "dashboard" ? "#17a2b8" : "transparent",
+          transition: "all 0.3s",
+          textAlign: "center",
+        }}
+        onMouseOver={(e) => (e.target.style.backgroundColor = "#138496")}
+        onMouseOut={(e) =>
+          (e.target.style.backgroundColor = activeView === "dashboard" ? "#17a2b8" : "transparent")
+        }
+      >
+        Dashboard
       </Nav.Link>
     </Nav>
   </div>
@@ -140,12 +156,12 @@ const MainContent = ({
   onSearchChange,
   onSortChange,
   columns,
-  showOrderManagement,
+  activeView,
   setLoading,
 }) => (
   <div
     style={{
-      padding: "1rem", // Reduced padding
+      padding: "1rem",
       background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
       borderRadius: "15px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
@@ -155,8 +171,10 @@ const MainContent = ({
       overflowY: "auto",
     }}
   >
-    {showOrderManagement ? (
+    {activeView === "order" ? (
       <SaleOrderManagement loading={loading} setLoading={setLoading} />
+    ) : activeView === "dashboard" ? (
+      <SaleDashboard />
     ) : (
       <>
         <Row className="mb-3" align="middle">
@@ -169,7 +187,7 @@ const MainContent = ({
                 borderRadius: "8px",
                 border: "none",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                fontSize: "0.9rem", // Reduced font size
+                fontSize: "0.9rem",
                 width: "90%",
               }}
             />
@@ -178,7 +196,7 @@ const MainContent = ({
             <Select
               defaultValue="default"
               onChange={onSortChange}
-              style={{ width: "100%", fontSize: "0.9rem" }} // Reduced font size
+              style={{ width: "100%", fontSize: "0.9rem" }}
             >
               <Option value="default">Default</Option>
               <Option value="desc">Price: High to Low</Option>
@@ -209,7 +227,6 @@ const MainContent = ({
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} of ${total} products`,
               }}
-              // Add smaller font size to table cells
               className="small-font-table"
             />
           </div>
@@ -224,12 +241,12 @@ const SaleScreen = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
-  const [activeView, setActiveView] = useState(false);
+  const [activeView, setActiveView] = useState("sale"); // "sale", "order", "dashboard"
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!activeView) {
+    if (activeView === "sale") {
       const fetchProducts = async () => {
         try {
           setLoading(true);
@@ -300,7 +317,7 @@ const SaleScreen = () => {
           src={image}
           alt="product"
           style={{
-            width: 60, // Reduced image size
+            width: 60,
             height: 60,
             borderRadius: "8px",
             objectFit: "cover",
@@ -397,8 +414,9 @@ const SaleScreen = () => {
           <Col md={2} xs={12}>
             <Sidebar
               activeView={activeView}
-              onViewSalePrice={() => setActiveView(false)}
-              onViewOrder={() => setActiveView(true)}
+              onViewSalePrice={() => setActiveView("sale")}
+              onViewOrder={() => setActiveView("order")}
+              onViewDashboard={() => setActiveView("dashboard")}
             />
           </Col>
           <Col md={10} xs={12}>
@@ -410,7 +428,7 @@ const SaleScreen = () => {
               onSearchChange={(e) => setSearchTerm(e.target.value)}
               onSortChange={setSortOrder}
               columns={columns}
-              showOrderManagement={activeView}
+              activeView={activeView}
               setLoading={setLoading}
             />
           </Col>
