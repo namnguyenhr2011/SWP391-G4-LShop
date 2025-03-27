@@ -1,11 +1,26 @@
-import { Layout, Typography, Row, Col, Space, Button, Pagination, Input, Select, message } from "antd";
+import {
+  Layout,
+  Typography,
+  Row,
+  Col,
+  Space,
+  Button,
+  Pagination,
+  Input,
+  Select,
+  message,
+} from "antd";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import ProductCard from "../../../Component/ProductCard";
-import { getAllProduct, getAllProductBySubCategory, getAllCategory } from "../../../service/client/ApiProduct";
+import {
+  getAllProduct,
+  getAllProductBySubCategory,
+  getAllCategory,
+} from "../../../service/client/ApiProduct";
 import { SearchOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
@@ -21,10 +36,10 @@ const ProductList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(12);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [categories, setCategories] = useState([]); 
-  const [selectedCategory, setSelectedCategory] = useState(null); 
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null); 
-  const [subcategories, setSubcategories] = useState([]); 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [subcategories, setSubcategories] = useState([]);
   const [filterMode, setFilterMode] = useState(null);
   const { subcategoryId } = useParams();
 
@@ -57,14 +72,22 @@ const ProductList = () => {
         let data;
         if (filterMode === "all") {
           data = await getAllProduct(currentPage);
-        } else if (selectedSubcategory && /^[0-9a-fA-F]{24}$/.test(selectedSubcategory)) {
-          data = await getAllProductBySubCategory(selectedSubcategory, currentPage);
+        } else if (
+          selectedSubcategory &&
+          /^[0-9a-fA-F]{24}$/.test(selectedSubcategory)
+        ) {
+          data = await getAllProductBySubCategory(
+            selectedSubcategory,
+            currentPage
+          );
         } else {
           data = await getAllProduct(currentPage);
         }
         setAllProducts(data?.products || []);
         setProducts(data?.products || []);
-        setTotalProducts(data?.totalPage * pageSize || data?.products?.length || 0);
+        setTotalProducts(
+          data?.totalPage * pageSize || data?.products?.length || 0
+        );
       } catch (error) {
         console.error("Error fetching products:", error);
         setProducts([]);
@@ -81,8 +104,8 @@ const ProductList = () => {
 
   const handleCategoryChange = (value) => {
     setSelectedCategory(value);
-    setSelectedSubcategory(null); 
-    setFilterMode(null); 
+    setSelectedSubcategory(null);
+    setFilterMode(null);
     const selectedCat = categories.find((cat) => cat._id === value);
     if (selectedCat && Array.isArray(selectedCat.subCategories)) {
       setSubcategories(selectedCat.subCategories);
@@ -116,7 +139,10 @@ const ProductList = () => {
       }
 
       const startIndex = (currentPage - 1) * pageSize;
-      const paginatedProducts = filteredProducts.slice(startIndex, startIndex + pageSize);
+      const paginatedProducts = filteredProducts.slice(
+        startIndex,
+        startIndex + pageSize
+      );
 
       setProducts(paginatedProducts);
       setTotalProducts(filteredProducts.length);
@@ -150,8 +176,12 @@ const ProductList = () => {
         {`
           /* Tùy chỉnh Select chính */
           .custom-select .ant-select-selector {
-            background: ${isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#ffffff"} !important;
-            border: 1px solid ${isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"} !important;
+            background: ${
+              isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#ffffff"
+            } !important;
+            border: 1px solid ${
+              isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"
+            } !important;
             border-radius: 40px !important;
             padding: 0 15px !important;
             height: 38px !important;
@@ -167,7 +197,9 @@ const ProductList = () => {
 
           .custom-select .ant-select-selector:focus-within {
             border-color: ${isDarkMode ? "#60a5fa" : "#2563eb"} !important;
-            box-shadow: 0 0 0 3px ${isDarkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(37, 99, 235, 0.2)"} !important;
+            box-shadow: 0 0 0 3px ${
+              isDarkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(37, 99, 235, 0.2)"
+            } !important;
           }
 
           /* Tùy chỉnh dropdown menu */
@@ -197,7 +229,13 @@ const ProductList = () => {
         }}
       >
         <Header />
-        <Content style={{ padding: "80px 20px 40px", maxWidth: "1300px", margin: "0 auto" }}>
+        <Content
+          style={{
+            padding: "80px 20px 40px",
+            maxWidth: "1300px",
+            margin: "0 auto",
+          }}
+        >
           <Title
             level={2}
             style={{
@@ -276,7 +314,9 @@ const ProductList = () => {
                     subcategories.map((sub, index) => {
                       const subId = sub._id || sub.id || `tmp-${index}`;
                       if (!sub._id && !sub.id) {
-                        console.warn(`Subcategory "${sub.name}" is missing _id in category`);
+                        console.warn(
+                          `Subcategory "${sub.name}" is missing _id in category`
+                        );
                       }
                       return (
                         <Option key={subId} value={subId}>
@@ -297,9 +337,26 @@ const ProductList = () => {
                     padding: "0 20px",
                     fontSize: 14,
                     fontWeight: 500,
-                    border: filterMode === "all" ? "none" : isDarkMode ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.1)",
-                    background: filterMode === "all" ? (isDarkMode ? "linear-gradient(90deg,rgb(231, 39, 145) 0%,rgb(194, 31, 216) 100%)" : "linear-gradient(90deg,rgb(236, 62, 213) 0%, #3b82f6 100%)") : isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
-                    color: filterMode === "all" ? "#ffffff" : isDarkMode ? "#e6edf3" : "#2d3748",
+                    border:
+                      filterMode === "all"
+                        ? "none"
+                        : isDarkMode
+                        ? "1px solid rgba(255,255,255,0.2)"
+                        : "1px solid rgba(0,0,0,0.1)",
+                    background:
+                      filterMode === "all"
+                        ? isDarkMode
+                          ? "linear-gradient(90deg,rgb(231, 39, 145) 0%,rgb(194, 31, 216) 100%)"
+                          : "linear-gradient(90deg,rgb(236, 62, 213) 0%, #3b82f6 100%)"
+                        : isDarkMode
+                        ? "rgba(255,255,255,0.05)"
+                        : "rgba(0,0,0,0.02)",
+                    color:
+                      filterMode === "all"
+                        ? "#ffffff"
+                        : isDarkMode
+                        ? "#e6edf3"
+                        : "#2d3748",
                     transition: "all 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
@@ -321,9 +378,13 @@ const ProductList = () => {
                     display: "flex",
                     alignItems: "center",
                     padding: "8px 12px",
-                    background: isDarkMode ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,1)",
+                    background: isDarkMode
+                      ? "rgba(255,255,255,0.12)"
+                      : "rgba(255,255,255,1)",
                     borderRadius: "40px",
-                    border: isDarkMode ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.1)",
+                    border: isDarkMode
+                      ? "1px solid rgba(255,255,255,0.2)"
+                      : "1px solid rgba(0,0,0,0.1)",
                     boxShadow: isDarkMode
                       ? "0 4px 15px rgba(0,0,0,0.3)"
                       : "0 4px 15px rgba(0,0,0,0.05)",
@@ -336,13 +397,22 @@ const ProductList = () => {
                     value={searchQuery}
                     onChange={handleSearchQueryChange}
                     onPressEnter={handleSearch}
-                    prefix={<SearchOutlined style={{ color: isDarkMode ? "#b0b8c1" : "#7f8c8d", fontSize: 16 }} />}
+                    prefix={
+                      <SearchOutlined
+                        style={{
+                          color: isDarkMode ? "#b0b8c1" : "#7f8c8d",
+                          fontSize: 16,
+                        }}
+                      />
+                    }
                     style={{
                       flex: 1,
                       height: 38,
                       borderRadius: "40px",
                       border: "none",
-                      background: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.02)",
+                      background: isDarkMode
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.02)",
                       padding: "0 15px",
                       fontSize: 14,
                       color: isDarkMode ? "#e6edf3" : "#2d3748",
@@ -391,7 +461,6 @@ const ProductList = () => {
               <ProductCard
                 products={products || []}
                 loading={loading}
-                isDarkMode={isDarkMode}
                 onProductClick={handleProductClick}
               />
               {!loading && products.length === 0 && (
@@ -399,12 +468,22 @@ const ProductList = () => {
                   style={{
                     textAlign: "center",
                     padding: 60,
-                    background: isDarkMode ? "rgba(255,255,255,0.05)" : "#f9f9f9",
+                    background: isDarkMode
+                      ? "rgba(255,255,255,0.05)"
+                      : "#f9f9f9",
                     borderRadius: 12,
-                    boxShadow: isDarkMode ? "0 4px 15px rgba(0,0,0,0.3)" : "0 4px 15px rgba(0,0,0,0.05)",
+                    boxShadow: isDarkMode
+                      ? "0 4px 15px rgba(0,0,0,0.3)"
+                      : "0 4px 15px rgba(0,0,0,0.05)",
                   }}
                 >
-                  <Title level={4} style={{ color: isDarkMode ? "#b0b8c1" : "#7f8c8d", fontWeight: 500 }}>
+                  <Title
+                    level={4}
+                    style={{
+                      color: isDarkMode ? "#b0b8c1" : "#7f8c8d",
+                      fontWeight: 500,
+                    }}
+                  >
                     No products found
                   </Title>
                 </div>
@@ -424,7 +503,9 @@ const ProductList = () => {
                   padding: "10px 20px",
                   background: isDarkMode ? "rgba(255,255,255,0.05)" : "#ffffff",
                   borderRadius: 8,
-                  boxShadow: isDarkMode ? "0 2px 10px rgba(0,0,0,0.3)" : "0 2px 10px rgba(0,0,0,0.1)",
+                  boxShadow: isDarkMode
+                    ? "0 2px 10px rgba(0,0,0,0.3)"
+                    : "0 2px 10px rgba(0,0,0,0.1)",
                 }}
               />
             </Row>

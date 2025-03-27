@@ -20,14 +20,12 @@ import {
   SunOutlined,
   ShoppingCartOutlined,
   OrderedListOutlined,
-  GlobalOutlined
+  GlobalOutlined,
 } from "@ant-design/icons";
 
 import ButtonAntd from "../../Component/Button";
 import InputSearch from "../../component/InputSearch";
 import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
-
-
 
 const DEFAULT_LOGO = "/L.png";
 
@@ -64,7 +62,7 @@ const Header = () => {
 
   const handleOrder = () => {
     navigate("/order");
-  }
+  };
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
 
   const handleUserProfile = () => navigate("/userProfile");
@@ -141,8 +139,8 @@ const Header = () => {
         backgroundColor: isDarkMode ? "#161b22" : "#001529",
         padding: "0 20px",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-        transition: "background-color 0.3s ease, padding 0.3s ease",
-        height: 64,
+        transition: "background-color 0.3s ease",
+        height: 64, // Chiều cao cố định
       }}
     >
       {/* Logo Section */}
@@ -156,7 +154,6 @@ const Header = () => {
             cursor: "pointer",
             borderRadius: "8px",
             transition: "transform 0.3s ease",
-            verticalAlign: "middle",
           }}
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
@@ -166,15 +163,20 @@ const Header = () => {
 
       {/* Right Section */}
       <Space
-        size="large"
+        size={25} // Khoảng cách ngang giữa các phần tử
         style={{
-          marginLeft: "auto",
           display: "flex",
-          alignItems: "center",
-          height: "100%",
+          alignItems: "center", // Căn giữa theo chiều dọc
+          marginLeft: "auto",
+          height: "100%", // Đảm bảo Space chiếm toàn bộ chiều cao của Header
         }}
       >
-        <InputSearch />
+        <InputSearch
+          style={{
+            height: "36px", // Chiều cao cố định
+            width: "200px", // Điều chỉnh độ rộng nếu cần
+          }}
+        />
 
         <Badge count={cartCount} offset={[8, 0]} size="small" color="#ff4d4f">
           <ShoppingCartOutlined
@@ -184,14 +186,14 @@ const Header = () => {
               cursor: "pointer",
               color: "#fff",
               transition: "color 0.3s ease",
-              verticalAlign: "middle",
-              lineHeight: "64px",
+              lineHeight: "100px", // Đảm bảo căn giữa theo chiều cao của Header
             }}
             onMouseEnter={(e) => (e.target.style.color = "#40c4ff")}
             onMouseLeave={(e) => (e.target.style.color = "#fff")}
             aria-label={`Cart with ${cartCount} items`}
           />
         </Badge>
+
         <Dropdown
           overlay={languageMenu}
           trigger={["click"]}
@@ -202,43 +204,44 @@ const Header = () => {
               fontSize: "24px",
               color: "#fff",
               cursor: "pointer",
-              marginRight: "10px",
+              lineHeight: "64px", // Đảm bảo căn giữa
             }}
           />
         </Dropdown>
-        <Dropdown
-          overlay={profileMenu}
-          trigger={["click"]}
-          placement="bottomRight"
-        >
-          {token ? (
+
+        {token ? (
+          <Dropdown
+            overlay={profileMenu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
             <Avatar
-              size="large"
+              size={36} // Kích thước hợp lý
               icon={<UserOutlined />}
               style={{
                 cursor: "pointer",
                 backgroundColor: isDarkMode ? "#30363d" : "#1890ff",
                 transition: "background-color 0.3s ease",
-                verticalAlign: "middle",
-                lineHeight: "64px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
               aria-label="User profile menu"
             />
-          ) : (
-            <ButtonAntd
-              onClick={handleLogin}
-              type="primary"
-              icon={<LoginOutlined />}
-              content={t("login")}
-              style={{
-                borderRadius: "6px",
-                transition: "all 0.3s ease",
-                height: "36px",
-                lineHeight: "36px",
-              }}
-            />
-          )}
-        </Dropdown>
+          </Dropdown>
+        ) : (
+          <ButtonAntd
+            onClick={handleLogin}
+            type="primary"
+            icon={<LoginOutlined />}
+            content={t("login")}
+            style={{
+              borderRadius: "6px",
+              transition: "all 0.3s ease",
+              height: "36px", // Đồng nhất chiều cao
+            }}
+          />
+        )}
       </Space>
     </Layout.Header>
   );

@@ -22,7 +22,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
-
 const { TextArea } = Input;
 const { Text } = Typography;
 const { Option } = Select;
@@ -54,6 +53,10 @@ const CheckoutPage = () => {
     };
     fetchUserProfile();
   }, [token]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0); // Cuộn lên đầu trang khi component mount
+  }, []);
 
   const { _id: userId } = useSelector((state) => state.user?.user) || {};
   const cartItems = useSelector((state) => state.cart.items[userId] || []);
@@ -185,7 +188,7 @@ const CheckoutPage = () => {
           return;
         }
       }
-      toast.success("Đặt hàng thành công!")
+      toast.success("Đặt hàng thành công!");
       dispatch(clearCart({ userId }));
       navigate("/");
     } catch (error) {
@@ -208,18 +211,29 @@ const CheckoutPage = () => {
           transition: "background-color 0.3s ease, color 0.3s ease",
         }}
       >
-        <h2 className="mb-4 text-center" style={{ color: isDarkMode ? "#ffffff" : "#000000", marginTop: "20px" }}>
+        <h2
+          className="mb-4 text-center"
+          style={{
+            color: isDarkMode ? "#ffffff" : "#000000",
+            marginTop: "50px",
+          }}
+        >
           {t("Order Checkout")}
         </h2>
 
         <Container fluid className="px-lg-5">
           <Row justify="space-around">
             <Col md={6}>
-              <Card className="mb-3" style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
+              <Card
+                className="mb-3"
+                style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}
+              >
                 <Card.Header className="bg-primary text-white">
                   <ShoppingOutlined /> {t("Cart Information")}
                 </Card.Header>
-                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                <Card.Body
+                  style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                >
                   <List
                     itemLayout="horizontal"
                     dataSource={cartItems}
@@ -235,15 +249,26 @@ const CheckoutPage = () => {
                         >
                           <Col xs={6} md={4}>
                             <div
-                              style={{ position: "relative", width: "80px" }}
+                              style={{
+                                position: "relative",
+                                width: "80px",
+                                height: "80px", // Cố định chiều cao
+                                backgroundColor: "white", // Thêm background trắng
+                                borderRadius: "8px", // Bo góc để đồng bộ với ảnh
+                                display: "flex", // Sử dụng flex để căn giữa
+                                alignItems: "center", // Căn giữa theo chiều dọc
+                                justifyContent: "center", // Căn giữa theo chiều ngang
+                                padding: "4px", // Thêm padding để tạo khoảng cách
+                              }}
                             >
                               <img
                                 src={item.image}
                                 alt={item.name}
                                 style={{
-                                  width: "100%",
+                                  maxWidth: "90%", // Đảm bảo ảnh không vượt quá 90% chiều rộng
+                                  maxHeight: "100%", // Đảm bảo ảnh không vượt quá chiều cao của div
                                   borderRadius: "8px",
-                                  display: "block",
+                                  objectFit: "contain", // Giữ tỷ lệ ảnh, không bị méo
                                 }}
                               />
                               {item.isSale && (
@@ -269,7 +294,12 @@ const CheckoutPage = () => {
 
                           {/* Thông tin sản phẩm */}
                           <Col flex="auto" style={{ overflow: "hidden" }}>
-                            <Text strong style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                            <Text
+                              strong
+                              style={{
+                                color: isDarkMode ? "#e6edf3" : "#000000",
+                              }}
+                            >
                               {item.name}
                             </Text>
                             <br />
@@ -292,12 +322,16 @@ const CheckoutPage = () => {
                                   {Math.round(
                                     ((item.originalPrice - item.price) /
                                       item.originalPrice) *
-                                    100
+                                      100
                                   )}
                                   %)
                                 </Text>
                                 <br />
-                                <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                                <Text
+                                  style={{
+                                    color: isDarkMode ? "#e6edf3" : "#000000",
+                                  }}
+                                >
                                   {formatPrice(item.price)} x {item.quantity} =
                                   <strong>
                                     {" "}
@@ -306,7 +340,11 @@ const CheckoutPage = () => {
                                 </Text>
                               </>
                             ) : (
-                              <Text style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                              <Text
+                                style={{
+                                  color: isDarkMode ? "#e6edf3" : "#000000",
+                                }}
+                              >
                                 {formatPrice(item.price)} x {item.quantity} =
                                 <strong>
                                   {" "}
@@ -327,7 +365,8 @@ const CheckoutPage = () => {
                           delete
                           style={{ color: "#999", marginRight: "10px" }}
                         >
-                          {t("Original total")}: {formatPrice(totalOriginalPrice)}
+                          {t("Original total")}:{" "}
+                          {formatPrice(totalOriginalPrice)}
                         </Text>
                         <Text strong style={{ color: "#ff4d4f" }}>
                           {t("Total")}: {formatPrice(totalAmount)}
@@ -338,7 +377,7 @@ const CheckoutPage = () => {
                           {` (${Math.round(
                             ((totalOriginalPrice - totalAmount) /
                               totalOriginalPrice) *
-                            100
+                              100
                           )}%)`}
                         </Text>
                       </>
@@ -353,14 +392,20 @@ const CheckoutPage = () => {
             </Col>
 
             <Col md={6}>
-              <Card style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}>
+              <Card
+                style={{ backgroundColor: isDarkMode ? "#1c1e21" : "#ffffff" }}
+              >
                 <Card.Header className="bg-primary text-white">
                   <CreditCardOutlined /> {t("Payment Information")}
                 </Card.Header>
-                <Card.Body style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                <Card.Body
+                  style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                >
                   <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <UserOutlined /> {t("Full Name")}
                       </Form.Label>
                       <Input
@@ -371,7 +416,9 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <MailOutlined /> {t("Email")}
                       </Form.Label>
                       <Input
@@ -382,7 +429,9 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <CreditCardOutlined /> {t("Payment Method")}
                       </Form.Label>
                       <div>
@@ -402,7 +451,9 @@ const CheckoutPage = () => {
 
                     {formData.paymentMethod === "Bank Transfer" && (
                       <Form.Group className="mb-3">
-                        <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                        <Form.Label
+                          style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                        >
                           <BankOutlined /> {t("Select bank")}
                         </Form.Label>
                         <Select
@@ -421,7 +472,9 @@ const CheckoutPage = () => {
                     )}
 
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <HomeOutlined /> {t("Shipping Address")}
                       </Form.Label>
                       <Input
@@ -433,7 +486,9 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <PhoneOutlined /> {t("Phone Number")}
                       </Form.Label>
                       <Input
@@ -445,7 +500,9 @@ const CheckoutPage = () => {
                     </Form.Group>
 
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
                         <CommentOutlined /> {t("Order Note")}
                       </Form.Label>
                       <TextArea
@@ -477,8 +534,6 @@ const CheckoutPage = () => {
       <AppFooter />
     </>
   );
-
-
 };
 
 export default CheckoutPage;

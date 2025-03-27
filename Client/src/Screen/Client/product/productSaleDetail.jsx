@@ -15,7 +15,11 @@ import {
   Badge,
 } from "antd";
 import { getProductWithSaleById } from "../../../Service/sale/ApiSale";
-import { addFeedback, getFeedbackByProductId, deleteFeedback } from "../../../Service/Client/ApiFeedBack";
+import {
+  addFeedback,
+  getFeedbackByProductId,
+  deleteFeedback,
+} from "../../../Service/Client/ApiFeedBack";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -63,9 +67,14 @@ const ProductSaleDetail = () => {
       console.log("Feedback Response:", feedbackResponse); // Debug dữ liệu feedback trả về
       if (feedbackResponse?.feedback) {
         setFeedbacks(feedbackResponse.feedback);
-        const totalRating = feedbackResponse.feedback.reduce((sum, fb) => sum + fb.rating, 0);
-        const avgRating = feedbackResponse.feedback.length ? totalRating / feedbackResponse.feedback.length : 0;
-        setProduct((prev) => prev ? { ...prev, rating: avgRating } : prev);
+        const totalRating = feedbackResponse.feedback.reduce(
+          (sum, fb) => sum + fb.rating,
+          0
+        );
+        const avgRating = feedbackResponse.feedback.length
+          ? totalRating / feedbackResponse.feedback.length
+          : 0;
+        setProduct((prev) => (prev ? { ...prev, rating: avgRating } : prev));
       }
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -118,7 +127,9 @@ const ProductSaleDetail = () => {
       message.error(`Số lượng không thể vượt quá ${product.quantity}`);
       return;
     }
-    const priceToUse = isSaleActive() ? product.sale?.salePrice || product.price : product.price;
+    const priceToUse = isSaleActive()
+      ? product.sale?.salePrice || product.price
+      : product.price;
     dispatch(
       addToCart({
         userId,
@@ -155,7 +166,12 @@ const ProductSaleDetail = () => {
   };
 
   const isSaleActive = () => {
-    if (!product?.sale || !product.sale.startDate || !product.sale.endDate || !product.sale.salePrice) {
+    if (
+      !product?.sale ||
+      !product.sale.startDate ||
+      !product.sale.endDate ||
+      !product.sale.salePrice
+    ) {
       return false;
     }
     const now = new Date();
@@ -166,13 +182,21 @@ const ProductSaleDetail = () => {
 
   const calculateDiscountPercentage = () => {
     if (!product?.sale?.salePrice || !product?.price) return 0;
-    const discount = ((product.price - product.sale.salePrice) / product.price) * 100;
+    const discount =
+      ((product.price - product.sale.salePrice) / product.price) * 100;
     return Math.round(discount);
   };
 
   if (loading) {
     return (
-      <Container style={{ minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Container
+        style={{
+          minHeight: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Spin size="large" />
       </Container>
     );
@@ -180,8 +204,17 @@ const ProductSaleDetail = () => {
 
   if (error || !product) {
     return (
-      <Container style={{ minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Text type="danger" strong>{error || "Không tìm thấy sản phẩm"}</Text>
+      <Container
+        style={{
+          minHeight: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text type="danger" strong>
+          {error || "Không tìm thấy sản phẩm"}
+        </Text>
       </Container>
     );
   }
@@ -191,71 +224,182 @@ const ProductSaleDetail = () => {
   return (
     <>
       <Header />
-      <Container fluid style={{
-        background: "#fff",
-        padding: "50px 0",
-        paddingTop: "80px",
-        backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
-        color: isDarkMode ? "#e6edf3" : "#1c1e21",
-        transition: "background-color 0.3s ease, color 0.3s ease",
-      }}>
+      <Container
+        fluid
+        style={{
+          background: "#fff",
+          padding: "50px 0",
+          paddingTop: "80px",
+          backgroundColor: isDarkMode ? "#0d1117" : "#f4f6f9",
+          color: isDarkMode ? "#e6edf3" : "#1c1e21",
+          transition: "background-color 0.3s ease, color 0.3s ease",
+        }}
+      >
         <Container>
-          <Row style={{
-            alignItems: "center",
-            padding: "20px 0",
-            maxWidth: "1200px",
-            width: "100%",
-          }}>
-            <Col md={6} style={{ textAlign: "center", position: "relative" }}>
+          <Row
+            style={{
+              alignItems: "center",
+              padding: "20px 0",
+              maxWidth: "1400px",
+              width: "100%",
+            }}
+          >
+            <Col md={5} style={{ textAlign: "center", position: "relative" }}>
               {saleActive && (
-                <Badge.Ribbon text={`Giảm ${calculateDiscountPercentage()}%`} color="red" />
+                <Badge.Ribbon
+                  text={`Giảm ${calculateDiscountPercentage()}%`}
+                  color="red"
+                />
               )}
-              <img
-                src={selectedImage || "https://via.placeholder.com/400"}
-                alt={product.name}
-                style={{ width: "400px", height: "400px", objectFit: "cover", borderRadius: "10px" }}
-              />
+              <div
+                style={{
+                  backgroundColor: "white", // Nền trắng cho ảnh trong cả dark mode và light mode
+                  borderRadius: "10px",
+                  height: "400px", // Cố định chiều cao
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "10px",
+                }}
+              >
+                <img
+                  src={selectedImage || "https://via.placeholder.com/400"}
+                  alt={product.name}
+                  style={{
+                    maxWidth: "90%", // Đảm bảo ảnh không vượt quá 90% chiều rộng
+                    maxHeight: "100%", // Đảm bảo ảnh không vượt quá chiều cao của div
+                    objectFit: "contain", // Giữ tỷ lệ ảnh
+                    borderRadius: "10px",
+                  }}
+                />
+              </div>
             </Col>
-            <Col md={6} style={{ padding: "20px", backgroundColor: saleActive ? "#fff5f5" : "#fff", borderRadius: "10px", height: "400px" }}>
-              <Title level={2}>{product.name || "Sản phẩm không tên"}</Title>
-              <Rate allowHalf value={product.rating ?? 0} disabled style={{ marginBottom: "15px" }} />
+            <Col
+              md={7}
+              style={{
+                padding: "20px",
+                backgroundColor: isDarkMode ? "#1c1e21" : "#fff", // Dark mode cho phần thông tin sản phẩm
+                borderRadius: "10px",
+                height: "400px",
+                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+              }}
+            >
+              <Title
+                level={2}
+                style={{ color: isDarkMode ? "#e6edf3" : "#1c1e21" }}
+              >
+                {product.name || "Sản phẩm không tên"}
+              </Title>
+              <Rate
+                allowHalf
+                value={product.rating ?? 0}
+                disabled
+                style={{ marginBottom: "15px" }}
+              />
               <br />
               {saleActive ? (
                 <>
-                  <Text style={{ fontSize: "32px", fontWeight: "bold", color: "#ff4d4f" }}>
-                    Giá sale: {product.sale?.salePrice ? `${product.sale.salePrice.toLocaleString("vi-VN")} VNĐ` : "Liên hệ để biết giá"}
+                  <Text
+                    style={{
+                      fontSize: "32px",
+                      fontWeight: "bold",
+                      color: "#ff4d4f",
+                    }}
+                  >
+                    Giá sale:{" "}
+                    {product.sale?.salePrice
+                      ? `${product.sale.salePrice.toLocaleString("vi-VN")} VNĐ`
+                      : "Liên hệ để biết giá"}
                   </Text>
                   <br />
                   <Text delete style={{ fontSize: "24px", color: "#666" }}>
-                    Giá gốc: {product.price ? `${product.price.toLocaleString("vi-VN")} VNĐ` : "Liên hệ để biết giá"}
+                    Giá gốc:{" "}
+                    {product.price
+                      ? `${product.price.toLocaleString("vi-VN")} VNĐ`
+                      : "Liên hệ để biết giá"}
                   </Text>
                   <br />
                   <Text style={{ fontSize: "16px", color: "#ff4d4f" }}>
-                    Thời gian sale: {formatDate(product.sale.startDate)} - {formatDate(product.sale.endDate)}
+                    Thời gian sale: {formatDate(product.sale.startDate)} -{" "}
+                    {formatDate(product.sale.endDate)}
                   </Text>
                 </>
               ) : (
-                <Text style={{ fontSize: "32px", fontWeight: "bold", color: "#ff4d4f" }}>
-                  Giá: {product.price ? `${product.price.toLocaleString("vi-VN")} VNĐ` : "Liên hệ để biết giá"}
+                <Text
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "bold",
+                    color: "#ff4d4f",
+                  }}
+                >
+                  Giá:{" "}
+                  {product.price
+                    ? `${product.price.toLocaleString("vi-VN")} VNĐ`
+                    : "Liên hệ để biết giá"}
                 </Text>
               )}
               <br />
-              <Text style={{ fontSize: "24px", color: "#666" }}>
-                Còn lại: {product.quantity ?? "N/A"}
+              <Text
+                style={{
+                  fontSize: "24px",
+                  color: isDarkMode ? "#8b949e" : "#666",
+                }}
+              >
+                Còn lại: {product.quantity}
               </Text>
               <br />
               <Space size="large" style={{ marginTop: "20px" }}>
-                <Button onClick={handleDecreaseQuantity}>-</Button>
-                <Text>{quantity}</Text>
-                <Button onClick={handleIncreaseQuantity}>+</Button>
+                <Button
+                  onClick={handleDecreaseQuantity}
+                  style={{
+                    backgroundColor: isDarkMode ? "#21262d" : "#fff",
+                    color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                  }}
+                >
+                  -
+                </Button>
+                <Text style={{ color: isDarkMode ? "#e6edf3" : "#1c1e21" }}>
+                  {quantity}
+                </Text>
+                <Button
+                  onClick={handleIncreaseQuantity}
+                  style={{
+                    backgroundColor: isDarkMode ? "#21262d" : "#fff",
+                    color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                  }}
+                >
+                  +
+                </Button>
               </Space>
               <br />
-              <Button style={{ marginTop: "20px" }} type="primary" size="large" icon={<ShoppingCartOutlined />} onClick={handleAddToCart} block>
+              <Button
+                type="primary"
+                size="large"
+                icon={<ShoppingCartOutlined />}
+                onClick={handleAddToCart}
+                block
+                style={{
+                  marginTop: "30px",
+                  backgroundColor: isDarkMode ? "#238636" : "#52c41a",
+                  borderColor: isDarkMode ? "#238636" : "#52c41a",
+                  boxShadow: "none",
+                  width: "300px",
+                }}
+              >
                 Thêm vào giỏ
               </Button>
             </Col>
           </Row>
-          <Row style={{ marginTop: "40px", padding: "20px", background: "#fafafa", borderRadius: "10px", maxWidth: "1200px", width: "100%" }}>
+          <Row
+            style={{
+              marginTop: "40px",
+              padding: "20px",
+              backgroundColor: isDarkMode ? "#1c1e21" : "#fafafa", // Dark mode cho phần mô tả và đánh giá
+              borderRadius: "10px",
+              maxWidth: "1400px",
+              width: "100%",
+            }}
+          >
             <Col>
               <Tabs
                 defaultActiveKey="1"
@@ -264,47 +408,158 @@ const ProductSaleDetail = () => {
                   {
                     key: "1",
                     label: "Mô tả sản phẩm",
-                    children: <Text>{product.description || "Chưa có thông tin mô tả chi tiết."}</Text>,
+                    children: (
+                      <Text
+                        style={{ color: isDarkMode ? "#e6edf3" : "#1c1e21" }}
+                      >
+                        {product.description ||
+                          "Chưa có thông tin mô tả chi tiết."}
+                      </Text>
+                    ),
                   },
                   {
                     key: "2",
                     label: "Đánh giá sản phẩm",
                     children: (
                       <>
-                        <Form form={form} onFinish={handleSubmitFeedback} layout="vertical">
-                          <Form.Item name="rating" label="Rate" rules={[{ required: true, message: "Please choose a rating" }]}>
-                            <Rate />
+                        <Form
+                          form={form}
+                          onFinish={handleSubmitFeedback}
+                          layout="vertical"
+                          style={{
+                            backgroundColor: isDarkMode ? "#1c1e21" : "#fafafa",
+                          }}
+                        >
+                          <Form.Item
+                            name="rating"
+                            label={
+                              <span
+                                style={{
+                                  color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                                }}
+                              >
+                                Rate
+                              </span>
+                            }
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please choose a rating",
+                              },
+                            ]}
+                          >
+                            <Rate
+                              style={{
+                                color: isDarkMode ? "#fadb14" : undefined,
+                              }}
+                            />
                           </Form.Item>
-                          <Form.Item name="comment" label="Comment" rules={[{ required: true }]}>
-                            <TextArea rows={4} />
+                          <Form.Item
+                            name="comment"
+                            label={
+                              <span
+                                style={{
+                                  color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                                }}
+                              >
+                                Comment
+                              </span>
+                            }
+                            rules={[{ required: true }]}
+                          >
+                            <TextArea
+                              rows={4}
+                              style={{
+                                backgroundColor: isDarkMode
+                                  ? "#21262d"
+                                  : "#fff",
+                                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                              }}
+                            />
                           </Form.Item>
                           <Form.Item>
-                            <Button type="primary" htmlType="submit">Send Feedback</Button>
+                            <Button
+                              type="primary"
+                              htmlType="submit"
+                              style={{
+                                backgroundColor: isDarkMode
+                                  ? "#238636"
+                                  : "#52c41a",
+                                borderColor: isDarkMode ? "#238636" : "#52c41a",
+                                boxShadow: "none",
+                              }}
+                            >
+                              Send Feedback
+                            </Button>
                           </Form.Item>
                         </Form>
 
                         <List
                           itemLayout="horizontal"
-                          dataSource={[...feedbacks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
+                          dataSource={[...feedbacks].sort(
+                            (a, b) =>
+                              new Date(b.createdAt) - new Date(a.createdAt)
+                          )}
                           renderItem={(feedback) => (
                             <List.Item>
                               <List.Item.Meta
-                                title={feedback.userId?.userName ?? "Người dùng ẩn danh"}
+                                title={
+                                  <span
+                                    style={{
+                                      color: isDarkMode ? "#e6edf3" : "#1c1e21",
+                                    }}
+                                  >
+                                    {feedback.userId?.userName}
+                                  </span>
+                                }
                                 description={
                                   <>
-                                    <Text>{feedback.comment}</Text>
+                                    <Text
+                                      style={{
+                                        color: isDarkMode
+                                          ? "#e6edf3"
+                                          : "#1c1e21",
+                                      }}
+                                    >
+                                      {feedback.comment}
+                                    </Text>
                                     <br />
-                                    <Rate disabled value={feedback.rating ?? 0} />
-                                    {userId && String(feedback.userId?._id) === String(userId) && (
-                                      <Button
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={() => handleDelete(feedback._id)}
-                                        style={{ marginTop: 4, marginLeft: 10 }}
-                                      >
-                                        Delete
-                                      </Button>
-                                    )}
+                                    <Rate
+                                      disabled
+                                      value={feedback.rating}
+                                      style={{
+                                        color: isDarkMode
+                                          ? "#fadb14"
+                                          : undefined,
+                                      }}
+                                    />
+                                    {userId &&
+                                      String(feedback.userId?._id) ===
+                                        String(userId) && (
+                                        <Button
+                                          danger
+                                          icon={<DeleteOutlined />}
+                                          onClick={() =>
+                                            handleDelete(feedback._id)
+                                          }
+                                          style={{
+                                            marginTop: 4,
+                                            marginLeft: 10,
+                                            backgroundColor: isDarkMode
+                                              ? "#21262d"
+                                              : "#fff",
+                                            color: isDarkMode
+                                              ? "#ff4d4f"
+                                              : undefined,
+                                            borderColor: isDarkMode
+                                              ? "#ff4d4f"
+                                              : undefined,
+                                            boxShadow: "none",
+                                          }}
+                                        >
+                                          Delete
+                                        </Button>
+                                      )}
                                   </>
                                 }
                               />
@@ -315,6 +570,7 @@ const ProductSaleDetail = () => {
                     ),
                   },
                 ]}
+                style={{ color: isDarkMode ? "#e6edf3" : "#1c1e21" }}
               />
             </Col>
           </Row>

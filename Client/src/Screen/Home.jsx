@@ -17,7 +17,6 @@ const Home = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const navigate = useNavigate();
 
- 
   const handleViewMore = () => {
     navigate("/all-products");
   };
@@ -43,11 +42,11 @@ const Home = () => {
           boxShadow: isDarkMode ? "0 4px 12px rgba(0, 0, 0, 0.3)" : "none",
         }}
       >
-        <Row gutter={0} style={{ paddingTop: "10px" }}>
+        <Row gutter={0} style={{ paddingTop: "30px" }}>
           <Col xs={24} sm={4}>
             <SidebarMenuAntd />
           </Col>
-          <Col xs={24} sm={20} style={{ paddingLeft: "5px" }}>
+          <Col xs={24} sm={20} style={{ paddingLeft: "15px" }}>
             <Carousel
               autoplay
               autoplaySpeed={5000}
@@ -126,23 +125,23 @@ const Home = () => {
         <SaleProducts isDarkMode={isDarkMode} />
       </Content>
       <div style={{ textAlign: "center", margin: "40px 0" }}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={handleViewMore}
-            style={{
-              borderRadius: "8px",
-              padding: "6px 24px",
-              background: isDarkMode
-                ? "linear-gradient(90deg, #4a90e2 0%, #63b3ed 100%)"
-                : "linear-gradient(90deg, #3498db 0%, #2980b9 100%)",
-              border: "none",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            }}
-          >
-            View More Products
-          </Button>
-        </div>
+        <Button
+          type="primary"
+          size="large"
+          onClick={handleViewMore}
+          style={{
+            borderRadius: "8px",
+            padding: "6px 24px",
+            background: isDarkMode
+              ? "linear-gradient(90deg, #4a90e2 0%, #63b3ed 100%)"
+              : "linear-gradient(90deg, #3498db 0%, #2980b9 100%)",
+            border: "none",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          }}
+        >
+          View More Products
+        </Button>
+      </div>
       <Footer />
     </Layout>
   );
