@@ -35,7 +35,7 @@ export const userProfile = async () => {
 
 export const editProfile = async (userName, phone, address) => {
     try {
-        const response = await axios.put('/user/edit-profile', { userName, phone, address, avatar, });
+        const response = await axios.put('/user/edit-profile', { userName, phone, address });
         return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || "Failed to edit profile");

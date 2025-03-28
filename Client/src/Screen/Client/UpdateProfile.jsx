@@ -21,6 +21,7 @@ const ProfileEditor = () => {
       setLoading(true);
       const { name, phone, address } = values;
       const res = await editProfile(name, phone, address);
+      console.log(res)
       toast.success("Profile updated successfully!");
       navigate("/");
     } catch (error) {
