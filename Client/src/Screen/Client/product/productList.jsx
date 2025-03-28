@@ -22,7 +22,6 @@ import {
   getAllCategory,
 } from "../../../service/client/ApiProduct";
 import { SearchOutlined } from "@ant-design/icons";
-
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
@@ -216,7 +215,7 @@ const ProductList = () => {
   };
 
   const handleProductClick = (productId) => {
-    // Handle product click if needed
+    navigate(`/product/${productId}`);
   };
 
   return (

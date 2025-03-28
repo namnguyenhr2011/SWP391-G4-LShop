@@ -1,44 +1,66 @@
 import { useState, useEffect } from "react";
-import { Card, Col, Row, Statistic, Table, Spin, message, Typography } from "antd";
+import { Card, Col, Row, Statistic, Table, Spin, message, Typography, Select } from "antd";
 import { Pie } from "@ant-design/plots";
-import { getAssignedOrders, getProductWithSaleID } from "../../Service/sale/ApiSale"; // Thêm getProductWithSaleID
+import { getAssignedOrders, getProductWithSaleID } from "../../Service/sale/ApiSale";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const SaleDashboard = () => {
   const [orders, setOrders] = useState([]);
-  const [products, setProducts] = useState([]); // State cho sản phẩm sale
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeFilter, setTimeFilter] = useState("all");
   const [stats, setStats] = useState({
     pending: 0,
     processing: 0,
     completed: 0,
     cancelled: 0,
     total: 0,
-    activeSales: 0, // Thêm thống kê sản phẩm đang sale
+    completedRevenue: 0,
+    totalSoldProducts: 0,
+    completionRate: 0,
+    topProducts: [],
   });
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [timeFilter]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Lấy danh sách đơn hàng
       const orderData = await getAssignedOrders();
-      const orderList = orderData.orders || [];
-      setOrders(orderList);
-
-      // Lấy danh sách sản phẩm có sale
       const productData = await getProductWithSaleID();
+      
+      let orderList = orderData.orders || [];
       const productList = productData.products.map((product) => ({
         ...product,
         saleId: product.sale?.saleID || null,
       }));
-      setProducts(productList);
 
-      // Tính toán thống kê
+      // Lọc đơn hàng theo thời gian
+      const currentDate = new Date();
+      if (timeFilter === "day") {
+        orderList = orderList.filter((order) => 
+          new Date(order.createdAt).toDateString() === currentDate.toDateString()
+        );
+      } else if (timeFilter === "week") {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(currentDate.getDate() - 7);
+        orderList = orderList.filter((order) => 
+          new Date(order.createdAt) >= oneWeekAgo
+        );
+      } else if (timeFilter === "month") {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+        orderList = orderList.filter((order) => 
+          new Date(order.createdAt) >= oneMonthAgo
+        );
+      }
+
+      setOrders(orderList);
+      setProducts(productList);
       calculateStats(orderList, productList);
     } catch (error) {
       message.error("Unable to fetch data for dashboard");
@@ -55,24 +77,50 @@ const SaleDashboard = () => {
       (acc, order) => {
         acc[order.status.toLowerCase()] += 1;
         acc.total += 1;
+
+        if (order.status === "Completed") {
+          acc.completedRevenue += order.totalAmount;
+          order.products.forEach((item) => {
+            const productId = item.productId?._id;
+            acc.productSales[productId] = (acc.productSales[productId] || 0) + item.quantity;
+          });
+          acc.totalSoldProducts += order.products.reduce((sum, item) => sum + item.quantity, 0);
+        }
         return acc;
       },
-      { pending: 0, processing: 0, completed: 0, cancelled: 0, total: 0 }
+      {
+        pending: 0,
+        processing: 0,
+        completed: 0,
+        cancelled: 0,
+        total: 0,
+        completedRevenue: 0,
+        totalSoldProducts: 0,
+        productSales: {},
+      }
     );
 
-    // Thống kê sản phẩm đang trong thời gian sale
-    const currentDate = new Date();
-    const activeSales = products.filter((product) => {
-      if (!product.sale) return false;
-      const startDate = new Date(product.sale.startDate);
-      const endDate = new Date(product.sale.endDate);
-      return startDate <= currentDate && currentDate <= endDate;
-    }).length;
+    // Tính top 3 sản phẩm bán chạy
+    const topProducts = Object.entries(orderStats.productSales)
+      .map(([productId, quantity]) => {
+        const product = products.find((p) => p._id === productId);
+        return { name: product?.name || "Unknown", quantity };
+      })
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 3);
 
-    setStats({ ...orderStats, activeSales });
+    // Tính tỷ lệ hoàn thành
+    const completionRate = orderStats.total > 0 
+      ? ((orderStats.completed / orderStats.total) * 100).toFixed(1) 
+      : 0;
+
+    setStats({
+      ...orderStats,
+      completionRate,
+      topProducts,
+    });
   };
 
-  // Cấu hình cho biểu đồ Pie
   const pieConfig = {
     appendPadding: 10,
     data: [
@@ -89,45 +137,29 @@ const SaleDashboard = () => {
       type: "inner",
       offset: "-30%",
       content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
-      style: {
-        fontSize: 14,
-        textAlign: "center",
-      },
+      style: { fontSize: 14, textAlign: "center" },
     },
     interactions: [{ type: "element-active" }],
   };
 
-  const columns = [
-    {
-      title: "No.",
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Customer Name",
-      dataIndex: "userId",
-      render: (user) => user?.userName || "Unknown",
-    },
-    {
-      title: "Total Amount",
-      dataIndex: "totalAmount",
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VND`,
-    },
-    {
-      title: "Payment Method",
-      dataIndex: "paymentMethod",
-    },
+  const orderColumns = [
+    { title: "No.", render: (_, __, index) => index + 1 },
+    { title: "Customer Name", dataIndex: "userId", render: (user) => user?.userName || "Unknown" },
+    { title: "Total Amount", dataIndex: "totalAmount", render: (totalAmount) => `${totalAmount.toLocaleString()} VND` },
+    { title: "Payment Method", dataIndex: "paymentMethod" },
     {
       title: "Status",
       dataIndex: "status",
       render: (status) => {
-        let color = "green";
-        if (status === "Pending") color = "orange";
-        if (status === "Processing") color = "blue";
-        if (status === "Completed") color = "green";
-        if (status === "Cancelled") color = "red";
+        let color = status === "Pending" ? "orange" : status === "Processing" ? "blue" : status === "Completed" ? "green" : "red";
         return <span style={{ fontWeight: "bold", color }}>{status}</span>;
       },
     },
+  ];
+
+  const topProductColumns = [
+    { title: "Product Name", dataIndex: "name" },
+    { title: "Quantity Sold", dataIndex: "quantity" },
   ];
 
   return (
@@ -139,9 +171,21 @@ const SaleDashboard = () => {
         borderRadius: "15px",
       }}
     >
-      <Title level={2} style={{ color: "#1e3c72", marginBottom: "20px" }}>
-        Sale Dashboard
-      </Title>
+      <Row justify="space-between" align="middle" style={{ marginBottom: "20px" }}>
+        <Col>
+          <Title level={2} style={{ color: "#1e3c72", margin: 0 }}>
+            Sale Dashboard
+          </Title>
+        </Col>
+        <Col>
+          <Select defaultValue="all" onChange={setTimeFilter} style={{ width: 120 }}>
+            <Option value="all">All Time</Option>
+            <Option value="day">Today</Option>
+            <Option value="week">This Week</Option>
+            <Option value="month">This Month</Option>
+          </Select>
+        </Col>
+      </Row>
 
       {loading ? (
         <div style={{ textAlign: "center", padding: "4rem 0" }}>
@@ -151,54 +195,30 @@ const SaleDashboard = () => {
         <>
           {/* Thống kê nhanh */}
           <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
-            <Col xs={24} sm={12} md={4}>
-              <Card>
-                <Statistic
-                  title="Pending Orders"
-                  value={stats.pending}
-                  valueStyle={{ color: "#faad14" }}
-                />
-              </Card>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Pending Orders" value={stats.pending} valueStyle={{ color: "#faad14" }} /></Card>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Card>
-                <Statistic
-                  title="Processing Orders"
-                  value={stats.processing}
-                  valueStyle={{ color: "#1890ff" }}
-                />
-              </Card>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Processing Orders" value={stats.processing} valueStyle={{ color: "#1890ff" }} /></Card>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Card>
-                <Statistic
-                  title="Completed Orders"
-                  value={stats.completed}
-                  valueStyle={{ color: "#52c41a" }}
-                />
-              </Card>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Completed Orders" value={stats.completed} valueStyle={{ color: "#52c41a" }} /></Card>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Card>
-                <Statistic
-                  title="Cancelled Orders"
-                  value={stats.cancelled}
-                  valueStyle={{ color: "#ff4d4f" }}
-                />
-              </Card>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Cancelled Orders" value={stats.cancelled} valueStyle={{ color: "#ff4d4f" }} /></Card>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              <Card>
-                <Statistic
-                  title="Active Sales"
-                  value={stats.activeSales}
-                  valueStyle={{ color: "#722ed1" }} // Màu tím cho sản phẩm sale
-                />
-              </Card>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Completed Revenue" value={stats.completedRevenue} precision={0} suffix=" VND" valueStyle={{ color: "#13c2c2" }} /></Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Total Sold Products" value={stats.totalSoldProducts} valueStyle={{ color: "#eb2f96" }} /></Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card><Statistic title="Completion Rate" value={stats.completionRate} suffix="%" valueStyle={{ color: "#389e0d" }} /></Card>
             </Col>
           </Row>
 
-          {/* Biểu đồ phân bố trạng thái */}
+          {/* Biểu đồ và thông tin bổ sung */}
           <Row gutter={[16, 16]}>
             <Col xs={24} md={12}>
               <Card title="Order Status Distribution" style={{ height: "100%" }}>
@@ -206,9 +226,19 @@ const SaleDashboard = () => {
               </Card>
             </Col>
             <Col xs={24} md={12}>
+              <Card title="Top Selling Products" style={{ height: "100%" }}>
+                <Table
+                  columns={topProductColumns}
+                  dataSource={stats.topProducts}
+                  pagination={false}
+                  rowKey="name"
+                />
+              </Card>
+            </Col>
+            <Col xs={24} md={12}>
               <Card title="Recent Orders" style={{ height: "100%" }}>
                 <Table
-                  columns={columns}
+                  columns={orderColumns}
                   dataSource={orders.slice(0, 5)}
                   pagination={false}
                   rowKey="_id"
@@ -221,16 +251,12 @@ const SaleDashboard = () => {
           {/* Bảng danh sách tất cả đơn hàng */}
           <Card title="All Orders" style={{ marginTop: "20px" }}>
             <Table
-              columns={columns}
+              columns={orderColumns}
               dataSource={orders}
               rowKey="_id"
               bordered
               scroll={{ x: "max-content" }}
-              pagination={{
-                pageSize: 10,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} orders`,
-              }}
+              pagination={{ pageSize: 10, showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} orders` }}
             />
           </Card>
         </>

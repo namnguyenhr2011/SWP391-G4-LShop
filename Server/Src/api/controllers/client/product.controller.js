@@ -165,20 +165,23 @@ module.exports.searchProducts = async (req, res) => {
             deleted: false
         };
 
+        // Thêm điều kiện tìm kiếm theo tên và mô tả
         if (name) {
-            productsQuery.name = { $regex: name, $options: "i" };
+            productsQuery.name = { $regex: name, $options: "i" }; // Tìm kiếm không phân biệt chữ hoa chữ thường
         }
 
         if (description) {
             productsQuery.description = { $regex: description, $options: "i" };
         }
 
+        // Tính tổng số sản phẩm
         const totalProducts = await Product.countDocuments(productsQuery);
 
         if (totalProducts === 0) {
             return res.status(404).json({ message: 'No products found.' });
         }
 
+        // Phân trang với dữ liệu từ query parameters
         const paginationData = await PaginationHelper(
             {
                 currentPage: parseInt(req.query.page) || 1,
@@ -188,21 +191,25 @@ module.exports.searchProducts = async (req, res) => {
             req.query
         );
 
+        // Lấy danh sách sản phẩm theo điều kiện tìm kiếm và phân trang
         const products = await Product.find(productsQuery)
             .skip(paginationData.skip)
             .limit(paginationData.limit)
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 }); // Sắp xếp theo ngày tạo, có thể thay đổi
 
+        // Trả về kết quả tìm kiếm và thông tin phân trang
         res.status(200).json({
             message: 'Products found',
             products,
             totalPage: paginationData.totalPage,
-            currentPage: paginationData.currentPage
+            currentPage: paginationData.currentPage,
+            totalProducts: totalProducts
         });
     } catch (error) {
         res.status(500).json({ message: `Search product error: ${error.message}` });
     }
 };
+
 
 
 // [GET] api/products/getAllProducts

@@ -80,9 +80,10 @@ export const getTopView = async () => {
     return response.data;
 };
 
-export const searchProduct = async (data, page) => {
-    return await axios.post(`product/search`, data, { params: { page }, withCredentials: true });
-};
+export const searchProducts = async (name, page) => {
+    const response = await axios.post(`product/search`, { name }, { params: { page }, withCredentials: true });
+    return response.data;
+}
 
 export const addProduct = async (subCategoryId, data) => {
     const response = await axios.post(`product/addProduct/${subCategoryId}`, data);
