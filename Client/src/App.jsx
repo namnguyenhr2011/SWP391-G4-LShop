@@ -52,6 +52,9 @@ import OrderManagement from "./Screen/Admin/OrderManagement";
 import ManagerProductManagement from "./Screen/Admin/ManagerProductManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 
+import AdsController from "./Screen/Admin/ads/AdsController"
+
+
 //sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
 import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
@@ -108,6 +111,10 @@ const App = () => {
               <Route index element={<OrderScreen />} />
               <Route path="orderDetail/:id" element={<OrderDetails />} />
             </Route>
+            <Route path="/ads" element={<AdsController />} />
+
+
+
             {/* huy */}
             <Route path="/Productdashboard" element={<DashBoard />} />
             <Route path="/addProduct" element={<AddProduct />} />
