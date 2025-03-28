@@ -22,7 +22,7 @@ import {
   getAllCategory,
 } from "../../../service/client/ApiProduct";
 import { SearchOutlined } from "@ant-design/icons";
-
+import { useNavigate } from "react-router-dom";
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
@@ -42,6 +42,7 @@ const ProductList = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [filterMode, setFilterMode] = useState(null);
   const { subcategoryId } = useParams();
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -167,8 +168,9 @@ const ProductList = () => {
   };
 
   const handleProductClick = (productId) => {
-    // Handle product click if needed
+    navigate(`/product/${productId}`);
   };
+
 
   return (
     <>
@@ -176,12 +178,10 @@ const ProductList = () => {
         {`
           /* Tùy chỉnh Select chính */
           .custom-select .ant-select-selector {
-            background: ${
-              isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#ffffff"
-            } !important;
-            border: 1px solid ${
-              isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"
-            } !important;
+            background: ${isDarkMode ? "rgba(255, 255, 255, 0.1)" : "#ffffff"
+          } !important;
+            border: 1px solid ${isDarkMode ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"
+          } !important;
             border-radius: 40px !important;
             padding: 0 15px !important;
             height: 38px !important;
@@ -197,9 +197,8 @@ const ProductList = () => {
 
           .custom-select .ant-select-selector:focus-within {
             border-color: ${isDarkMode ? "#60a5fa" : "#2563eb"} !important;
-            box-shadow: 0 0 0 3px ${
-              isDarkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(37, 99, 235, 0.2)"
-            } !important;
+            box-shadow: 0 0 0 3px ${isDarkMode ? "rgba(96, 165, 250, 0.2)" : "rgba(37, 99, 235, 0.2)"
+          } !important;
           }
 
           /* Tùy chỉnh dropdown menu */
@@ -341,22 +340,22 @@ const ProductList = () => {
                       filterMode === "all"
                         ? "none"
                         : isDarkMode
-                        ? "1px solid rgba(255,255,255,0.2)"
-                        : "1px solid rgba(0,0,0,0.1)",
+                          ? "1px solid rgba(255,255,255,0.2)"
+                          : "1px solid rgba(0,0,0,0.1)",
                     background:
                       filterMode === "all"
                         ? isDarkMode
                           ? "linear-gradient(90deg,rgb(231, 39, 145) 0%,rgb(194, 31, 216) 100%)"
                           : "linear-gradient(90deg,rgb(236, 62, 213) 0%, #3b82f6 100%)"
                         : isDarkMode
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(0,0,0,0.02)",
+                          ? "rgba(255,255,255,0.05)"
+                          : "rgba(0,0,0,0.02)",
                     color:
                       filterMode === "all"
                         ? "#ffffff"
                         : isDarkMode
-                        ? "#e6edf3"
-                        : "#2d3748",
+                          ? "#e6edf3"
+                          : "#2d3748",
                     transition: "all 0.3s ease",
                   }}
                   onMouseEnter={(e) => {

@@ -14,14 +14,16 @@ const InputSearch = () => {
     setValueSearch(e.target.value.trim());
   };
 
-  // Xử lý khi nhấn Enter
   const handlePressEnter = () => {
-    if (valueSearch) {
-      navigate(`/search/${encodeURIComponent(valueSearch)}`);
+    if (valueSearch && valueSearch.trim()) {
+      // Chuyển hướng tới trang tìm kiếm với từ khóa đã mã hóa
+      navigate(`/search?query=${encodeURIComponent(valueSearch.trim())}`);
     } else {
+      // Nếu không có từ khóa tìm kiếm, chuyển hướng về trang chủ
       navigate("/");
     }
   };
+
 
   const placeholder = isDarkMode ? "" : "Search for product";
 

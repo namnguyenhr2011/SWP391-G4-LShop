@@ -40,7 +40,7 @@ import DeleteProduct from "./Screen/ProductManager/DelteProduct";
 import UpdateProduct from "./Screen/ProductManager/UpadateProduct";
 import ViewProduct from "./Screen/ProductManager/ViewProudct";
 import ProductDetail from "./Screen/Client/product/productDetail";
-import AddSubCategory  from "./Screen/ProductManager/AddSubCategory";
+import AddSubCategory from "./Screen/ProductManager/AddSubCategory";
 import ViewCategory from "./Screen/ProductManager/ViewCategory";
 
 //Admin Page
@@ -61,7 +61,7 @@ import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
 import SaleProductCard from "./Component/SaleProductCard";
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 import SaleDashboard from "./Screen/Sale/SaleDashboard";
-
+import SearchProduct from "./Screen/Client/product/searchProduct";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -102,7 +102,7 @@ const App = () => {
             {/* an */}
             <Route path="/userProfile" element={<UserProfile />} />
             <Route path="/update-profile" element={<UpdateProfile />} />
-            
+            <Route path="/search" element={<SearchProduct />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/order">
               <Route index element={<OrderScreen />} />
@@ -119,7 +119,7 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/addSubCategory" element={<AddSubCategory />} />
             <Route path="/viewCategory" element={<ViewCategory />} />
-            
+
             {/* nam */}
             <Route
               path="/admin/*"
