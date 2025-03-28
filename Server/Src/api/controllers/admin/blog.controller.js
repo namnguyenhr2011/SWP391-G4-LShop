@@ -154,8 +154,6 @@ module.exports.addComment = async (req, res) => {
     }
 
     const user = await User.findOne({ token });
-    console.log("Token received:", token); // Debug
-    console.log("User found:", user); // Debug
 
     if (!user) {
       return res.status(403).json({ message: 'Invalid token or user not found!' });
