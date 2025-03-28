@@ -1,4 +1,4 @@
-import { Table, Button, Modal, message } from "antd";
+import { Table, Button, Modal, message, Input } from "antd";
 import { useState, useEffect } from "react";
 import {
   getAllFeedback,
@@ -6,27 +6,31 @@ import {
 } from "../../service/admin/AdminServices";
 
 const { confirm } = Modal;
+const { Search } = Input;
 
 const FeedbackManagement = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchUser, setSearchUser] = useState("");
+  const [sortOrder, setSortOrder] = useState(null);
+  const [sortEmailOrder, setSortEmailOrder] = useState(null);
+  const [commentSearch, setCommentSearch] = useState({});
 
   useEffect(() => {
     fetchFeedbacks();
   }, []);
 
-  // Hàm nhóm feedback theo userId
   const groupFeedbacksByUser = (feedbacks) => {
     const userMap = {};
     feedbacks.forEach((feedback) => {
-      const userId = feedback.userId?._id || "unknown"; // Sử dụng "unknown" nếu không có userId
+      const userId = feedback.userId?._id || "unknown";
       if (!userMap[userId]) {
         userMap[userId] = {
           userId: feedback.userId || {
             _id: "unknown",
             userName: "N/A",
             email: "N/A",
-          }, // Xử lý trường hợp không có userId
+          },
           feedbacks: [],
         };
       }
@@ -87,31 +91,6 @@ const FeedbackManagement = () => {
     });
   };
 
-  // Cột cho bảng chính (danh sách người dùng)
-  const columns = [
-    {
-      title: "STT",
-      key: "index",
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Username",
-      key: "userName",
-      render: (record) => record.userId?.userName || "N/A",
-    },
-    {
-      title: "Email",
-      key: "email",
-      render: (record) => record.userId?.email || "N/A",
-    },
-    {
-      title: "Số Feedback",
-      key: "feedbackCount",
-      render: (record) => record.feedbacks.length,
-    },
-  ];
-
-  // Cột cho bảng chi tiết (danh sách feedback của từng người dùng)
   const expandedRowRender = (record) => {
     const feedbackColumns = [
       {
@@ -127,7 +106,24 @@ const FeedbackManagement = () => {
       {
         title: "Rate",
         key: "rating",
-        render: (feedback) => `${feedback.rating} / 5`,
+        dataIndex: "rating",
+        sorter: (a, b) => a.rating - b.rating,
+        sortOrder: sortOrder,
+        onHeaderCell: () => ({
+          onClick: () => {
+            setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
+            setFeedbacks((prevFeedbacks) =>
+              prevFeedbacks.map((group) => ({
+                ...group,
+                feedbacks: [...group.feedbacks].sort((a, b) =>
+                  sortOrder === "ascend"
+                    ? b.rating - a.rating
+                    : a.rating - b.rating
+                ),
+              }))
+            );
+          },
+        }),
       },
       {
         title: "Comment",
@@ -149,20 +145,88 @@ const FeedbackManagement = () => {
       },
     ];
     return (
-      <Table
-        columns={feedbackColumns}
-        dataSource={record.feedbacks}
-        rowKey="_id"
-        pagination={false}
-      />
+      <div>
+        <Search
+          placeholder="Search comments"
+          onChange={(e) =>
+            setCommentSearch((prev) => ({
+              ...prev,
+              [record.userId._id]: e.target.value,
+            }))
+          }
+          style={{ marginBottom: 16, width: 300 }}
+        />
+        <Table
+          columns={feedbackColumns}
+          dataSource={record.feedbacks.filter((feedback) =>
+            feedback.comment
+              .toLowerCase()
+              .includes((commentSearch[record.userId._id] || "").toLowerCase())
+          )}
+          rowKey="_id"
+          pagination={false}
+        />
+      </div>
     );
   };
 
   return (
     <div style={{ padding: 24 }}>
+      <Search
+        placeholder="Search by username"
+        onChange={(e) => setSearchUser(e.target.value)}
+        style={{ marginBottom: 16, width: 300 }}
+      />
       <Table
-        columns={columns}
-        dataSource={feedbacks}
+        columns={[
+          {
+            title: "STT",
+            key: "index",
+            render: (_, __, index) => index + 1,
+          },
+          {
+            title: "Username",
+            key: "userName",
+            render: (record) => record.userId?.userName || "N/A",
+          },
+          {
+            title: "Email",
+            key: "email",
+            render: (record) => record.userId?.email || "N/A",
+            sorter: (a, b) => a.userId?.email.localeCompare(b.userId?.email),
+            sortOrder: sortEmailOrder,
+            onHeaderCell: () => ({
+              onClick: () =>
+                setSortEmailOrder(
+                  sortEmailOrder === "ascend" ? "descend" : "ascend"
+                ),
+            }),
+          },
+          {
+            title: "Số Feedback",
+            key: "feedbackCount",
+            render: (record) => record.feedbacks.length,
+            sorter: (a, b) => a.feedbacks.length - b.feedbacks.length,
+            sortOrder: sortOrder,
+            onHeaderCell: () => ({
+              onClick: () => {
+                setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
+                setFeedbacks(
+                  [...feedbacks].sort((a, b) =>
+                    sortOrder === "ascend"
+                      ? b.feedbacks.length - a.feedbacks.length
+                      : a.feedbacks.length - b.feedbacks.length
+                  )
+                );
+              },
+            }),
+          },
+        ]}
+        dataSource={feedbacks.filter((record) =>
+          record.userId?.userName
+            .toLowerCase()
+            .includes(searchUser.toLowerCase())
+        )}
         rowKey={(record) => record.userId?._id || "unknown"}
         loading={loading}
         expandable={{ expandedRowRender }}

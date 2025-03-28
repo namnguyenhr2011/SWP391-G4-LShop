@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Spin, message, Select, Modal } from "antd";
+import { Table, Button, Spin, message, Select, Modal, Input } from "antd";
 import {
   getAllUser,
   deleteUser,
@@ -13,6 +13,7 @@ const { confirm } = Modal;
 const SaleManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -33,76 +34,9 @@ const SaleManagement = () => {
     }
   };
 
-  const handleChangeRole = async (id, newRole) => {
-    try {
-      await changeRole(id, newRole);
-      message.success("Role update successful!");
-      fetchUsers(); // Load lại danh sách
-    } catch (error) {
-      console.error("Error changing role:", error);
-      message.error(error.message);
-    }
-  };
-
-  const showConfirmDelete = (id) => {
-    confirm({
-      title: "Are you sure you want to delete this user?",
-      content: "This action cannot be undone.",
-      okText: "Comfirm",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk() {
-        handleDeleteUser(id);
-      },
-    });
-  };
-
-  const handleDeleteUser = async (id) => {
-    try {
-      await deleteUser(id);
-      message.success("User deleted successfully!");
-      fetchUsers();
-    } catch (error) {
-      message.error(error.message);
-    }
-  };
-
-  const handleChangeStatus = async (userId, currentStatus) => {
-    try {
-      setLoading(true); // Bật hiệu ứng loading
-
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
-
-      // Gọi API đổi trạng thái
-      await changeStatus(userId, newStatus);
-      message.success("Status updated successfully");
-
-      // Cập nhật trạng thái mới vào danh sách người dùng
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === userId ? { ...user, status: newStatus } : user
-        )
-      );
-    } catch (error) {
-      message.error(error.message || "Failed to change status");
-    } finally {
-      setLoading(false); // Tắt hiệu ứng loading sau khi hoàn thành
-    }
-  };
-
-  const showConfirmStatusChange = (userId, currentStatus) => {
-    const action = currentStatus === "active" ? "ban" : "unban";
-    confirm({
-      title: `Are you sure you want to ${action} this user?`,
-      content: "This action will change the user's access rights.",
-      okText: "Confirm",
-      cancelText: "Cancel",
-      okType: "danger",
-      onOk() {
-        handleChangeStatus(userId, currentStatus);
-      },
-    });
-  };
+  const filteredUsers = users.filter((user) =>
+    user.userName.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns = [
     {
@@ -114,8 +48,14 @@ const SaleManagement = () => {
       title: "Username",
       dataIndex: "userName",
       key: "userName",
+      sorter: (a, b) => a.userName.localeCompare(b.userName),
     },
-    { title: "Email", dataIndex: "email", key: "email" },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+    },
     {
       title: "Role",
       dataIndex: "role",
@@ -185,7 +125,13 @@ const SaleManagement = () => {
     </div>
   ) : (
     <div style={{ padding: "20px" }}>
-      <Table columns={columns} dataSource={users} rowKey="_id" />
+      <Input
+        placeholder="Search by username"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        style={{ marginBottom: "20px", width: "300px" }}
+      />
+      <Table columns={columns} dataSource={filteredUsers} rowKey="_id" />
     </div>
   );
 };

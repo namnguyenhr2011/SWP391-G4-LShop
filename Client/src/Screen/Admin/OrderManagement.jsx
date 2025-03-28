@@ -1,28 +1,38 @@
-import { Table, Select, message, Skeleton, Button } from "antd";
+import { Table, Select, message, Skeleton, Button, Input } from "antd";
 import { useState, useEffect } from "react";
 import {
   getAllOrder,
   getAllUser,
   assignSalerToOrder,
 } from "../../service/admin/AdminServices";
+import { getProductById } from "../../Service/Client/ApiProduct";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [sales, setSales] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingSales, setLoadingSales] = useState(true);
   const [assigning, setAssigning] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchOrders();
     fetchSales();
   }, []);
 
+  useEffect(() => {
+    setFilteredOrders(
+      orders.filter((order) =>
+        order.userId?.userName?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    );
+  }, [searchText, orders]);
+
   const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
       const data = await getAllOrder();
-      console.log("Orders data:", data.orders);
       setOrders(data.orders || []);
     } catch (error) {
       message.error("Failed to fetch orders");
@@ -66,7 +76,6 @@ const OrderManagement = () => {
 
     setAssigning(true);
     try {
-      // Lọc các order chưa có saler
       const unassignedOrders = orders.filter(
         (order) => !order.saleClaim?.salerId
       );
@@ -77,7 +86,6 @@ const OrderManagement = () => {
         return;
       }
 
-      // Đếm số order pending của mỗi saler
       const salerOrderCount = sales.map((saler) => {
         const pendingCount = orders.filter(
           (order) =>
@@ -87,24 +95,20 @@ const OrderManagement = () => {
         return { salerId: saler._id, pendingCount };
       });
 
-      // Sắp xếp saler theo số lượng order pending (ít nhất lên đầu)
       salerOrderCount.sort((a, b) => a.pendingCount - b.pendingCount);
 
-      // Chia đều order cho các saler
       const assignPromises = [];
-      const salerQueue = [...salerOrderCount]; // Hàng đợi saler để phân bổ
+      const salerQueue = [...salerOrderCount];
 
       unassignedOrders.forEach((order) => {
-        // Lấy saler có ít order pending nhất
-        const assignedSaler = salerQueue.shift(); // Lấy saler đầu tiên
+        const assignedSaler = salerQueue.shift();
         assignPromises.push(
           assignSalerToOrder(order._id, assignedSaler.salerId)
         );
 
-        // Tăng số lượng pending của saler này và đưa lại vào hàng đợi
         assignedSaler.pendingCount += 1;
         salerQueue.push(assignedSaler);
-        salerQueue.sort((a, b) => a.pendingCount - b.pendingCount); // Sắp xếp lại
+        salerQueue.sort((a, b) => a.pendingCount - b.pendingCount);
       });
 
       await Promise.all(assignPromises);
@@ -131,12 +135,20 @@ const OrderManagement = () => {
       dataIndex: "userId",
       key: "customer",
       render: (user) => user?.userName || "Unknown",
+      sorter: (a, b) =>
+        (a.userId?.userName || "").localeCompare(b.userId?.userName || ""),
     },
-    { title: "Status", dataIndex: "status", key: "status" },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      sorter: (a, b) => a.status.localeCompare(b.status),
+    },
     {
       title: "Payment Method",
       dataIndex: "paymentMethod",
       key: "paymentMethod",
+      sorter: (a, b) => a.paymentMethod.localeCompare(b.paymentMethod),
     },
     { title: "Phonenumber", dataIndex: "phone", key: "phone" },
     { title: "Address", dataIndex: "address", key: "address" },
@@ -150,6 +162,7 @@ const OrderManagement = () => {
           currency: "VND",
           minimumFractionDigits: 0,
         }).format(amount),
+      sorter: (a, b) => a.totalAmount - b.totalAmount,
     },
     {
       title: "Saler",
@@ -174,25 +187,96 @@ const OrderManagement = () => {
           </Select>
         );
       },
+      sorter: (a, b) => {
+        const salerA = a.saleClaim?.salerId || "";
+        const salerB = b.saleClaim?.salerId || "";
+        return salerA.localeCompare(salerB);
+      },
     },
   ];
 
-  if (loadingOrders) {
+  const ProductDetailsTable = ({ products }) => {
+    const [productDetails, setProductDetails] = useState([]);
+
+    useEffect(() => {
+      const fetchProductNames = async () => {
+        try {
+          const details = await Promise.all(
+            products.map(async (item) => {
+              const product = await getProductById(item.productId);
+              console.log("Product data:", product);
+              return {
+                ...item,
+                productName: product?.product?.name || "Unknown",
+                productImage: product?.product?.image || "",
+                productPrice: product?.product?.price || 0, // Lấy giá sản phẩm
+              };
+            })
+          );
+          setProductDetails(details);
+        } catch (error) {
+          message.error("Failed to fetch product names");
+        }
+      };
+
+      fetchProductNames();
+    }, [products]);
+
     return (
-      <div style={{ padding: 24 }}>
-        <Skeleton active paragraph={{ rows: 8 }} />
-      </div>
+      <Table
+        columns={[
+          {
+            title: "Hình ảnh",
+            dataIndex: "productImage",
+            key: "productImage",
+            render: (image) =>
+              image ? (
+                <img
+                  src={image}
+                  alt="Product"
+                  style={{ width: 80, height: 70 }}
+                />
+              ) : (
+                "No Image"
+              ),
+          },
+          {
+            title: "Tên sản phẩm",
+            dataIndex: "productName",
+            key: "productName",
+          },
+          { title: "Số lượng", dataIndex: "quantity", key: "quantity" },
+          {
+            title: "Giá",
+            dataIndex: "productPrice",
+            key: "productPrice",
+            render: (price) =>
+              new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0,
+              }).format(price),
+          },
+        ]}
+        dataSource={productDetails}
+        pagination={false}
+        rowKey={(item) => item._id || item.productId}
+      />
     );
-  }
+  };
 
   return (
-    <div
-      style={{
-        opacity: loadingSales ? 0.5 : 1,
-        transition: "opacity 0.3s ease",
-      }}
-    >
-      <div style={{ marginBottom: 16 }}>
+    <div>
+      <div style={{ marginBottom: 16, display: "flex", gap: 10 }}>
+        <Input
+          placeholder="Search by username"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+        />
+        <Button type="primary" onClick={fetchOrders} disabled={loadingOrders}>
+          Refresh
+        </Button>
         <Button
           type="primary"
           onClick={handleAutoAssignSalers}
@@ -204,13 +288,15 @@ const OrderManagement = () => {
       </div>
       <Table
         columns={columns}
-        dataSource={orders}
+        dataSource={filteredOrders}
         rowKey="_id"
         loading={loadingOrders}
-        pagination={{
-          pageSizeOptions: ["10", "20", "50", "100"], // Các tùy chọn số lượng dòng
-          showSizeChanger: true, // Hiển thị dropdown chọn số lượng dòng
-          defaultPageSize: 10, // Giá trị mặc định
+        expandable={{
+          expandedRowRender: (record) => (
+            <ProductDetailsTable products={record.products} />
+          ),
+          rowExpandable: (record) =>
+            record.products && record.products.length > 0,
         }}
       />
     </div>
