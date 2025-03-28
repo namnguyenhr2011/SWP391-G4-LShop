@@ -30,8 +30,8 @@ import ReturnQR from "./Screen/Client/cart/ReturnQR";
 import UpdateProfile from "./Screen/Client/UpdateProfile";
 import ChangePassword from "./Screen/Client/ChangePassword";
 
-import OrderDetails from "./Screen/Client/order/OrderDetail";
-import OrderScreen from "./Screen/Client/order/Order";
+import OrderDetails from "./Screen/Client/Order/OrderDetail";
+import OrderScreen from "./Screen/Cient/Order/Order";
 
 import DashBoard from "./Screen/ProductManager/DashBoard";
 import AddProduct from "./Screen/ProductManager/AddProduct";

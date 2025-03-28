@@ -178,7 +178,7 @@ const Header = () => {
           }}
         />
 
-        <Badge count={cartCount} offset={[8, 0]} size="small" color="#ff4d4f">
+        <Badge count={cartCount} offset={[5, 25]} size="small" color="#ff4d4f">
           <ShoppingCartOutlined
             onClick={() => navigate("/cart")}
             style={{
@@ -187,9 +187,8 @@ const Header = () => {
               color: "#fff",
               transition: "color 0.3s ease",
               display: "flex",
-              alignItems: "center", // Đảm bảo căn giữa icon theo chiều cao
-              height: "64px", // Đảm bảo căn giữa theo header
-              marginTop: "5px", // Điều chỉnh vị trí icon
+              alignItems: "center",
+              marginTop: "25px",
             }}
             onMouseEnter={(e) => (e.target.style.color = "#40c4ff")}
             onMouseLeave={(e) => (e.target.style.color = "#fff")}
@@ -208,7 +207,7 @@ const Header = () => {
               color: "#fff",
               cursor: "pointer",
               lineHeight: "64px", // Đảm bảo căn giữa
-              marginTop: "24px", // Điều chỉnh vị trí icon
+              marginTop: "20px", // Điều chỉnh vị trí icon
             }}
           />
         </Dropdown>

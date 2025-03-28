@@ -4,7 +4,7 @@ import { Typography } from "antd";
 import { ThunderboltOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 import ProductCard from "./ProductCard";
-import { getTop8 } from "../Service/Client/ApiProduct";
+import { getTopView } from "../service/client/ApiProduct";
 
 const { Title } = Typography;
 
@@ -16,7 +16,7 @@ const FeaturedProducts = ({ isDarkMode }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getTop8();
+        const response = await getTopView();
         setProducts(response.products);
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm nổi bật:", error);
@@ -47,7 +47,7 @@ const FeaturedProducts = ({ isDarkMode }) => {
           Sản phẩm nổi bật
         </Title>
       </div>
-      <ProductCard products={products} loading={loading}  />
+      <ProductCard products={products} loading={loading} />
     </div>
   );
 };

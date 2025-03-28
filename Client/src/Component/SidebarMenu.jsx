@@ -10,6 +10,13 @@ const SidebarMenu = () => {
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
+  // Hàm tạo slug từ tên subcategory
+  const createSlug = (name) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -41,7 +48,6 @@ const SidebarMenu = () => {
               children:
                 subCategories.length > 0
                   ? subCategories.map((sub, index) => {
-                      // Kiểm tra _id, nếu không có thì cảnh báo và dùng tạm index
                       const subId = sub._id || sub.id || `tmp-${index}`;
                       if (!sub._id && !sub.id) {
                         console.warn(
@@ -51,28 +57,38 @@ const SidebarMenu = () => {
                       return {
                         key: subId,
                         label: sub.name || "Unnamed Subcategory",
+                        slug: createSlug(sub.name || "unnamed-subcategory"), // Lưu slug
                       };
                     })
                   : null,
             };
           })
-          .filter((item) => item.children) // Loại bỏ category không có subcategory
+          .filter((item) => item.children)
       : [{ key: "no-data", label: "Không có danh mục", disabled: true }];
 
   const handleMenuClick = (e) => {
     const selectedSubcategoryId = e.key;
-    console.log("Selected Subcategory ID:", selectedSubcategoryId); // Debug
-    if (
-      selectedSubcategoryId &&
-      selectedSubcategoryId.match(/^[0-9a-fA-F]{24}$/)
-    ) {
-      navigate(`/product-list/${selectedSubcategoryId}`, { replace: true });
-    } else {
-      console.warn(
-        "Subcategory ID is not a valid MongoDB ID:",
-        selectedSubcategoryId
+    console.log("Selected Subcategory ID:", selectedSubcategoryId);
+
+    // Tìm subcategory dựa trên ID
+    let selectedSubcategory = null;
+    for (const category of categories) {
+      selectedSubcategory = category.subCategories.find(
+        (sub) => (sub._id || sub.id) === selectedSubcategoryId
       );
-      // Có thể hiển thị thông báo lỗi cho người dùng nếu cần
+      if (selectedSubcategory) break;
+    }
+
+    if (selectedSubcategory) {
+      const slug = createSlug(
+        selectedSubcategory.name || "unnamed-subcategory"
+      );
+      navigate(`/product-list/${slug}`, {
+        state: { subcategoryId: selectedSubcategoryId }, // Truyền ID qua state
+        replace: true,
+      });
+    } else {
+      console.warn("Subcategory not found for ID:", selectedSubcategoryId);
     }
   };
 

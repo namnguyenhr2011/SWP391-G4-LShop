@@ -48,7 +48,7 @@ export const updateSubCategory = async (id, name, description, image) => {
 export const deleteSubCategory = async (id) => {
     const response = await axios.delete(`category/managerDeleteSubCategory/${id}`, { withCredentials: true });
     return response.data;
-  };
+};
 
 export const getAllProduct = async (page) => {
     const response = await axios.get('product/getAllProduct', { params: { page }, withCredentials: true });
