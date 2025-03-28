@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Spin, message, Modal, Switch } from "antd";
+import { Table, Button, Tag, Spin, message, Modal, Input, Select, Row, Col, Space } from "antd";
 import { getOrders, cancelOrder } from "../../../Service/Client/ApiOrder";
 import { useNavigate } from "react-router-dom";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import { useSelector } from "react-redux";
+import { Container } from "react-bootstrap";
+import { UpOutlined, DownOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
+const { Option } = Select;
 
 const MyOrders = () => {
+  const { t } = useTranslation('order')
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [filters, setFilters] = useState({
+    totalAmount: "",
+    paymentMethod: "",
+    paymentStatus: "",
+    orderStatus: "",
+  });
+  const [sortOrder, setSortOrder] = useState("asc"); // Track the sorting state
   const navigate = useNavigate();
   const isDarkMode = useSelector((state) => state.user.darkMode);
 
@@ -19,17 +31,34 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [filters, sortOrder]); // Fetch orders when filters or sortOrder changes
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const response = await getOrders();
       if (response && response.data.orders) {
-        const sortedOrders = response.data.orders
-          .filter((order) => order.createdAt)
-          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        setOrders(sortedOrders);
+        let filteredOrders = response.data.orders.filter((order) => {
+          const isMatching = Object.keys(filters).every((key) => {
+            if (filters[key] === "") return true;
+
+            if (key === "totalAmount" && filters[key]) {
+              return order[key] >= parseFloat(filters[key]);
+            }
+
+            return order[key] === filters[key];
+          });
+          return isMatching;
+        });
+
+        // Sorting logic based on the sortOrder state
+        if (sortOrder === "asc") {
+          filteredOrders.sort((a, b) => a.totalAmount - b.totalAmount);
+        } else {
+          filteredOrders.sort((a, b) => b.totalAmount - a.totalAmount);
+        }
+
+        setOrders(filteredOrders);
       } else {
         message.error("No orders found.");
       }
@@ -49,9 +78,6 @@ const MyOrders = () => {
       content: "Are you sure you want to cancel this order?",
       okText: "Yes",
       cancelText: "No",
-      okButtonProps: {
-        style: { backgroundColor: isDarkMode ? "#4a90e2" : "#3498db" },
-      },
       onOk: async () => {
         message.info("Your request is pending...");
         try {
@@ -82,7 +108,17 @@ const MyOrders = () => {
         `Order ${index + 1 + (pagination.current - 1) * pagination.pageSize}`,
     },
     {
-      title: "Total Amount",
+      title: (
+        <>
+          Total Amount
+          <Button
+            type="link"
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            icon={sortOrder === "asc" ? <UpOutlined /> : <DownOutlined />}
+            style={{ padding: 0, marginLeft: 8 }}
+          />
+        </>
+      ),
       dataIndex: "totalAmount",
       key: "totalAmount",
       render: (amount) => formatCurrency(amount),
@@ -133,6 +169,8 @@ const MyOrders = () => {
   return (
     <div
       style={{
+        display: "flex",
+        flexDirection: "column",
         minHeight: "100vh",
         backgroundColor: isDarkMode ? "#21252b" : "#f4f6f9",
         color: isDarkMode ? "#e6edf3" : "#1c1e21",
@@ -140,24 +178,83 @@ const MyOrders = () => {
       }}
     >
       <Header />
-      <div
+      <Container
         style={{
-          padding: "80px 20px 20px",
-          margin: "auto",
-          backgroundColor: isDarkMode ? "#2c3e50" : "#fff", // Blue in dark mode
+          flex: 1,
+          paddingTop: "80px",
+          paddingBottom: "20px",
+          backgroundColor: isDarkMode ? "#2c3e50" : "#fff",
           borderRadius: isDarkMode ? "10px" : "0",
           boxShadow: isDarkMode ? "0 4px 12px rgba(0, 0, 0, 0.3)" : "none",
         }}
       >
-        <h1
-          style={{
-            color: isDarkMode ? "#e6edf3" : "#1c1e21",
-            marginBottom: 20,
-            textAlign: "center",
-          }}
-        >
-          My Orders
-        </h1>
+        <Row className="mb-4">
+          <Col xs={12} className="text-center mb-3">
+            <h1
+              style={{
+                color: isDarkMode ? "#e6edf3" : "#1c1e21",
+              }}
+            >
+              My Orders
+            </h1>
+          </Col>
+          <Col xs={12}>
+            <Space direction="vertical" style={{ width: "100%" }}>
+              {/* Filter by Total Amount */}
+              <Input
+                placeholder="Filter by Total Amount"
+                onChange={(e) =>
+                  setFilters({ ...filters, totalAmount: e.target.value })
+                }
+                value={filters.totalAmount}
+                style={{ marginBottom: 10 }}
+              />
+              {/* Filter by Payment Method */}
+              <Select
+                placeholder="Filter by Payment Method"
+                style={{ width: "100%", marginBottom: 10 }}
+                onChange={(value) =>
+                  setFilters({ ...filters, paymentMethod: value })
+                }
+                value={filters.paymentMethod}
+              >
+                <Option value="">All</Option>
+                <Option value="COD">COD</Option>
+                <Option value="Bank Transfer">Bank Transfer</Option>
+              </Select>
+              {/* Filter by Payment Status */}
+              <Select
+                placeholder="Filter by Payment Status"
+                style={{ width: "100%", marginBottom: 10 }}
+                onChange={(value) =>
+                  setFilters({ ...filters, paymentStatus: value })
+                }
+                value={filters.paymentStatus}
+              >
+                <Option value="">All</Option>
+                <Option value="Completed">Completed</Option>
+                <Option value="Pending">Pending</Option>
+                <Option value="Cancelled">Cancelled</Option>
+              </Select>
+              {/* Filter by Order Status */}
+              <Select
+                placeholder="Filter by Order Status"
+                style={{ width: "100%", marginBottom: 10 }}
+                onChange={(value) =>
+                  setFilters({ ...filters, orderStatus: value })
+                }
+                value={filters.orderStatus}
+              >
+                <Option value="">All</Option>
+                <Option value="Pending">Pending</Option>
+                <Option value="Shipped">Shipped</Option>
+                <Option value="Completed">Completed</Option>
+                <Option value="Cancelled">Cancelled</Option>
+              </Select>
+            </Space>
+          </Col>
+        </Row>
+
         {loading ? (
           <div
             style={{
@@ -182,66 +279,10 @@ const MyOrders = () => {
             className={isDarkMode ? "dark-mode-table" : ""}
           />
         )}
-      </div>
+      </Container>
       <Footer />
     </div>
   );
 };
 
 export default MyOrders;
-
-// Add these styles to your CSS file
-const globalDarkModeStyles = `
-  body.dark-mode {
-    background-color: #21252b;
-    color: #e6edf3;
-  }
-
-  .dark-mode-table .ant-table {
-    background-color: #2c3e50 !important;
-    color: #e6edf3;
-  }
-
-  .dark-mode-table .ant-table-thead > tr > th {
-    background-color: #34495e !important;
-    color: #e6edf3 !important;
-    border-bottom: 1px solid #465c71 !important;
-  }
-
-  .dark-mode-table .ant-table-tbody > tr > td {
-    border-bottom: 1px solid #465c71;
-    color: #e6edf3;
-  }
-
-  .dark-mode-table .ant-table-tbody > tr:hover > td {
-    background-color: #34495e !important;
-  }
-
-  .dark-mode-table .ant-table-row {
-    background-color: #2c3e50 !important;
-  }
-
-  .dark-mode-table .ant-pagination-item {
-    background-color: #34495e !important;
-    border-color: #465c71 !important;
-    color: #e6edf3 !important;
-  }
-
-  .dark-mode-table .ant-pagination-item-active {
-    background-color: #4a90e2 !important;
-    border-color: #4a90e2 !important;
-  }
-
-  .dark-mode-table .ant-pagination-prev,
-  .dark-mode-table .ant-pagination-next {
-    background-color: #34495e !important;
-    border-color: #465c71 !important;
-    color: #e6edf3 !important;
-  }
-
-  .dark-mode-table .ant-pagination-prev:hover,
-  .dark-mode-table .ant-pagination-next:hover {
-    border-color: #4a90e2 !important;
-    color: #4a90e2 !important;
-  }
-`;

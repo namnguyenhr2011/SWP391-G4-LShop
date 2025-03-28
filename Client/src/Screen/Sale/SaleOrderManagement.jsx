@@ -1,5 +1,6 @@
 import { Table, Button, message, Spin, Typography, Space } from "antd";
 import { useState, useEffect } from "react";
+import { DeleteOutlined } from "@ant-design/icons";
 import { getAssignedOrders, acceptOrder, completeOrder, cancelOrder } from "../../Service/sale/ApiSale";
 
 const { Title } = Typography;
@@ -17,8 +18,7 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     setParentLoading(true);
     try {
       const data = await getAssignedOrders();
-      const sortedOrders = sortOrders(data.orders || []);
-      setOrders(sortedOrders);
+      setOrders((data.orders || []).reverse()); // Đảo ngược mảng để đơn mới nhất lên đầu
     } catch (error) {
       message.error("Unable to fetch order list");
       setOrders([]);
@@ -28,35 +28,15 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     }
   };
 
-  // Helper function to sort orders: "Completed" and "Cancelled" go to the bottom
-  const sortOrders = (orders) => {
-    return orders.sort((a, b) => {
-      const statusA = a.status;
-      const statusB = b.status;
-
-      // Define the order of statuses
-      const statusOrder = {
-        Pending: 1,
-        Processing: 2,
-        Completed: 3,
-        Cancelled: 4,
-      };
-
-      return statusOrder[statusA] - statusOrder[statusB];
-    });
-  };
-
   const handleAcceptOrder = async (orderId) => {
     try {
       await acceptOrder(orderId);
       message.success("Order accepted successfully!");
-      // Update local state instead of refetching
-      setOrders((prevOrders) => {
-        const updatedOrders = prevOrders.map((order) =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order._id === orderId ? { ...order, status: "Processing" } : order
-        );
-        return sortOrders(updatedOrders);
-      });
+        )
+      );
     } catch (error) {
       message.error(error.message || "Unable to accept order");
     }
@@ -66,13 +46,11 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     try {
       await completeOrder(orderId);
       message.success("Order completed successfully!");
-      // Update local state instead of refetching
-      setOrders((prevOrders) => {
-        const updatedOrders = prevOrders.map((order) =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order._id === orderId ? { ...order, status: "Completed" } : order
-        );
-        return sortOrders(updatedOrders);
-      });
+        )
+      );
     } catch (error) {
       message.error(error.message || "Unable to complete order");
     }
@@ -82,13 +60,11 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     try {
       await cancelOrder(orderId);
       message.success("Order cancelled successfully!");
-      // Update local state instead of refetching
-      setOrders((prevOrders) => {
-        const updatedOrders = prevOrders.map((order) =>
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
           order._id === orderId ? { ...order, status: "Cancelled" } : order
-        );
-        return sortOrders(updatedOrders);
-      });
+        )
+      );
     } catch (error) {
       message.error(error.message || "Unable to cancel order");
     }
@@ -99,20 +75,20 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       title: "No.",
       dataIndex: "key",
       key: "no",
-      render: (_, __, index) => index + 1,
+      render: (_, __, index) => <span style={{ fontSize: "16px" }}>{index + 1}</span>, // Tăng từ 12px lên 16px
     },
     {
       title: "Customer Name",
       dataIndex: "userId",
       key: "customer",
-      render: (user) => user?.userName || "Unknown",
+      render: (user) => <span style={{ fontSize: "16px" }}>{user?.userName || "Unknown"}</span>, // Tăng từ 12px lên 16px
     },
     {
       title: "Products",
       dataIndex: "products",
       key: "products",
       render: (products) => (
-        <div style={{ fontSize: "12px", lineHeight: "1.2" }}>
+        <div style={{ fontSize: "14px", lineHeight: "1.4" }}> {/* Tăng từ 11px lên 14px */}
           {products.map((item) => (
             <div key={item._id} style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
               {item.productId?.name || "Unknown"} - Qty: {item.quantity} - Price: {item.price.toLocaleString()} VND
@@ -125,15 +101,27 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VND`,
+      render: (totalAmount) => <span style={{ fontSize: "16px" }}>{totalAmount.toLocaleString()} VND</span>, // Tăng từ 12px lên 16px
     },
     {
       title: "Payment Method",
       dataIndex: "paymentMethod",
       key: "paymentMethod",
+      render: (method) => <span style={{ fontSize: "16px" }}>{method}</span>, // Tăng từ 12px lên 16px
     },
     {
-      title: "Status",
+      title: "Payment Status",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
+      render: (paymentStatus) => {
+        let color = "orange";
+        if (paymentStatus === "Completed") color = "green";
+        if (paymentStatus === "Failed") color = "red";
+        return <span style={{ fontWeight: "bold", color, fontSize: "16px" }}>{paymentStatus}</span>; // Tăng từ 12px lên 16px
+      },
+    },
+    {
+      title: "Order Status",
       dataIndex: "status",
       key: "status",
       render: (status) => {
@@ -142,7 +130,7 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
         if (status === "Processing") color = "blue";
         if (status === "Completed") color = "green";
         if (status === "Cancelled") color = "red";
-        return <span style={{ fontWeight: "bold", color }}>{status}</span>;
+        return <span style={{ fontWeight: "bold", color, fontSize: "16px" }}>{status}</span>; // Tăng từ 12px lên 16px
       },
     },
     {
@@ -150,23 +138,34 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       key: "action",
       render: (_, record) => {
         const canAcceptOrCancel = record.status === "Pending";
-        const canComplete = record.status === "Processing";
+        const canCompleteOrCancel = record.status === "Processing";
         return (
           <Space>
             {canAcceptOrCancel && (
               <>
-                <Button type="primary" onClick={() => handleAcceptOrder(record._id)}>
+                <Button type="primary" onClick={() => handleAcceptOrder(record._id)} size="middle"> {/* Tăng từ small lên middle */}
                   Process
                 </Button>
-                <Button danger onClick={() => handleCancelOrder(record._id)}>
-                  Cancel
-                </Button>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleCancelOrder(record._id)}
+                  size="middle" // Tăng từ small lên middle
+                />
               </>
             )}
-            {canComplete && (
-              <Button type="primary" onClick={() => handleCompleteOrder(record._id)}>
-                Complete
-              </Button>
+            {canCompleteOrCancel && (
+              <>
+                <Button type="primary" onClick={() => handleCompleteOrder(record._id)} size="middle"> {/* Tăng từ small lên middle */}
+                  Complete
+                </Button>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleCancelOrder(record._id)}
+                  size="middle" // Tăng từ small lên middle
+                />
+              </>
             )}
           </Space>
         );
@@ -180,7 +179,7 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
     </div>
   ) : (
     <div style={{ flex: 1, overflowY: "auto" }}>
-      <Title level={3} style={{ color: "#1e3c72", fontWeight: "600", marginBottom: "1.5rem" }}>
+      <Title level={3} style={{ color: "#1e3c72", fontWeight: "600", marginBottom: "1.5rem", fontSize: "24px" }}> {/* Tăng từ 18px lên 24px */}
         Order Management
       </Title>
       <Table
@@ -192,12 +191,15 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
           background: "#fff",
           borderRadius: "10px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          fontSize: "16px", // Tăng fontSize mặc định của bảng từ 12px lên 16px
         }}
         scroll={{ x: "max-content" }}
         pagination={{
           pageSize: 5,
           position: ["bottomCenter"],
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} orders`,
+          showTotal: (total, range) => (
+            <span style={{ fontSize: "16px" }}>{`${range[0]}-${range[1]} of ${total} orders`}</span> // Tăng từ 12px lên 16px
+          ),
         }}
       />
     </div>

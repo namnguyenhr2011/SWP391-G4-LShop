@@ -146,6 +146,7 @@ const App = () => {
               <Route path="blog-list" element={<BlogList />} />
               <Route path="add-blog" element={<AddBlog />} />
               <Route path="update-blog/:id" element={<UpdateBlog />} />
+              <Route path="manage-ads" element={<AdsController />} />
             </Route>
             
             <Route path="/blog" element={<Blog />} />

@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../store/reducer/cartReducer";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 const { Title, Text } = Typography;
 
 const SaleProductCard = ({ products, loading, isDarkMode }) => {
+  const { t } = useTranslation("saleProduct");
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user?._id);
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
     if (!userId) {
-      toast.error("Vui lòng đăng nhập để mua hàng.");
+      toast.error(t("loginToBuy"));
       return;
     }
 
@@ -45,7 +48,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
         },
       })
     );
-    toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
+    toast.success(t("addedToCart"));
   };
 
   const handleProductClick = (productId) => {
@@ -53,7 +56,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
     navigate(`/product-sale/${productId}`);
   };
 
-  const formatPrice = (price) => price.toLocaleString() + " VND";
+  const formatPrice = (price) => `${price.toLocaleString()} ${t("vnd")}`;
 
   const themeStyles = {
     cardBackground: isDarkMode ? "#2b2e34" : "#fff",
@@ -72,7 +75,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
       {products.map((product) => (
         <Col key={product._id} xs={24} sm={12} md={6}>
           <Badge.Ribbon
-            text={`Chỉ còn ${formatPrice(product.sale?.salePrice || 0)}`}
+            text={`${t("only")} ${formatPrice(product.sale?.salePrice || 0)}`}
             color="red"
             style={{ display: product.sale?.isSale ? "block" : "none" }}
           >
@@ -105,7 +108,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                 textAlign: "center",
                 color: themeStyles.textColor,
               }}
-              onClick={() => handleProductClick(product._id)} // Gắn sự kiện onClick
+              onClick={() => handleProductClick(product._id)}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.transform = "scale(1.03)")
               }
@@ -187,7 +190,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
                       : "#ff4d4f";
                   }}
                 >
-                  Thêm vào giỏ
+                  {t("addToCart")}
                 </Button>
               </div>
             </Card>

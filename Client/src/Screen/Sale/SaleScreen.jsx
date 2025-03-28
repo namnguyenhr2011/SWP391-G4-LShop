@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { doLogout } from "../../store/reducer/userReducer";
 import SaleOrderManagement from "./SaleOrderManagement";
-import SaleDashboard from "./SaleDashboard"; // Import SaleDashboard
+import SaleDashboard from "./SaleDashboard";
 
 const { Option } = Select;
 
@@ -22,13 +22,18 @@ const Header = ({ onLogout }) => (
       width: "90%",
       maxWidth: "1800px",
       margin: "20px auto 20px",
+      position: "fixed",
+      top: 0,
+      left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: 1000,
     }}
   >
     <Container fluid>
       <Navbar.Brand
         style={{
           color: "#ffd700",
-          fontSize: "1.3rem",
+          fontSize: "1.6rem", // Tăng từ 1.3rem lên 1.6rem
           fontWeight: "700",
           textShadow: "1px 1px 5px rgba(0, 0, 0, 0.2)",
         }}
@@ -38,12 +43,12 @@ const Header = ({ onLogout }) => (
       <Button
         type="primary"
         danger
-        size="small"
+        size="middle" // Tăng từ small lên middle
         onClick={onLogout}
         style={{
           borderRadius: "8px",
-          padding: "0.2rem 1rem",
-          fontSize: "12px",
+          padding: "0.3rem 1.2rem",
+          fontSize: "14px", // Tăng từ 12px lên 14px
           fontWeight: "600",
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         }}
@@ -65,20 +70,21 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder, onViewDashboard }) 
       borderRadius: "15px",
       boxShadow: "4px 0 12px rgba(0, 0, 0, 0.15)",
       color: "#ffffff",
-      height: "calc(90vh - 50px)",
+      height: "calc(100vh - 100px)", // Trừ header
       minWidth: "200px",
       maxWidth: "200px",
       overflowY: "auto",
       overflowX: "hidden",
-      position: "sticky",
-      top: "50px",
+      position: "fixed",
+      top: "100px", // Dưới header
+      left: "20px",
     }}
   >
     <h4
       style={{
         color: "#ffd700",
         fontWeight: "600",
-        fontSize: "1.2rem",
+        fontSize: "1.4rem", // Tăng từ 1.2rem lên 1.4rem
         marginBottom: "1rem",
         textAlign: "center",
         whiteSpace: "nowrap",
@@ -88,10 +94,28 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder, onViewDashboard }) 
     </h4>
     <Nav className="flex-column">
       <Nav.Link
+        onClick={onViewDashboard}
+        style={{
+          color: "#ffffff",
+          fontSize: "1.2rem", // Tăng từ 1rem lên 1.2rem
+          padding: "0.5rem 0.75rem",
+          borderRadius: "8px",
+          backgroundColor: activeView === "dashboard" ? "#17a2b8" : "transparent",
+          transition: "all 0.3s",
+          textAlign: "center",
+        }}
+        onMouseOver={(e) => (e.target.style.backgroundColor = "#138496")}
+        onMouseOut={(e) =>
+          (e.target.style.backgroundColor = activeView === "dashboard" ? "#17a2b8" : "transparent")
+        }
+      >
+        Dashboard
+      </Nav.Link>
+      <Nav.Link
         onClick={onViewSalePrice}
         style={{
           color: "#ffffff",
-          fontSize: "1rem",
+          fontSize: "1.2rem", // Tăng từ 1rem lên 1.2rem
           padding: "0.5rem 0.75rem",
           borderRadius: "8px",
           backgroundColor: activeView === "sale" ? "#28a745" : "transparent",
@@ -110,7 +134,7 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder, onViewDashboard }) 
         onClick={onViewOrder}
         style={{
           color: "#ffffff",
-          fontSize: "1rem",
+          fontSize: "1.2rem", // Tăng từ 1rem lên 1.2rem
           padding: "0.5rem 0.75rem",
           borderRadius: "8px",
           backgroundColor: activeView === "order" ? "#007bff" : "transparent",
@@ -124,24 +148,6 @@ const Sidebar = ({ activeView, onViewSalePrice, onViewOrder, onViewDashboard }) 
         }
       >
         Order Management
-      </Nav.Link>
-      <Nav.Link
-        onClick={onViewDashboard}
-        style={{
-          color: "#ffffff",
-          fontSize: "1rem",
-          padding: "0.5rem 0.75rem",
-          borderRadius: "8px",
-          backgroundColor: activeView === "dashboard" ? "#17a2b8" : "transparent",
-          transition: "all 0.3s",
-          textAlign: "center",
-        }}
-        onMouseOver={(e) => (e.target.style.backgroundColor = "#138496")}
-        onMouseOut={(e) =>
-          (e.target.style.backgroundColor = activeView === "dashboard" ? "#17a2b8" : "transparent")
-        }
-      >
-        Dashboard
       </Nav.Link>
     </Nav>
   </div>
@@ -165,7 +171,10 @@ const MainContent = ({
       background: "linear-gradient(145deg, #f5f7fa 0%, #c3cfe2 100%)",
       borderRadius: "15px",
       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      height: "calc(90vh - 50px)",
+      height: "calc(100vh - 100px)", // Trừ header
+      marginLeft: "240px", // Khoảng cách với sidebar
+      marginTop: "100px", // Dưới header
+      marginRight: "20px",
       display: "flex",
       flexDirection: "column",
       overflowY: "auto",
@@ -187,7 +196,7 @@ const MainContent = ({
                 borderRadius: "8px",
                 border: "none",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                fontSize: "0.9rem",
+                fontSize: "1.1rem", // Tăng từ 0.9rem lên 1.1rem
                 width: "90%",
               }}
             />
@@ -196,7 +205,7 @@ const MainContent = ({
             <Select
               defaultValue="default"
               onChange={onSortChange}
-              style={{ width: "100%", fontSize: "0.9rem" }}
+              style={{ width: "100%", fontSize: "1.1rem" }} // Tăng từ 0.9rem lên 1.1rem
             >
               <Option value="default">Default</Option>
               <Option value="desc">Price: High to Low</Option>
@@ -224,8 +233,9 @@ const MainContent = ({
               pagination={{
                 pageSize: 5,
                 position: ["bottomCenter"],
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} products`,
+                showTotal: (total, range) => (
+                  <span style={{ fontSize: "14px" }}>{`${range[0]}-${range[1]} of ${total} products`}</span> // Tăng từ mặc định lên 14px
+                ),
               }}
               className="small-font-table"
             />
@@ -330,7 +340,7 @@ const SaleScreen = () => {
       dataIndex: "name",
       key: "name",
       render: (text) => (
-        <span style={{ fontSize: "12px", whiteSpace: "normal", wordBreak: "break-word" }}>
+        <span style={{ fontSize: "14px", whiteSpace: "normal", wordBreak: "break-word" }}> {/* Tăng từ 12px lên 14px */}
           {text}
         </span>
       ),
@@ -340,7 +350,7 @@ const SaleScreen = () => {
       dataIndex: "price",
       key: "price",
       render: (price) => (
-        <span style={{ fontSize: "12px" }}>
+        <span style={{ fontSize: "14px" }}> {/* Tăng từ 12px lên 14px */}
           {price.toLocaleString()} VND
         </span>
       ),
@@ -350,7 +360,7 @@ const SaleScreen = () => {
       dataIndex: "sale",
       key: "salePrice",
       render: (sale) => (
-        <span style={{ fontSize: "12px" }}>
+        <span style={{ fontSize: "14px" }}> {/* Tăng từ 12px lên 14px */}
           {sale?.salePrice
             ? `${sale.salePrice.toLocaleString()} VND`
             : "Not Available"}
@@ -363,29 +373,29 @@ const SaleScreen = () => {
       render: (_, record) => (
         <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
           <Button
-            size="small"
+            size="middle" // Tăng từ small lên middle
             type="primary"
             onClick={() => handleAddSale(record)}
-            style={{ fontSize: "12px", padding: "0 8px" }}
+            style={{ fontSize: "14px", padding: "0 10px" }} // Tăng từ 12px lên 14px
           >
             Add Sale
           </Button>
           <Button
-            size="small"
+            size="middle" // Tăng từ small lên middle
             type="primary"
             onClick={() => handleUpdateSale(record)}
             disabled={!record.sale}
-            style={{ fontSize: "12px", padding: "0 8px" }}
+            style={{ fontSize: "14px", padding: "0 10px" }} // Tăng từ 12px lên 14px
           >
             Update
           </Button>
           <Button
-            size="small"
+            size="middle" // Tăng từ small lên middle
             type="primary"
             danger
             onClick={() => handleDelete(record.sale?.saleID)}
             disabled={!record.sale}
-            style={{ fontSize: "12px", padding: "0 8px" }}
+            style={{ fontSize: "14px", padding: "0 10px" }} // Tăng từ 12px lên 14px
           >
             Delete
           </Button>
@@ -403,53 +413,39 @@ const SaleScreen = () => {
       }}
     >
       <Header onLogout={handleLogout} />
-      <Container
-        style={{
-          width: "90%",
-          maxWidth: "1800px",
-          margin: "0 auto",
-        }}
-      >
-        <Row>
-          <Col md={2} xs={12}>
-            <Sidebar
-              activeView={activeView}
-              onViewSalePrice={() => setActiveView("sale")}
-              onViewOrder={() => setActiveView("order")}
-              onViewDashboard={() => setActiveView("dashboard")}
-            />
-          </Col>
-          <Col md={10} xs={12}>
-            <MainContent
-              products={filteredProducts}
-              loading={loading}
-              searchTerm={searchTerm}
-              sortOrder={sortOrder}
-              onSearchChange={(e) => setSearchTerm(e.target.value)}
-              onSortChange={setSortOrder}
-              columns={columns}
-              activeView={activeView}
-              setLoading={setLoading}
-            />
-          </Col>
-        </Row>
-      </Container>
+      <Sidebar
+        activeView={activeView}
+        onViewSalePrice={() => setActiveView("sale")}
+        onViewOrder={() => setActiveView("order")}
+        onViewDashboard={() => setActiveView("dashboard")}
+      />
+      <MainContent
+        products={filteredProducts}
+        loading={loading}
+        searchTerm={searchTerm}
+        sortOrder={sortOrder}
+        onSearchChange={(e) => setSearchTerm(e.target.value)}
+        onSortChange={setSortOrder}
+        columns={columns}
+        activeView={activeView}
+        setLoading={setLoading}
+      />
     </div>
   );
 };
 
-// Add some custom CSS to reduce font sizes in the table
+// Add some custom CSS to adjust font sizes in the table
 const styles = `
   .small-font-table .ant-table-thead > tr > th,
   .small-font-table .ant-table-tbody > tr > td {
-    font-size: 12px !important;
-    padding: 8px !important; /* Reduce padding for more compact rows */
+    font-size: 14px !important; /* Tăng từ 12px lên 14px */
+    padding: 10px !important; /* Tăng padding từ 8px lên 10px */
   }
   .small-font-table .ant-select-selector {
-    font-size: 12px !important;
+    font-size: 14px !important; /* Tăng từ 12px lên 14px */
   }
   .small-font-table .ant-select-item {
-    font-size: 12px !important;
+    font-size: 14px !important; /* Tăng từ 12px lên 14px */
   }
 `;
 

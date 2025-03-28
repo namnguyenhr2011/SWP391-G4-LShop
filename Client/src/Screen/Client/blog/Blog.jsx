@@ -8,6 +8,7 @@ import {
   Tag,
   Button,
   Pagination,
+  Skeleton,
 } from "antd";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -35,11 +36,10 @@ const BlogPage = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
+        setLoading(true);
         const data = await getAllBlogs();
         if (data && Array.isArray(data.blogs)) {
           setBlogPosts(data.blogs);
-        } else {
-          throw new Error("API did not return an array of blogs");
         }
       } catch (err) {
         setError(err.message);
@@ -75,7 +75,17 @@ const BlogPage = () => {
   const startIndex = (currentPage - 1) * pageSize;
   const currentPosts = blogPosts.slice(startIndex, startIndex + pageSize);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <Content style={contentStyle}>
+        <Row justify="center">
+          <Col xs={22} sm={20} md={18} lg={16}>
+            <Skeleton active />
+          </Col>
+        </Row>
+      </Content>
+    );
+
   if (error) return <div>Error: {error}</div>;
 
   return (

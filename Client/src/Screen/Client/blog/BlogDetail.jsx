@@ -10,6 +10,7 @@ import {
   Input,
   Button,
   message,
+  Spin,
 } from "antd";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -108,7 +109,12 @@ const BlogDetail = () => {
     transition: "all 0.3s ease",
   };
 
-  if (loading) return <div>{t("Loading...")}</div>;
+  if (loading)
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <Spin size="large" />
+      </div>
+    );
   if (error)
     return (
       <div>

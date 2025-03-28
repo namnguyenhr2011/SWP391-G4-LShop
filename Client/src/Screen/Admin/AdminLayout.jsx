@@ -5,6 +5,7 @@ import {
   ShopOutlined,
   MessageOutlined,
   FileTextOutlined, // Thêm icon cho blog
+  SoundOutlined
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -96,6 +97,12 @@ const AdminLayout = () => {
         },
       ],
     },
+    {
+      key: '/admin/manage-ads',
+      icon: <SoundOutlined />,
+      label: <Link to="/admin/manage-ads">Manage Ads</Link>
+
+    }
   ];
 
   return (

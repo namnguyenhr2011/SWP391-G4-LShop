@@ -1,0 +1,20 @@
+{
+    "order_number": "Order Number",
+    "total_amount": "Total Amount",
+    "payment_method": "Payment Method",
+    "payment_status": "Payment Status",
+    "order_status": "Order Status",
+    "action": "Action",
+    "view": "View",
+    "cancel": "Cancel",
+    "cancel_confirm": "Confirm Cancellation",
+    "cancel_question": "Are you sure you want to cancel this order?",
+    "yes": "Yes",
+    "no": "No",
+    "pending_request": "Your request is pending...",
+    "cancel_pending": "Cancellation request sent. Waiting for confirmation.",
+    "cancel_failed": "Failed to cancel order",
+    "fetch_error": "Failed to fetch orders",
+    "no_orders": "No orders found."
+  }
+  
