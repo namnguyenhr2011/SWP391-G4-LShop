@@ -8,7 +8,7 @@ import {
   Switch,
   Badge,
 } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -21,6 +21,9 @@ import {
   ShoppingCartOutlined,
   OrderedListOutlined,
   GlobalOutlined,
+  HomeOutlined,
+  ShopOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 
 import ButtonAntd from "../../Component/Button";
@@ -32,6 +35,7 @@ const DEFAULT_LOGO = "/L.png";
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation(); // Để lấy đường dẫn hiện tại
   const { t } = useTranslation("header");
   const { i18n } = useTranslation();
   // Redux state selectors
@@ -54,22 +58,32 @@ const Header = () => {
   const handleLogin = () => navigate("/login");
 
   const handleLogout = () => {
-    dispatch(doLogout()); // Thực hiện logout
-    dispatch(doDarkMode(false)); // Đặt lại dark mode về false (light mode)
+    dispatch(doLogout());
+    dispatch(doDarkMode(false));
     message.success(t("Logout success!"));
     navigate("/");
   };
 
-  const handleOrder = () => {
-    navigate("/order");
-  };
+  const handleOrder = () => navigate("/order");
   const toggleDarkMode = () => dispatch(doDarkMode(!isDarkMode));
-
   const handleUserProfile = () => navigate("/userProfile");
 
-  const handleLanguageChange = (lang) => {
-    i18n.changeLanguage(lang);
+  const handleLanguageChange = (lang) => i18n.changeLanguage(lang);
+
+  // Navigation handlers for new sections
+  const handleHome = () => navigate("/");
+  const handleProduct = () => navigate("/all-products");
+  const handleBlog = () => navigate("/blog");
+
+  // Xác định tab hiện tại dựa trên đường dẫn
+  const getSelectedKey = () => {
+    const path = location.pathname;
+    if (path === "/") return ["home"];
+    if (path.includes("/all-products")) return ["product"];
+    if (path.includes("/blog")) return ["blog"];
+    return [];
   };
+
   // Profile dropdown menu
   const profileMenu = (
     <Menu
@@ -86,7 +100,6 @@ const Header = () => {
       >
         {t("Profile")}
       </Menu.Item>
-
       <Menu.Item
         key="order"
         icon={<OrderedListOutlined />}
@@ -94,7 +107,6 @@ const Header = () => {
       >
         Your Order
       </Menu.Item>
-
       <Menu.Item key="darkmode">
         <Space>
           {isDarkMode ? <MoonOutlined /> : <SunOutlined />}
@@ -108,14 +120,13 @@ const Header = () => {
           />
         </Space>
       </Menu.Item>
-
       <Menu.Divider />
-
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
         {t("Logout")}
       </Menu.Item>
     </Menu>
   );
+
   const languageMenu = (
     <Menu>
       <Menu.Item key="en" onClick={() => handleLanguageChange("en")}>
@@ -126,6 +137,7 @@ const Header = () => {
       </Menu.Item>
     </Menu>
   );
+
   return (
     <Layout.Header
       style={{
@@ -140,7 +152,7 @@ const Header = () => {
         padding: "0 20px",
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
         transition: "background-color 0.3s ease",
-        height: 64, // Chiều cao cố định
+        height: 64,
       }}
     >
       {/* Logo Section */}
@@ -161,20 +173,59 @@ const Header = () => {
         />
       </div>
 
+      {/* Navigation Section (Home, Product, Blog) */}
+      <Menu
+        mode="horizontal"
+        selectedKeys={getSelectedKey()} // Tab hiện tại
+        theme={isDarkMode ? "dark" : "dark"} // Chuyển đổi giữa dark và light mode
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          backgroundColor: "transparent",
+          borderBottom: "none",
+          fontSize: "16px",
+        }}
+      >
+        <Menu.Item
+          key="home"
+          icon={<HomeOutlined />}
+          onClick={handleHome}
+          style={{ color: isDarkMode ? "#fff" : "#fff" }}
+        >
+          {t("Home")}
+        </Menu.Item>
+        <Menu.Item
+          key="product"
+          icon={<ShopOutlined />}
+          onClick={handleProduct}
+          style={{ color: isDarkMode ? "#fff" : "#fff" }}
+        >
+          {t("Product")}
+        </Menu.Item>
+        <Menu.Item
+          key="blog"
+          icon={<BookOutlined />}
+          onClick={handleBlog}
+          style={{ color: isDarkMode ? "#fff" : "#fff" }}
+        >
+          {t("Blog")}
+        </Menu.Item>
+      </Menu>
+
       {/* Right Section */}
       <Space
-        size={25} // Khoảng cách ngang giữa các phần tử
+        size={25}
         style={{
           display: "flex",
-          alignItems: "center", // Căn giữa theo chiều dọc
+          alignItems: "center",
           marginLeft: "auto",
-          height: "100%", // Đảm bảo Space chiếm toàn bộ chiều cao của Header
+          height: "100%",
         }}
       >
         <InputSearch
           style={{
-            height: "36px", // Chiều cao cố định
-            width: "200px", // Điều chỉnh độ rộng nếu cần
+            height: "36px",
+            width: "200px",
           }}
         />
 
@@ -206,8 +257,8 @@ const Header = () => {
               fontSize: "24px",
               color: "#fff",
               cursor: "pointer",
-              lineHeight: "64px", // Đảm bảo căn giữa
-              marginTop: "20px", // Điều chỉnh vị trí icon
+              lineHeight: "64px",
+              marginTop: "20px",
             }}
           />
         </Dropdown>
@@ -219,7 +270,7 @@ const Header = () => {
             placement="bottomRight"
           >
             <Avatar
-              size={36} // Kích thước hợp lý
+              size={36}
               icon={<UserOutlined />}
               style={{
                 cursor: "pointer",
@@ -241,7 +292,7 @@ const Header = () => {
             style={{
               borderRadius: "6px",
               transition: "all 0.3s ease",
-              height: "36px", // Đồng nhất chiều cao
+              height: "36px",
             }}
           />
         )}

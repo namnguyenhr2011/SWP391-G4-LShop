@@ -15,11 +15,6 @@ const { Title, Text } = Typography;
 
 const Home = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
-  const navigate = useNavigate();
-
-  const handleViewMore = () => {
-    navigate("/all-products");
-  };
 
   return (
     <Layout
@@ -124,24 +119,7 @@ const Home = () => {
 
         <SaleProducts isDarkMode={isDarkMode} />
       </Content>
-      <div style={{ textAlign: "center", margin: "40px 0" }}>
-        <Button
-          type="primary"
-          size="large"
-          onClick={handleViewMore}
-          style={{
-            borderRadius: "8px",
-            padding: "6px 24px",
-            background: isDarkMode
-              ? "linear-gradient(90deg, #4a90e2 0%, #63b3ed 100%)"
-              : "linear-gradient(90deg, #3498db 0%, #2980b9 100%)",
-            border: "none",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-          }}
-        >
-          View More Products
-        </Button>
-      </div>
+
       <Footer />
     </Layout>
   );

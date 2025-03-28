@@ -175,7 +175,7 @@ const ProductList = () => {
     setFilterMode("all");
     setSelectedSubcategory(null);
     setCurrentPage(1);
-    navigate("/product-list", { replace: true }); // Reset URL
+    navigate("/all-products", { replace: true }); // Reset URL
   };
 
   const handleSearch = () => {
@@ -398,6 +398,7 @@ const ProductList = () => {
                     border: "none",
                     fontSize: 14,
                     fontWeight: 500,
+                    boxShadow: "none",
                   }}
                 >
                   {loading ? "Loading..." : "Search"}

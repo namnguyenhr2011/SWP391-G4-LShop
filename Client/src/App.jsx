@@ -21,6 +21,8 @@ import VerifyScreen from "./Screen/Client/Verify";
 import Otp from "./Screen/Client/Otp";
 import ResetPassword from "./Screen/Client/ResetPassword";
 import NotFound from "./Screen/Error/NotFound";
+import Blog from "./Screen/Client/blog/Blog";
+import BlogDetail from "./Screen/Client/blog/BlogDetail";
 
 import UserProfile from "./Screen/Client/UserProfile";
 
@@ -51,9 +53,11 @@ import SaleManagement from "./Screen/Admin/SaleManagement";
 import OrderManagement from "./Screen/Admin/OrderManagement";
 import ManagerProductManagement from "./Screen/Admin/ManagerProductManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
+import BlogList from "./Screen/Admin/BlogList";
+import AddBlog from "./Screen/Admin/AddBlog";
+import UpdateBlog from "./Screen/Admin/UpdateBlog";
 
-import AdsController from "./Screen/Admin/ads/AdsController"
-
+import AdsController from "./Screen/Admin/ads/AdsController";
 
 //sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
@@ -63,7 +67,6 @@ import ProductList from "./Screen/Client/product/productList";
 import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
 import SaleProductCard from "./Component/SaleProductCard";
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
-import SaleDashboard from "./Screen/Sale/SaleDashboard";
 import SearchProduct from "./Screen/Client/product/searchProduct";
 
 const App = () => {
@@ -112,9 +115,6 @@ const App = () => {
               <Route path="orderDetail/:id" element={<OrderDetails />} />
             </Route>
             <Route path="/ads" element={<AdsController />} />
-
-
-
             {/* huy */}
             <Route path="/Productdashboard" element={<DashBoard />} />
             <Route path="/addProduct" element={<AddProduct />} />
@@ -143,7 +143,13 @@ const App = () => {
                 element={<ManagerProductManagement />}
               />
               <Route path="manage-feedback" element={<FeedbackManagement />} />
+              <Route path="blog-list" element={<BlogList />} />
+              <Route path="add-blog" element={<AddBlog />} />
+              <Route path="update-blog/:id" element={<UpdateBlog />} />
             </Route>
+            
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogDetail />} />
             {/* tuan */}
             <Route path="/all-products" element={<ProductList />} />
             <Route

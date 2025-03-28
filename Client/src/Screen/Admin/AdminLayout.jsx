@@ -4,6 +4,7 @@ import {
   UserOutlined,
   ShopOutlined,
   MessageOutlined,
+  FileTextOutlined, // Thêm icon cho blog
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -54,7 +55,7 @@ const AdminLayout = () => {
       label: <Link to="/admin/manage-user">Manage Users</Link>,
     },
     {
-      key: "",
+      key: "ms",
       icon: <ShopOutlined />,
       label: "Manage Salers",
       children: [
@@ -80,6 +81,21 @@ const AdminLayout = () => {
       icon: <MessageOutlined />,
       label: <Link to="/admin/manage-feedback">Manage Feedback</Link>,
     },
+    {
+      key: "mb", // Để trống để tạo dropdown mà không cần link trực tiếp
+      icon: <FileTextOutlined />, // Icon cho Manage Blog
+      label: "Manage Blog",
+      children: [
+        {
+          key: "/admin/blog-list",
+          label: <Link to="/admin/blog-list">Blog List</Link>,
+        },
+        {
+          key: "/admin/add-blog",
+          label: <Link to="/admin/add-blog">Add Blog</Link>,
+        },
+      ],
+    },
   ];
 
   return (
@@ -89,7 +105,7 @@ const AdminLayout = () => {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={menuItems} // Sử dụng items thay vì children
+          items={menuItems}
         />
       </Sider>
       <Layout>
@@ -97,7 +113,7 @@ const AdminLayout = () => {
           Admin Panel
         </Header>
         <Content style={{ margin: "16px" }}>
-          <Outlet /> {/* Hiển thị nội dung của từng trang con */}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>
