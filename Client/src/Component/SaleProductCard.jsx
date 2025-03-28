@@ -5,6 +5,7 @@ import { addToCart } from "../store/reducer/cartReducer";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 const { Title, Text } = Typography;
 
 const SaleProductCard = ({ products, loading, isDarkMode }) => {
@@ -14,16 +15,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
   const navigate = useNavigate();
 
   if (loading) {
-    return (
-      <Spin
-        size="large"
-        style={{
-          display: "block",
-          margin: "50px auto",
-          color: isDarkMode ? "#e6edf3" : "#1c1e21",
-        }}
-      />
-    );
+    return <Spin size="large" style={{ display: "block", margin: "50px auto" }} />;
   }
 
   const handleAddToCart = (product, e) => {
@@ -54,7 +46,7 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
     navigate(`/product-sale/${productId}`);
   };
 
-  const formatPrice = (price) => price.toLocaleString() + ` ${t("vnd")}`;
+  const formatPrice = (price) => `${price.toLocaleString()} ${t("vnd")}`;
 
   return (
     <Row gutter={[24, 24]} justify="center">
@@ -67,61 +59,25 @@ const SaleProductCard = ({ products, loading, isDarkMode }) => {
           >
             <Card
               hoverable
-              cover={
-                <img
-                  alt={product.name}
-                  src={product.image}
-                  style={{
-                    height: "200px",
-                    width: "100%",
-                    padding: "15px",
-                    objectFit: "contain",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                  }}
-                />
-              }
-              style={{
-                borderRadius: "10px",
-                overflow: "hidden",
-                backgroundColor: isDarkMode ? "#2b2e34" : "#fff",
-                border: isDarkMode ? "1px solid #444" : "1px solid #e8e8e8",
-                boxShadow: isDarkMode
-                  ? "0 4px 12px rgba(0, 0, 0, 0.3)"
-                  : "0 4px 10px rgba(0, 0, 0, 0.1)",
-                transition: "transform 0.2s ease",
-              }}
-              bodyStyle={{ padding: "16px", textAlign: "center" }}
+              cover={<img alt={product.name} src={product.image} style={{ height: "200px", width: "100%", objectFit: "contain" }} />}
               onClick={() => handleProductClick(product._id)}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <Title level={5} style={{ marginBottom: "8px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={product.name}>
+              <Title level={5} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {product.name}
               </Title>
-
               <div>
-                <Text delete={product.sale?.isSale} style={{ fontSize: "14px", display: "block" }}>
+                <Text delete={product.sale?.isSale}>
                   {formatPrice(product.price)}
                 </Text>
                 {product.sale?.isSale && (
-                  <Text strong style={{ fontSize: "16px", color: "#ff4d4f" }}>
+                  <Text strong style={{ color: "red" }}>
                     {formatPrice(product.sale.salePrice)}
                   </Text>
                 )}
               </div>
-
-              <div style={{ marginTop: "12px", display: "flex", justifyContent: "center" }}>
-                <Button
-                  type="primary"
-                  onClick={(e) => handleAddToCart(product, e)}
-                  style={{ width: "100%", height: "36px", borderRadius: "18px", backgroundColor: "#ff4d4f", border: "none", color: "#fff", transition: "all 0.3s ease" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#ff7875"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#ff4d4f"; }}
-                >
-                  {t("addToCart")}
-                </Button>
-              </div>
+              <Button type="primary" onClick={(e) => handleAddToCart(product, e)}>
+                {t("addToCart")}
+              </Button>
             </Card>
           </Badge.Ribbon>
         </Col>

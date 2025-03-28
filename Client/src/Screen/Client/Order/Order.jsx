@@ -6,11 +6,12 @@ import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 import { useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
-import { UpOutlined, DownOutlined } from "@ant-design/icons"; // Import sort icons
-
+import { UpOutlined, DownOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 const { Option } = Select;
 
 const MyOrders = () => {
+  const { t } = useTranslation('order')
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
