@@ -5,11 +5,12 @@ import { ThunderboltOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 import ProductCard from "./ProductCard";
 import { getTopView } from "../service/client/ApiProduct";
-
+import { useTranslation } from "react-i18next";
 const { Title } = Typography;
 
 const FeaturedProducts = ({ isDarkMode }) => {
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  const { t } = useTranslation("productCart");
+  const navigate = useNavigate(); 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +45,7 @@ const FeaturedProducts = ({ isDarkMode }) => {
           level={4}
           style={{ margin: 0, color: isDarkMode ? "#e6edf3" : "#1c1e21" }}
         >
-          Sản phẩm nổi bật
+          {t('best selling')}
         </Title>
       </div>
       <ProductCard products={products} loading={loading} />

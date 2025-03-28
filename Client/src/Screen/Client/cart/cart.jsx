@@ -28,6 +28,9 @@ import Header from "../../layout/Header";
 import AppFooter from "../../layout/Footer";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
+import BottomAds from "../../../Component/BottomAds"
+import LeftAdsBanner from "../../../Component/LeftAds";
+import RightAdsBanner from "../../../Component/RightAds";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -266,7 +269,7 @@ const Cart = () => {
                                 {Math.round(
                                   ((item.originalPrice - item.price) /
                                     item.originalPrice) *
-                                    100
+                                  100
                                 )}
                                 %)
                               </Text>
@@ -417,7 +420,7 @@ const Cart = () => {
                           {` (${Math.round(
                             ((totalOriginalPrice - totalPrice) /
                               totalOriginalPrice) *
-                              100
+                            100
                           )}%)`}
                         </Text>
                       </>
@@ -459,6 +462,9 @@ const Cart = () => {
         </Container>
       </Layout>
       <AppFooter />
+      <BottomAds />
+      <LeftAdsBanner />
+      <RightAdsBanner />
     </>
   );
 };

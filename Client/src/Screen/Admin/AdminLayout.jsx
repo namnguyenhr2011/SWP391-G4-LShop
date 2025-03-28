@@ -4,6 +4,7 @@ import {
   UserOutlined,
   ShopOutlined,
   MessageOutlined,
+  SoundOutlined
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -79,7 +80,12 @@ const AdminLayout = () => {
       key: "/admin/manage-feedback",
       icon: <MessageOutlined />,
       label: <Link to="/admin/manage-feedback">Manage Feedback</Link>,
-    },
+    }, {
+      key: '/admin/manage-ads',
+      icon: <SoundOutlined />,
+      label: <Link to="/admin/manage-ads">Manage Ads</Link>
+
+    }
   ];
 
   return (

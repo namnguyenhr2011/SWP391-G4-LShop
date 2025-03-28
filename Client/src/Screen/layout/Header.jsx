@@ -4,7 +4,6 @@ import {
   Space,
   Avatar,
   Dropdown,
-  message,
   Switch,
   Badge,
 } from "antd";
@@ -26,6 +25,8 @@ import {
 import ButtonAntd from "../../Component/Button";
 import InputSearch from "../../component/InputSearch";
 import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
+import {toast} from "react-toastify"
+
 
 const DEFAULT_LOGO = "/L.png";
 
@@ -56,7 +57,7 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(doLogout()); // Thực hiện logout
     dispatch(doDarkMode(false)); // Đặt lại dark mode về false (light mode)
-    message.success(t("Logout success!"));
+    toast.success(t("Logout success!"));
     navigate("/");
   };
 

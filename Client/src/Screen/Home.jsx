@@ -1,6 +1,7 @@
-import { Layout, Typography, Row, Col, Carousel, Divider, Button } from "antd"; // Thêm Button vào import
+import { Layout, Typography, Row, Col, Carousel, Divider, Button } from "antd";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; // Thêm useNavigate để điều hướng
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
 import SidebarMenuAntd from "../Component/SidebarMenu";
@@ -9,6 +10,9 @@ import SaleProducts from "../Component/SaleProducts";
 import TopSoldProducts from "../Component/TopSoldProducts";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import BottomAds from "../Component/BottomAds";
+import LeftAdsBanner from "../Component/LeftAds";
+import RightAdsBanner from "../Component/RightAds";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -16,6 +20,7 @@ const { Title, Text } = Typography;
 const Home = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   const navigate = useNavigate();
+  const { t } = useTranslation('home');
 
   const handleViewMore = () => {
     navigate("/all-products");
@@ -97,12 +102,12 @@ const Home = () => {
               fontWeight: "bold",
             }}
           >
-            Chào mừng đến với cửa hàng của chúng tôi
+            {t("welcome")}
           </Title>
           <Text
             style={{ fontSize: "16px", color: isDarkMode ? "#b0b8c1" : "#666" }}
           >
-            Khám phá những sản phẩm chất lượng với giá tốt nhất
+            {t("explore")}
           </Text>
         </div>
 
@@ -139,10 +144,13 @@ const Home = () => {
             boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
           }}
         >
-          View More Products
+          {t("viewMore")}
         </Button>
       </div>
       <Footer />
+      <BottomAds />
+      <LeftAdsBanner />
+      <RightAdsBanner />
     </Layout>
   );
 };

@@ -111,7 +111,7 @@ const App = () => {
               <Route index element={<OrderScreen />} />
               <Route path="orderDetail/:id" element={<OrderDetails />} />
             </Route>
-            <Route path="/ads" element={<AdsController />} />
+           
 
 
 
@@ -143,6 +143,7 @@ const App = () => {
                 element={<ManagerProductManagement />}
               />
               <Route path="manage-feedback" element={<FeedbackManagement />} />
+              <Route path="manage-ads" element={<AdsController />} />
             </Route>
             {/* tuan */}
             <Route path="/all-products" element={<ProductList />} />

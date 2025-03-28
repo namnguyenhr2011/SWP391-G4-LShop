@@ -39,7 +39,6 @@ module.exports.update = async (req, res) => {
         if (!admin || admin.role !== 'admin') {
             return res.status(401).json({ message: 'User not authorized to change role or User not found!!!' });
         }
-        console.log(adsId);
         const ads = await Ads.findById(adsId);
         if (!ads) {
             return res.status(404).json({ message: 'Ads not found' });
@@ -84,7 +83,7 @@ module.exports.delete = async (req, res) => {
 
 module.exports.getAll = async (req, res) => {
     try {
-        const ads = await Ads.find({ inactive: false });
+        const ads = await Ads.find();
         res.status(200).json({ message: "Get all ads successfully", ads });
     } catch (error) {
         res.status(500).json({ message: "Get all ads failed", error });
@@ -127,5 +126,14 @@ module.exports.inactive = async (req, res) => {
         res.status(200).json({ message: "Inactive ads successfully", ads });
     } catch (error) {
         res.status(500).json({ message: "Inactive ads failed", error });
+    }
+}
+
+module.exports.ActiveAds = async (req, res) => {
+    try {
+        const ads = await Ads.find({ inactive: false });
+        res.status(200).json({ message: "Get all ads successfully", ads });
+    } catch (error) {
+        res.status(500).json({ message: "Error:", error });
     }
 }

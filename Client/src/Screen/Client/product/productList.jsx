@@ -22,6 +22,9 @@ import {
   getAllCategory,
 } from "../../../Service/Client/ApiProduct";
 import { SearchOutlined } from "@ant-design/icons";
+import BottomAds from "../../../Component/BottomAds"
+import LeftAdsBanner from "../../../Component/LeftAds";
+import RightAdsBanner from "../../../Component/RightAds";
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
@@ -69,7 +72,7 @@ const ProductList = () => {
               matchedSubcategory = cat.subCategories.find(
                 (sub) =>
                   createSlug(sub.name || "unnamed-subcategory") ===
-                    subcategoryName ||
+                  subcategoryName ||
                   (sub._id || sub.id) === subcategoryIdFromState
               );
               if (matchedSubcategory) {
@@ -325,22 +328,22 @@ const ProductList = () => {
                     filterMode === "all"
                       ? "none"
                       : isDarkMode
-                      ? "1px solid rgba(255,255,255,0.2)"
-                      : "1px solid rgba(0,0,0,0.1)",
+                        ? "1px solid rgba(255,255,255,0.2)"
+                        : "1px solid rgba(0,0,0,0.1)",
                   background:
                     filterMode === "all"
                       ? isDarkMode
                         ? "linear-gradient(90deg,rgb(231, 39, 145) 0%,rgb(194, 31, 216) 100%)"
                         : "linear-gradient(90deg,rgb(236, 62, 213) 0%, #3b82f6 100%)"
                       : isDarkMode
-                      ? "rgba(255,255,255,0.05)"
-                      : "rgba(0,0,0,0.02)",
+                        ? "rgba(255,255,255,0.05)"
+                        : "rgba(0,0,0,0.02)",
                   color:
                     filterMode === "all"
                       ? "#ffffff"
                       : isDarkMode
-                      ? "#e6edf3"
-                      : "#2d3748",
+                        ? "#e6edf3"
+                        : "#2d3748",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -453,6 +456,9 @@ const ProductList = () => {
         )}
       </Content>
       <Footer />
+      <BottomAds />
+      <LeftAdsBanner />
+      <RightAdsBanner />
     </Layout>
   );
 };
