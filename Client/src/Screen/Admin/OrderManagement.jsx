@@ -5,7 +5,7 @@ import {
   getAllUser,
   assignSalerToOrder,
 } from "../../service/admin/AdminServices";
-import { getProductById } from "../../Service/Client/ApiProduct";
+import { getProductById } from "../../service/client/ApiProduct";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);

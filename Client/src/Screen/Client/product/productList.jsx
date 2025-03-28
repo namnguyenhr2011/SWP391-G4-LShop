@@ -401,6 +401,7 @@ const ProductList = () => {
                     border: "none",
                     fontSize: 14,
                     fontWeight: 500,
+                    boxShadow: "none",
                   }}
                 >
                   {loading ? "Loading..." : "Search"}
