@@ -175,7 +175,7 @@ const ProductList = () => {
     setFilterMode("all");
     setSelectedSubcategory(null);
     setCurrentPage(1);
-    navigate("/product-list", { replace: true }); // Reset URL
+    navigate("/all-products", { replace: true }); // Reset URL
   };
 
   const handleSearch = () => {
