@@ -20,7 +20,7 @@ import {
   getAllProduct,
   getAllProductBySubCategory,
   getAllCategory,
-} from "../../../service/client/ApiProduct";
+} from "../../../Service/Client/ApiProduct";
 import { SearchOutlined } from "@ant-design/icons";
 const { Content } = Layout;
 const { Title } = Typography;

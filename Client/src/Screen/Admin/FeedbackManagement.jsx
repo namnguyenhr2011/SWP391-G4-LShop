@@ -13,6 +13,7 @@ const FeedbackManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchUser, setSearchUser] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
+  const [sortRatingOrder, setSortRatingOrder] = useState(null); // Thêm state riêng cho rating
   const [sortEmailOrder, setSortEmailOrder] = useState(null);
   const [commentSearch, setCommentSearch] = useState({});
 
@@ -108,23 +109,22 @@ const FeedbackManagement = () => {
         key: "rating",
         dataIndex: "rating",
         sorter: (a, b) => a.rating - b.rating,
-        sortOrder: sortOrder,
+        sortOrder: sortRatingOrder,
         onHeaderCell: () => ({
           onClick: () => {
-            setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
+            setSortRatingOrder(sortRatingOrder === "ascend" ? "descend" : "ascend");
             setFeedbacks((prevFeedbacks) =>
               prevFeedbacks.map((group) => ({
                 ...group,
                 feedbacks: [...group.feedbacks].sort((a, b) =>
-                  sortOrder === "ascend"
-                    ? b.rating - a.rating
-                    : a.rating - b.rating
+                  sortRatingOrder === "ascend" ? b.rating - a.rating : a.rating - b.rating
                 ),
               }))
             );
           },
         }),
       },
+       
       {
         title: "Comment",
         key: "comment",
