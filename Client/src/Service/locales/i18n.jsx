@@ -24,7 +24,12 @@ import CHECKOUT_EN from './en/checkout.json'
 import CHECKOUT_VI from './vn/checkout.json'
 import RETURNQR_EN from './en/returnQR.json'
 import RETURNQR_VI from './vn/returnQR.json'
-
+import SALEPRODUCT_EN from './en/saleProduct.json'
+import SALEPRODUCT_VI from './vn/saleProduct.json'
+import PRODUCTCARD_EN from './en/productCart.json'
+import PRODUCTCARD_VI from './vn/productCart.json'
+import ORDER_EN from './en/myOrder.json'
+import ORDER_VI from './vn/myOrder.json'
 export const locales = {
     en: 'English',
     vi: 'Tiếng Việt',
@@ -44,6 +49,9 @@ export const resources = {
         cart: CART_EN,
         checkout: CHECKOUT_EN,
         returnQR: RETURNQR_EN,
+        saleProduct: SALEPRODUCT_EN,
+        productCart: PRODUCTCARD_EN,
+        order: ORDER_EN
     },
     vi: {
         signin: SIGNIN_VI,
@@ -58,6 +66,9 @@ export const resources = {
         cart: CART_VI,
         checkout: CHECKOUT_VI,
         returnQR: RETURNQR_VI,
+        saleProduct: SALEPRODUCT_VI,
+        productCart: PRODUCTCARD_VI,
+        order: ORDER_VI
     },
 };
 
@@ -67,7 +78,7 @@ i18n.use(initReactI18next).init({
     resources,
     lng: 'en',
     fallbackLng: 'en',
-    ns: ['signin', 'signup', 'header', 'home', 'footer', 'verify', 'forgot', 'otp', 'resetpass', 'cart', 'checkout', 'returnQR'],
+    ns: ['signin', 'signup', 'header', 'home', 'footer', 'verify', 'forgot', 'otp', 'resetpass', 'cart', 'checkout', 'returnQR', 'saleProduct', 'productCart', 'order'],
     defaultNS,
     interpolation: {
         escapeValue: false,

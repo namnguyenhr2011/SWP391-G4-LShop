@@ -6,10 +6,10 @@ import {
   changeRole,
   changeStatus,
 } from "../../service/admin/AdminServices";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { confirm } = Modal;
-const { Search } = Input;
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -33,6 +33,71 @@ const UserManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChangeRole = async (id, newRole) => {
+    try {
+      await changeRole(id, newRole);
+      message.success("Role update successful!");
+      fetchUsers();
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+
+  const showConfirmDelete = (id) => {
+    confirm({
+      title: "Are you sure you want to delete this user?",
+      content: "This action cannot be undone.",
+      okText: "Confirm",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        handleDeleteUser(id);
+      },
+    });
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await deleteUser(id);
+      message.success("User deleted successfully!");
+      fetchUsers();
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+
+  const handleChangeStatus = async (userId, currentStatus) => {
+    try {
+      setLoading(true);
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      await changeStatus(userId, newStatus);
+      message.success("Status updated successfully");
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, status: newStatus } : user
+        )
+      );
+    } catch (error) {
+      message.error(error.message || "Failed to change status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showConfirmStatusChange = (userId, currentStatus) => {
+    const action = currentStatus === "active" ? "ban" : "unban";
+    confirm({
+      title: `Are you sure you want to ${action} this user?`,
+      content: "This action will change the user's access rights.",
+      okText: "Confirm",
+      cancelText: "Cancel",
+      okType: "danger",
+      onOk() {
+        handleChangeStatus(userId, currentStatus);
+      },
+    });
   };
 
   const handleSearch = (value) => {
@@ -128,12 +193,11 @@ const UserManagement = () => {
     </div>
   ) : (
     <div style={{ padding: "20px" }}>
-      <Search
+      <Input
         placeholder="Search by username"
-        allowClear
-        enterButton
         onChange={(e) => handleSearch(e.target.value)}
-        style={{ marginBottom: "20px", width: "300px" }}
+        style={{ width: 200, marginBottom: 16 }}
+        prefix={<SearchOutlined />}
       />
       <Table columns={columns} dataSource={filteredUsers} rowKey="_id" />
     </div>

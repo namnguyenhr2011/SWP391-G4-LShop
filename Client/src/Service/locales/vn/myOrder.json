@@ -1,0 +1,19 @@
+{
+    "order_number": "Số đơn hàng",
+    "total_amount": "Tổng tiền",
+    "payment_method": "Phương thức thanh toán",
+    "payment_status": "Trạng thái thanh toán",
+    "order_status": "Trạng thái đơn hàng",
+    "action": "Hành động",
+    "view": "Xem",
+    "cancel": "Hủy",
+    "cancel_confirm": "Xác nhận hủy đơn hàng",
+    "cancel_question": "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+    "yes": "Có",
+    "no": "Không",
+    "pending_request": "Yêu cầu của bạn đang chờ xử lý...",
+    "cancel_pending": "Yêu cầu hủy đã được gửi. Đang chờ xác nhận.",
+    "cancel_failed": "Không thể hủy đơn hàng",
+    "fetch_error": "Lỗi khi lấy danh sách đơn hàng",
+    "no_orders": "Không tìm thấy đơn hàng nào."
+}

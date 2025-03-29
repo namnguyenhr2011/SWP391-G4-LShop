@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Typography, Spin } from "antd";
 import { FireOutlined } from "@ant-design/icons";
 import SaleProductCard from "./SaleProductCard.jsx";
-import { getAllProductsWithSale } from "../Service/Client/ApiProduct";
-
+import { getAllProductsWithSale } from "../service/client/ApiProduct";
+import { useTranslation } from "react-i18next";
 const { Title } = Typography;
 
 const SaleProducts = ({ isDarkMode }) => {
+  const { t } = useTranslation('saleProduct');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +69,7 @@ const SaleProducts = ({ isDarkMode }) => {
             fontWeight: "bold",
           }}
         >
-          Đang Giảm Giá
+          {t("Discount")}
         </Title>
       </div>
 

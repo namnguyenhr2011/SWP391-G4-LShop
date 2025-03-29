@@ -4,6 +4,7 @@ import {
   getAllFeedback,
   toggleFeedbackVisibility,
 } from "../../service/admin/AdminServices";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { confirm } = Modal;
 const { Search } = Input;
@@ -92,6 +93,19 @@ const FeedbackManagement = () => {
     });
   };
 
+  const handleSortByFeedbackCount = () => {
+    const newOrder = sortOrder === "ascend" ? "descend" : "ascend";
+    setSortOrder(newOrder);
+
+    setFeedbacks((prevFeedbacks) =>
+      [...prevFeedbacks].sort((a, b) =>
+        newOrder === "ascend"
+          ? a.feedbacks.length - b.feedbacks.length
+          : b.feedbacks.length - a.feedbacks.length
+      )
+    );
+  };
+
   const expandedRowRender = (record) => {
     const feedbackColumns = [
       {
@@ -112,19 +126,23 @@ const FeedbackManagement = () => {
         sortOrder: sortRatingOrder,
         onHeaderCell: () => ({
           onClick: () => {
-            setSortRatingOrder(sortRatingOrder === "ascend" ? "descend" : "ascend");
+            setSortRatingOrder(
+              sortRatingOrder === "ascend" ? "descend" : "ascend"
+            );
             setFeedbacks((prevFeedbacks) =>
               prevFeedbacks.map((group) => ({
                 ...group,
                 feedbacks: [...group.feedbacks].sort((a, b) =>
-                  sortRatingOrder === "ascend" ? b.rating - a.rating : a.rating - b.rating
+                  sortRatingOrder === "ascend"
+                    ? b.rating - a.rating
+                    : a.rating - b.rating
                 ),
               }))
             );
           },
         }),
       },
-       
+
       {
         title: "Comment",
         key: "comment",
@@ -146,7 +164,7 @@ const FeedbackManagement = () => {
     ];
     return (
       <div>
-        <Search
+        <Input
           placeholder="Search comments"
           onChange={(e) =>
             setCommentSearch((prev) => ({
@@ -154,7 +172,8 @@ const FeedbackManagement = () => {
               [record.userId._id]: e.target.value,
             }))
           }
-          style={{ marginBottom: 16, width: 300 }}
+          style={{ width: 200, marginBottom: 16 }}
+          prefix={<SearchOutlined />}
         />
         <Table
           columns={feedbackColumns}
@@ -172,10 +191,11 @@ const FeedbackManagement = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Search
+      <Input
         placeholder="Search by username"
         onChange={(e) => setSearchUser(e.target.value)}
-        style={{ marginBottom: 16, width: 300 }}
+        style={{ width: 200, marginBottom: 16 }}
+        prefix={<SearchOutlined />}
       />
       <Table
         columns={[
@@ -206,19 +226,10 @@ const FeedbackManagement = () => {
             title: "Số Feedback",
             key: "feedbackCount",
             render: (record) => record.feedbacks.length,
-            sorter: (a, b) => a.feedbacks.length - b.feedbacks.length,
+            sorter: true, // Kích hoạt sorting
             sortOrder: sortOrder,
             onHeaderCell: () => ({
-              onClick: () => {
-                setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
-                setFeedbacks(
-                  [...feedbacks].sort((a, b) =>
-                    sortOrder === "ascend"
-                      ? b.feedbacks.length - a.feedbacks.length
-                      : a.feedbacks.length - b.feedbacks.length
-                  )
-                );
-              },
+              onClick: handleSortByFeedbackCount, // Gọi hàm khi click vào tiêu đề cột
             }),
           },
         ]}

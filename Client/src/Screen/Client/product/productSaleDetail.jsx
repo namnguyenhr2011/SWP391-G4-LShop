@@ -25,6 +25,9 @@ import Footer from "../../layout/Footer";
 import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../../store/reducer/cartReducer";
+import BottomAds from "../../../Component/BottomAds"
+import LeftAdsBanner from "../../../Component/LeftAds";
+import RightAdsBanner from "../../../Component/RightAds";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -535,7 +538,7 @@ const ProductSaleDetail = () => {
                                     />
                                     {userId &&
                                       String(feedback.userId?._id) ===
-                                        String(userId) && (
+                                      String(userId) && (
                                         <Button
                                           danger
                                           icon={<DeleteOutlined />}
@@ -577,6 +580,9 @@ const ProductSaleDetail = () => {
         </Container>
       </Container>
       <Footer />
+      <BottomAds />
+      <LeftAdsBanner />
+      <RightAdsBanner />
     </>
   );
 };

@@ -6,7 +6,9 @@ import AppFooter from "../../layout/Footer";
 import ProductCard from "../../../Component/ProductCard";
 import { searchProducts } from "../../../service/client/ApiProduct";
 import { useNavigate } from "react-router-dom";
-
+import BottomAds from "../../../Component/BottomAds"
+import LeftAdsBanner from "../../../Component/LeftAds";
+import RightAdsBanner from "../../../Component/RightAds";
 const { Title } = Typography;
 
 const SearchProduct = () => {
@@ -109,7 +111,10 @@ const SearchProduct = () => {
           />
         )}
       </Layout.Content>
-      <AppFooter /> {/* AppFooter sẽ luôn ở dưới cùng nhờ flexbox */}
+      <AppFooter /> 
+      <BottomAds />
+      <LeftAdsBanner />
+      <RightAdsBanner />
     </Layout>
   );
 };

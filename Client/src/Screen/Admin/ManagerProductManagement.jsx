@@ -6,6 +6,7 @@ import {
   changeRole,
   changeStatus,
 } from "../../service/admin/AdminServices";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -191,11 +192,11 @@ const ManagerProductManagement = () => {
     </div>
   ) : (
     <div style={{ padding: "20px" }}>
-      <Search
+      <Input
         placeholder="Search by name or email"
-        enterButton
+        style={{ width: 200, marginBottom: 16 }}
+        prefix={<SearchOutlined />}
         onChange={(e) => setSearchText(e.target.value)}
-        style={{ marginBottom: "20px", width: "300px" }}
       />
       <Table columns={columns} dataSource={filteredUsers} rowKey="_id" />
     </div>

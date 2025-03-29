@@ -5,10 +5,11 @@ import { StarOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom"; // Thêm useNavigate
 import ProductCard from "./ProductCard";
 import { getTopSold } from "../service/client/ApiProduct";
-
+import { useTranslation } from "react-i18next";
 const { Title } = Typography;
 
 const TopSoldProducts = ({ isDarkMode }) => {
+  const { t } = useTranslation("productCart");
   const navigate = useNavigate(); // Khởi tạo useNavigate
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ const TopSoldProducts = ({ isDarkMode }) => {
           level={4}
           style={{ margin: 0, color: isDarkMode ? "#e6edf3" : "#1c1e21" }}
         >
-          Top bán chạy
+          {t('best selling')}
         </Title>
       </div>
       <ProductCard
