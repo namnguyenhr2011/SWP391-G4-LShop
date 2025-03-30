@@ -14,7 +14,7 @@ import {
 import ButtonAntd from "../../Component/Button";
 import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
 
-
+const DEFAULT_LOGO = "/L.png";
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -99,17 +99,22 @@ const Header = () => {
         transition: "background-color 0.3s ease",
       }}
     >
-      {/* LOGO BÊN TRÁI */}
-      <div>
-        {logo && (
-          <img
-            onClick={() => navigate("/")}
-            src={logo}
-            width={50}
-            alt="logo"
-            style={{ cursor: "pointer", borderRadius: "8px" }}
-          />
-        )}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img
+          onClick={() => navigate("/")}
+          src={logo || DEFAULT_LOGO}
+          width={40}
+          alt={nameApp || "Logo"}
+          style={{
+            cursor: "pointer",
+            borderRadius: "8px",
+            transition: "transform 0.3s ease",
+            verticalAlign: "middle",
+          }}
+          onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
+          onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+          aria-label="Go to homepage"
+        />
       </div>
 
       <Space size="large" style={{ marginLeft: "auto" }}>
