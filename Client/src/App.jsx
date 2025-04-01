@@ -58,6 +58,7 @@ import AddBlog from "./Screen/Admin/AddBlog";
 import UpdateBlog from "./Screen/Admin/UpdateBlog";
 
 import AdsController from "./Screen/Admin/ads/AdsController";
+import AdminLogin from './Screen/Admin/AdminLogin'
 
 //sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
@@ -126,6 +127,7 @@ const App = () => {
             <Route path="/addSubCategory" element={<AddSubCategory />} />
             <Route path="/viewCategory" element={<ViewCategory />} />
             {/* nam */}
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               path="/admin/*"
               element={
@@ -148,7 +150,7 @@ const App = () => {
               <Route path="update-blog/:id" element={<UpdateBlog />} />
               <Route path="manage-ads" element={<AdsController />} />
             </Route>
-            
+
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogDetail />} />
             {/* tuan */}
