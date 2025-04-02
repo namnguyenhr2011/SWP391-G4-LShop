@@ -70,6 +70,9 @@ import SaleProductCard from "./Component/SaleProductCard";
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 import SearchProduct from "./Screen/Client/product/searchProduct";
 
+import LuckyWheel from "./Screen/discount/luckWheel";
+
+
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
@@ -167,6 +170,8 @@ const App = () => {
             <Route path="/products-sale" element={<SaleProductCard />} />;
             <Route path="/sale/dashboard" element={<SaleScreen />} />
             {/* end */}
+
+            <Route path="/luckywheel" element={<LuckyWheel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

@@ -493,3 +493,39 @@ module.exports.updateImage = async (req, res) => {
         res.status(500).json({ error: error.message + ': update product image error' });
     }
 };
+
+module.exports.compareProducts = async (req, res) => {
+    try {
+        const { productId1, productId2 } = req.body;
+
+        const product1 = await Product.findById(productId1);
+        const product2 = await Product.findById(productId2);
+        
+        if (!product1 || !product2) {
+            return res.status(404).json({ message: 'One or both products not found' });
+        }
+
+        const betterProduct = {
+            price: product1.price < product2.price ? 'Sản phẩm 1 tốt hơn về giá' : 'Sản phẩm 2 tốt hơn về giá',
+            rating: product1.rating > product2.rating ? 'Sản phẩm 1 tốt hơn về rating' : 'Sản phẩm 2 tốt hơn về rating',
+            quantity: product1.quantity > product2.quantity ? 'Sản phẩm 1 tốt hơn về số lượng' : 'Sản phẩm 2 tốt hơn về số lượng',
+            sold: product1.sold > product2.sold ? 'Sản phẩm 1 tốt hơn về số lượng đã bán' : 'Sản phẩm 2 tốt hơn về số lượng đã bán',
+        };
+
+        const result = {
+            product1,
+            product2,
+            betterProduct
+        };
+
+        return res.status(200).json({
+            message: 'Kết quả so sánh thành công',
+            result
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+
