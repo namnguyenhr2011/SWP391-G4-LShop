@@ -43,11 +43,10 @@ const ProductList = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [subcategories, setSubcategories] = useState([]);
   const [filterMode, setFilterMode] = useState(null);
-  const { subcategoryName } = useParams(); // Lấy tên subcategory từ URL
-  const location = useLocation(); // Lấy state
+  const { subcategoryName } = useParams(); 
+  const location = useLocation();
   const navigate = useNavigate();
 
-  // Hàm tạo slug từ tên
   const createSlug = (name) =>
     name
       .toLowerCase()
