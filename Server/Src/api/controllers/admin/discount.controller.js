@@ -125,3 +125,24 @@ module.exports.getUserDiscount = async (req, res) => {
     }
 }
 
+module.exports.unassignDiscount = async (req, res) => {
+    try {
+        const { discountId } = req.params;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found!' });
+        }
+        const userDiscount = await UserDiscount.findByIdAndDelete(discountId);
+        if (!userDiscount) {
+            return res.status(404).json({ message: 'User discount not found!' });
+        }
+        res.status(200).json(userDiscount);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}

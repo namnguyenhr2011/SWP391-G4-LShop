@@ -9,6 +9,7 @@ routes.put('/updateDiscount/:id', authorization.Authorization, controller.update
 routes.delete('/deleteDiscount/:id', authorization.Authorization, controller.deleteDiscount);
 routes.put('/activeDiscount/:id', authorization.Authorization, controller.activeDiscount);
 routes.post('/assignDiscount', authorization.Authorization, controller.assignDiscount);
+routes.put('/unassignDiscount', authorization.Authorization, controller.unassignDiscount);
 
 
 
