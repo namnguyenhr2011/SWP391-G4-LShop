@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-
 const initialState = {
     items: {},
     compareItems: {}
@@ -66,40 +65,8 @@ const cartSlice = createSlice({
                 item.quantity -= 1;
             }
         },
-
-        addToCompare: (state, action) => {
-            const { userId, productId, product } = action.payload;
-
-            if (!state.compareItems[userId]) {
-                state.compareItems[userId] = [];
-            }
-
-            // Kiểm tra nếu sản phẩm đã có trong danh sách so sánh
-            const existingCompareItem = state.compareItems[userId].find(item => item.productId === productId);
-
-            if (!existingCompareItem) {
-                state.compareItems[userId].push(product);
-            }
-        },
-
-        // Loại bỏ sản phẩm khỏi danh sách so sánh
-        removeFromCompare: (state, action) => {
-            const { userId, productId } = action.payload;
-            if (state.compareItems[userId]) {
-                state.compareItems[userId] = state.compareItems[userId].filter(item => item.productId !== productId);
-            }
-        },
-
-        // Xóa toàn bộ sản phẩm trong danh sách so sánh
-        clearCompare: (state, action) => {
-            const { userId } = action.payload;
-            if (state.compareItems[userId]) {
-                state.compareItems[userId] = [];
-            }
-        }
-
     },
 });
 
-export const { addToCart, removeFromCart, clearCart, increaseQuantity, decreaseQuantity, addToCompare, removeFromCompare, clearCompare } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, increaseQuantity, decreaseQuantity } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -25,6 +25,9 @@ import { SearchOutlined } from "@ant-design/icons";
 import BottomAds from "../../../Component/BottomAds"
 import LeftAdsBanner from "../../../Component/LeftAds";
 import RightAdsBanner from "../../../Component/RightAds";
+import CompareProduct from "../../../Component/CompareProduct";
+import { toast } from "react-toastify";
+
 const { Content } = Layout;
 const { Title } = Typography;
 const { Option } = Select;
@@ -43,10 +46,22 @@ const ProductList = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [subcategories, setSubcategories] = useState([]);
   const [filterMode, setFilterMode] = useState(null);
-  const { subcategoryName } = useParams(); 
+  const { subcategoryName } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const handleCompare = (productId) => {
+    if (selectedProducts.length < 2) {
+      setSelectedProducts((prev) => [...prev, productId]);
+    }
+  };
+  const handleCompareRedirect = () => {
+    if (selectedProducts.length === 2) {
+      navigate(`/compare?product1=${selectedProducts[0]}&product2=${selectedProducts[1]}`);
+    } else {
+      toast.error("Chọn đủ 2 sản phẩm để so sánh");
+    }
+  };
   const createSlug = (name) =>
     name
       .toLowerCase()
@@ -177,7 +192,7 @@ const ProductList = () => {
     setFilterMode("all");
     setSelectedSubcategory(null);
     setCurrentPage(1);
-    navigate("/all-products", { replace: true }); // Reset URL
+    navigate("/all-products", { replace: true });
   };
 
   const handleSearch = () => {
@@ -454,6 +469,20 @@ const ProductList = () => {
             />
           </Row>
         )}
+        <div>
+          <CompareProduct
+            products={products}
+            loading={loading}
+            isDarkMode={isDarkMode}
+            onCompare={handleCompare}
+          />
+          {selectedProducts.length === 2 && (
+            <Button type="primary" onClick={handleCompareRedirect}>
+              So sánh các sản phẩm đã chọn
+            </Button>
+          )}
+        </div>
+
       </Content>
       <Footer />
       <BottomAds />

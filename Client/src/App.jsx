@@ -71,7 +71,7 @@ import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 import SearchProduct from "./Screen/Client/product/searchProduct";
 
 import LuckyWheel from "./Screen/discount/luckWheel";
-
+import CompareProducts from "./Screen/Client/product/compareProducts";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -172,6 +172,7 @@ const App = () => {
             {/* end */}
 
             <Route path="/luckywheel" element={<LuckyWheel />} />
+            <Route path="/compare" element={<CompareProducts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
