@@ -5,11 +5,13 @@ import { toast } from "react-toastify";
 import { compareProducts } from "../../../Service/Client/ApiProduct";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
-import { useSelector } from "react-redux";  // Import useSelector for Redux
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
 const CompareProducts = () => {
+  const { t } = useTranslation("compare");
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
@@ -18,23 +20,21 @@ const CompareProducts = () => {
   const [comparisonData, setComparisonData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get the dark mode value from Redux state
   const isDarkMode = useSelector((state) => state.user.darkMode);
 
   useEffect(() => {
     const fetchComparison = async () => {
       setLoading(true);
-
       try {
         const response = await compareProducts(product1Id, product2Id);
         if (response && response.data) {
           setComparisonData(response.data.result);
         } else {
-          throw new Error("Không có dữ liệu so sánh.");
+          throw new Error(t("noData"));
         }
       } catch (error) {
-        console.error("Lỗi khi so sánh sản phẩm:", error);
-        toast.error("Không thể lấy dữ liệu so sánh.");
+        console.error(t("fetchError"), error);
+        toast.error(t("toastError"));
       } finally {
         setLoading(false);
       }
@@ -43,22 +43,23 @@ const CompareProducts = () => {
     if (product1Id && product2Id) {
       fetchComparison();
     }
-  }, [product1Id, product2Id]);
+  }, [product1Id, product2Id, t]);
 
-  if (loading) return <Spin size="large" style={{ display: "block", marginTop: "50px" }} />;
+  if (loading) {
+    return <Spin size="large" style={{ display: "block", marginTop: "50px" }} />;
+  }
 
-  // Kiểm tra nếu comparisonData là null hoặc không có dữ liệu
   if (!comparisonData) {
     return (
       <div className={isDarkMode ? "dark-mode" : ""}>
         <Header />
-        <Title level={3} style={{ textAlign: "center" }}>Không có dữ liệu so sánh.</Title>
+        <Title level={3} style={{ textAlign: "center" }}>{t("noData")}</Title>
         <Button
           type="primary"
           onClick={() => navigate("/")}
           style={{ marginTop: "20px", display: "block", marginLeft: "auto" }}
         >
-          Quay lại
+          {t("back")}
         </Button>
         <Footer />
       </div>
@@ -70,34 +71,35 @@ const CompareProducts = () => {
   const data = [
     {
       key: "1",
-      attribute: "Giá",
+      attribute: t("price"),
       product1: product1.price.toLocaleString() + " đ",
       product2: product2.price.toLocaleString() + " đ",
-      highlight: betterProduct.price === "product1" ? "Sản phẩm 1 tốt hơn về giá" : "Sản phẩm 2 tốt hơn về giá",
+      highlight: betterProduct.price === "product1" ? t("better.price1") : t("better.price2"),
     },
     {
       key: "2",
-      attribute: "Số lượng còn",
+      attribute: t("quantity"),
       product1: product1.quantity,
       product2: product2.quantity,
-      highlight: betterProduct.quantity === "product1" ? "Sản phẩm 1 tốt hơn về số lượng" : "Sản phẩm 2 tốt hơn về số lượng",
+      highlight: betterProduct.quantity === "product1" ? t("better.quantity1") : t("better.quantity2"),
     },
     {
       key: "3",
-      attribute: "Đã bán",
+      attribute: t("sold"),
       product1: product1.sold,
       product2: product2.sold,
-      highlight: betterProduct.sold === "product1" ? "Sản phẩm 1 tốt hơn về đã bán" : "Sản phẩm 2 tốt hơn về đã bán",
+      highlight: betterProduct.sold === "product1" ? t("better.sold1") : t("better.sold2"),
     },
     {
       key: "4",
-      attribute: "Đánh giá",
+      attribute: t("reviews"),
       product1: product1.numReviews,
       product2: product2.numReviews,
-      highlight: betterProduct.rating === "product1" ? "Sản phẩm 1 tốt hơn về đánh giá" : "Sản phẩm 2 tốt hơn về đánh giá",
-    }, {
+      highlight: betterProduct.rating === "product1" ? t("better.rating1") : t("better.rating2"),
+    },
+    {
       key: "5",
-      attribute: "Ảnh",
+      attribute: t("image"),
       product1: (
         <img
           src={product1.image}
@@ -112,20 +114,20 @@ const CompareProducts = () => {
           style={{ width: "100px", height: "auto", borderRadius: "8px" }}
         />
       ),
-      highlight: betterProduct.image === "product1" ? "Sản phẩm 1 tốt hơn về ảnh" : "Sản phẩm 2 tốt hơn về ảnh",
+      highlight: betterProduct.image === "product1" ? t("better.image1") : t("better.image2"),
     }
   ];
 
   const columns = [
     {
-      title: "Thuộc tính",
+      title: t("attribute"),
       dataIndex: "attribute",
     },
     {
       title: product1.name,
       dataIndex: "product1",
       render: (text, record) => (
-        <span style={{ fontWeight: record.highlight.includes("Sản phẩm 1") ? "bold" : "normal" }}>
+        <span style={{ fontWeight: record.highlight.includes("Sản phẩm 1") || record.highlight.includes("Product 1") ? "bold" : "normal" }}>
           {text}
         </span>
       ),
@@ -134,7 +136,7 @@ const CompareProducts = () => {
       title: product2.name,
       dataIndex: "product2",
       render: (text, record) => (
-        <span style={{ fontWeight: record.highlight.includes("Sản phẩm 2") ? "bold" : "normal" }}>
+        <span style={{ fontWeight: record.highlight.includes("Sản phẩm 2") || record.highlight.includes("Product 2") ? "bold" : "normal" }}>
           {text}
         </span>
       ),
@@ -145,14 +147,14 @@ const CompareProducts = () => {
     <div className={isDarkMode ? "dark-mode" : ""}>
       <Header />
       <div style={{ padding: 24 }}>
-        <Title level={3}>So sánh sản phẩm</Title>
+        <Title level={3}>{t("title")}</Title>
         <Table dataSource={data} columns={columns} pagination={false} />
         <Button
           type="primary"
           onClick={() => navigate("/")}
           style={{ marginTop: "20px", display: "block", marginLeft: "auto" }}
         >
-          Quay lại
+          {t("back")}
         </Button>
       </div>
       <Footer />
