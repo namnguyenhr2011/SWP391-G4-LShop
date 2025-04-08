@@ -5,9 +5,8 @@ const { Schema } = mongoose;
 const discountSchema = new Schema(
     {
         code: {
-            type: randomString.generateString(10),
-            required: true,
-            unique: true,
+            default: randomString.generateString(20),
+            type: String
         },
         discountType: {
             type: String,

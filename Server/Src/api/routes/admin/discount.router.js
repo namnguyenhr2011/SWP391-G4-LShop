@@ -7,7 +7,7 @@ routes.get('/getAllDiscount', controller.getAllDiscount);
 routes.post('/createDiscount', authorization.Authorization, controller.createDiscount);
 routes.put('/updateDiscount/:id', authorization.Authorization, controller.updateDiscount);
 routes.delete('/deleteDiscount/:id', authorization.Authorization, controller.deleteDiscount);
-routes.put('/activeDiscount/:id', authorization.Authorization, controller.activeDiscount);
+// routes.put('/activeDiscount/:id', authorization.Authorization, controller.activeDiscount);
 routes.post('/assignDiscount', authorization.Authorization, controller.assignDiscount);
 routes.put('/unassignDiscount', authorization.Authorization, controller.unassignDiscount);
 
