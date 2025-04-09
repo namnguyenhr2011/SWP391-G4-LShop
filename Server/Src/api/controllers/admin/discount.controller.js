@@ -146,3 +146,54 @@ module.exports.unassignDiscount = async (req, res) => {
         res.status(500).json(error);
     }
 }
+
+module.exports.activeDiscount = async (req, res) => {
+    try {
+        const { discountId } = req.params;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const user = await User.findOne({ token: token });
+        if (user.role !== 'admin') {
+            return res.status(401).json({ message: 'You are not authorized to active a discount!' });
+        }
+        const discount = await Discount.findByIdAndUpdate(discountId, { isActive: true }, { new: true });
+        if (!discount) {
+            return res.status(404).json({ message: 'Discount not found!' });
+        }
+        res.status(200).json({
+            message: "Active discount successfully"
+            , discount
+        });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+module.exports.deactiveDiscount = async (req, res) => {
+    try {
+        const { discountId } = req.params;
+        const authHeader = req.headers['authorization'];        
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+        const user = await User.findOne({ token: token });
+        if (user.role !== 'admin') {
+            return res.status(401).json({ message: 'You are not authorized to deactive a discount!' });
+        }
+        const discount = await Discount.findByIdAndUpdate(discountId, { isActive: false }, { new: true });
+        if (!discount) {
+            return res.status(404).json({ message: 'Discount not found!' });
+        }
+        res.status(200).json({
+            message: "Deactive discount successfully"
+            , discount
+        });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
