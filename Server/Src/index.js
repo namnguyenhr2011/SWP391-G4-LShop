@@ -29,6 +29,7 @@ app.use(cors({
     credentials: true 
 }));
 
+require('./api/controllers/admin/discountScheduler');
 
 routeClient(app)
 routeAdmin(app)

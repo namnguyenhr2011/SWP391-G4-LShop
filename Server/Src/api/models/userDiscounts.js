@@ -6,11 +6,16 @@ const userDiscountSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    discountId: {
+    withdrawalNumber: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    discountId: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Discount',
         required: true,
-    }
+    }]
 }, {
     timestamps: true
 })

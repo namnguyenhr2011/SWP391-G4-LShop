@@ -73,6 +73,12 @@ import SearchProduct from "./Screen/Client/product/searchProduct";
 import LuckyWheel from "./Screen/discount/luckWheel";
 import CompareProducts from "./Screen/Client/product/compareProducts";
 
+import DiscountDashboard from "./Screen/Admin/discount/discountDashboard";
+import DiscountStatistics from "./Screen/Admin/discount/discountStatistics";
+import CreateDiscount from "./Screen/Admin/discount/createDiscount";
+import UpdateDiscount from "./Screen/Admin/discount/updateDiscount";
+import UserDiscount from "./Screen/Admin/discount/userDiscount";
+
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
@@ -152,6 +158,12 @@ const App = () => {
               <Route path="add-blog" element={<AddBlog />} />
               <Route path="update-blog/:id" element={<UpdateBlog />} />
               <Route path="manage-ads" element={<AdsController />} />
+              {/* discount */}
+              <Route path="manage-discount" element={<DiscountDashboard />} />
+              <Route path="discountStatistics" element={<DiscountStatistics />} />
+              <Route path="createDiscount" element={<CreateDiscount />} />
+              <Route path="updateDiscount/:discountId" element={<UpdateDiscount />} />
+              <Route path="userDiscount" element={<UserDiscount />} />
             </Route>
 
             <Route path="/blog" element={<Blog />} />

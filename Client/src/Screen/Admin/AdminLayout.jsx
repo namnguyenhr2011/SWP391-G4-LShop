@@ -86,8 +86,8 @@ const AdminLayout = () => {
     }, {
     },
     {
-      key: "mb", // Để trống để tạo dropdown mà không cần link trực tiếp
-      icon: <FileTextOutlined />, // Icon cho Manage Blog
+      key: "mb",
+      icon: <FileTextOutlined />,
       label: "Manage Blog",
       children: [
         {
@@ -104,7 +104,28 @@ const AdminLayout = () => {
       key: '/admin/manage-ads',
       icon: <SoundOutlined />,
       label: <Link to="/admin/manage-ads">Manage Ads</Link>
-
+    }
+    , {
+      key: "admin/manage-discount",
+      icon: <FileTextOutlined />,
+      label: "Manage Discount",
+      children: [
+        {
+          icon: <FileTextOutlined />,
+          key: "/admin/statistics",
+          label: <Link to="/admin/discountStatistics">Discount Statistics</Link>,
+        },
+        {
+          icon: <FileTextOutlined />,
+          key: "/admin/manage-discount",
+          label: <Link to="/admin/manage-discount">Discount Dashboard</Link>,
+        },
+        {
+          icon: <FileTextOutlined />,
+          key: "/admin/userDiscount",
+          label: <Link to="/admin/userDiscount">User Discount</Link>,
+        },
+      ],
     }
   ];
 

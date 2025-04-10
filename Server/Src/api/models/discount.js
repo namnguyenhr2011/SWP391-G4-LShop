@@ -6,7 +6,9 @@ const discountSchema = new Schema(
     {
         code: {
             default: randomString.generateString(20),
-            type: String
+            type: String,
+            unique: true,
+            required: true,
         },
         discountType: {
             type: String,
@@ -23,7 +25,19 @@ const discountSchema = new Schema(
         isActive: {
             type: Boolean,
             default: true,
+        }, rate: {
+            type: Number,
+            required: true,
         },
+        startAt: {
+            type: Date,
+            required: true,
+            default: Date.now
+        }, endAt: {
+            type: Date,
+            required: true,
+        }
+
     }, {
     timestamps: true,
 }
