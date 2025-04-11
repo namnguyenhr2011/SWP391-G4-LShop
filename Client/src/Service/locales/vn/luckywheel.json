@@ -1,9 +1,20 @@
 {
-    "luckyWheel": "Vòng quay may mắn",
-    "spin": "Quay",
-    "spinning": "Đang quay...",
-    "result": "Kết quả",
-    "congratulations": "Chúc mừng",
-    "goodLuckNextTime": "Chúc may mắn lần sau"
-  }
-  
+  "luckyWheel": "Vòng quay may mắn",
+  "spin": "Quay",
+  "spinning": "Đang quay...",
+  "result": "Kết quả",
+  "congratulations": "Chúc mừng",
+  "goodLuckNextTime": "Chúc may mắn lần sau",
+  "yourDiscounts": "Ưu đãi của bạn",
+  "spinsLeft": "Bạn còn {{count}} lượt quay",
+  "discountCode": "Mã giảm giá",
+  "discountValue": "Giá trị",
+  "validUntil": "Hạn sử dụng",
+  "error": "Lỗi",
+  "noDiscounts": "Không có ưu đãi nào",
+  "errorFetchingDiscounts": "Không thể tải danh sách ưu đãi. Vui lòng thử lại sau.",
+  "notEnoughWithdrawalNumber": "Số lần rút không đủ để quay",
+  "discountAssignedSuccessfully": "Thêm giảm giá thành cóng!",
+  "errorAssigningDiscount": "Thêm giảm giá thất bại",
+  "errorFetchingWithdrawalNumber": "Không thể tải số lần quay"
+}

@@ -79,6 +79,9 @@ import CreateDiscount from "./Screen/Admin/discount/createDiscount";
 import UpdateDiscount from "./Screen/Admin/discount/updateDiscount";
 import UserDiscount from "./Screen/Admin/discount/userDiscount";
 
+//Ship
+import ShiperDashboard from "./Screen/Shiper/ShipperDashboard";
+
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
   return (
@@ -182,6 +185,11 @@ const App = () => {
             <Route path="/products-sale" element={<SaleProductCard />} />;
             <Route path="/sale/dashboard" element={<SaleScreen />} />
             {/* end */}
+
+            {/* Ship */}
+            <Route path="/shipper" element={<ShiperDashboard />} />
+
+
 
             <Route path="/luckywheel" element={<LuckyWheel />} />
             <Route path="/compare" element={<CompareProducts />} />

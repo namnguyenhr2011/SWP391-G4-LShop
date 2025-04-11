@@ -171,7 +171,7 @@ module.exports.createDiscount = async (req, res) => {
 module.exports.updateDiscount = async (req, res) => {
     try {
         const { discountId } = req.params;
-        const { discountType, discountValue, rate } = req.body;
+        const { discountType, discountValue, rate, startAt, endAt } = req.body;
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
@@ -196,7 +196,7 @@ module.exports.updateDiscount = async (req, res) => {
             return res.status(400).json({ message: 'Total discount rate cannot exceed 100%' });
         }
 
-        const discount = await Discount.findByIdAndUpdate(discountId, { discountType, discountValue, rate }, { new: true });
+        const discount = await Discount.findByIdAndUpdate(discountId, { discountType, discountValue, rate, startAt: startAt ? new Date(startAt) : Date.now(), endAt: new Date(endAt) }, { new: true });
         res.status(200).json(discount);
     } catch (error) {
         res.status(500).json(error);
@@ -301,10 +301,30 @@ module.exports.assignDiscount = async (req, res) => {
         if (!token) {
             return res.status(401).json({ message: 'Token is missing or invalid!' });
         }
+
         const user = await User.findOne({ token: token });
         if (!user) {
             return res.status(401).json({ message: 'User not found!' });
         }
+
+        let userDiscount = await UserDiscount.findOne({ userId: user._id });
+
+        if (userDiscount && userDiscount.withdrawalNumber <= 0) {
+            return res.status(400).json({
+                message: 'User cannot spin because withdrawalNumber is 0!'
+            });
+        }
+
+        if (!discountId || discountId === 'null') {
+            userDiscount.withdrawalNumber -= 1;
+            await userDiscount.save();
+
+            return res.status(200).json({
+                message: 'No discount assigned (Good Luck Next Time)!',
+                userDiscount
+            });
+        }
+
         const discount = await Discount.findById(discountId);
         if (!discount) {
             return res.status(404).json({ message: 'Discount not found!' });
@@ -314,34 +334,22 @@ module.exports.assignDiscount = async (req, res) => {
             return res.status(400).json({ message: 'Discount is not active!' });
         }
 
-        let userDiscount = await UserDiscount.findOne({ userId: user._id });
-
         if (userDiscount) {
             const discountExists = userDiscount.discountId.some(
                 d => d.toString() === discountId
             );
 
             if (discountExists) {
-                if (userDiscount.withdrawalNumber <= 0) {
-                    return res.status(400).json({
-                        message: 'User cannot be assigned to this discount because withdrawalNumber is 0!'
-                    });
-                }
-                userDiscount.withdrawalNumber -= 1;
+                userDiscount.withdrawalNumber -= 1; 
                 await userDiscount.save();
 
                 return res.status(200).json({
-                    message: 'Discount assigned to user successfully!',
+                    message: 'Discount already assigned to user, withdrawal number updated!',
                     userDiscount
                 });
             } else {
-                if (userDiscount.withdrawalNumber <= 0) {
-                    return res.status(400).json({
-                        message: 'User cannot be assigned to this discount because withdrawalNumber is 0!'
-                    });
-                }
                 userDiscount.discountId.push(discount._id);
-                userDiscount.withdrawalNumber -= 1;
+                userDiscount.withdrawalNumber -= 1; 
                 await userDiscount.save();
 
                 return res.status(200).json({
@@ -352,7 +360,7 @@ module.exports.assignDiscount = async (req, res) => {
         } else {
             userDiscount = new UserDiscount({
                 userId: user._id,
-                withdrawalNumber: discount.withdrawalNumber || 1,
+                withdrawalNumber: 0, 
                 discountId: [discount._id]
             });
             await userDiscount.save();
@@ -364,10 +372,10 @@ module.exports.assignDiscount = async (req, res) => {
         }
 
     } catch (error) {
+        console.error('Error in assignDiscount:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-
 module.exports.unassignDiscount = async (req, res) => {
     try {
         const { discountId } = req.params;

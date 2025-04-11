@@ -54,6 +54,9 @@ const Login = () => {
                     case "sale":
                         navigate("/sale");
                         break;
+                    case "shipper":
+                        navigate("/shipper");
+                        break;
                     default:
                         navigate("/");
                         break;
