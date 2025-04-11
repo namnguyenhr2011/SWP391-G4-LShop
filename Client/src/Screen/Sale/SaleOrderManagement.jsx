@@ -75,14 +75,18 @@ const SaleOrderManagement = ({ loading: parentLoading, setLoading: setParentLoad
       title: "No.",
       dataIndex: "key",
       key: "no",
-      render: (_, __, index) => <span style={{ fontSize: "16px" }}>{index + 1}</span>, // Tăng từ 12px lên 16px
+      render: (_, __, index) => <span style={{ fontSize: "16px" }}>{index + 1}</span>,
     },
     {
       title: "Customer Name",
       dataIndex: "userId",
       key: "customer",
-      render: (user) => <span style={{ fontSize: "16px" }}>{user?.userName || "Unknown"}</span>, // Tăng từ 12px lên 16px
+      render: (user) => <span style={{ fontSize: "16px" }}>{user?.userName || "Unknown"}</span>, 
     },
+    { title: "Customer Phone", 
+      dataIndex: "userId", 
+      key: "phone", 
+      render: (user) => <span style={{ fontSize: "16px" }}>{user?.phone || "Unknown"}</span> },
     {
       title: "Products",
       dataIndex: "products",

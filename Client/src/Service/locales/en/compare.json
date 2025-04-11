@@ -1,0 +1,27 @@
+{
+    "title": "Product Comparison",
+    "attribute": "Attribute",
+    "price": "Price",
+    "quantity": "Quantity Available",
+    "sold": "Sold",
+    "reviews": "Reviews",
+    "image": "Image",
+    "back": "Back",
+    "noData": "No comparison data available.",
+    "toastError": "Unable to fetch comparison data.",
+    "fetchError": "Error fetching product comparison.",
+  
+    "better": {
+      "price1": "Product 1 is better in price",
+      "price2": "Product 2 is better in price",
+      "quantity1": "Product 1 is better in quantity",
+      "quantity2": "Product 2 is better in quantity",
+      "sold1": "Product 1 is better in sales",
+      "sold2": "Product 2 is better in sales",
+      "rating1": "Product 1 is better in reviews",
+      "rating2": "Product 2 is better in reviews",
+      "image1": "Product 1 has a better image",
+      "image2": "Product 2 has a better image"
+    }
+  }
+  

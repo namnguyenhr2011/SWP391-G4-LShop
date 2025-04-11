@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import BottomAds from "../Component/BottomAds";
 import LeftAdsBanner from "../Component/LeftAds";
 import RightAdsBanner from "../Component/RightAds";
+import { compareProducts } from "../Service/Client/ApiProduct";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -125,7 +126,6 @@ const Home = () => {
 
         <SaleProducts isDarkMode={isDarkMode} />
       </Content>
-
       <Footer />
       <BottomAds />
       <LeftAdsBanner />

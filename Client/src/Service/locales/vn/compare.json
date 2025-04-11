@@ -1,0 +1,27 @@
+{
+    "title": "So sánh sản phẩm",
+    "attribute": "Thuộc tính",
+    "price": "Giá",
+    "quantity": "Số lượng còn",
+    "sold": "Đã bán",
+    "reviews": "Đánh giá",
+    "image": "Ảnh",
+    "back": "Quay lại",
+    "noData": "Không có dữ liệu so sánh.",
+    "toastError": "Không thể lấy dữ liệu so sánh.",
+    "fetchError": "Lỗi khi so sánh sản phẩm",
+  
+    "better": {
+      "price1": "Sản phẩm 1 tốt hơn về giá",
+      "price2": "Sản phẩm 2 tốt hơn về giá",
+      "quantity1": "Sản phẩm 1 tốt hơn về số lượng",
+      "quantity2": "Sản phẩm 2 tốt hơn về số lượng",
+      "sold1": "Sản phẩm 1 tốt hơn về đã bán",
+      "sold2": "Sản phẩm 2 tốt hơn về đã bán",
+      "rating1": "Sản phẩm 1 tốt hơn về đánh giá",
+      "rating2": "Sản phẩm 2 tốt hơn về đánh giá",
+      "image1": "Sản phẩm 1 tốt hơn về ảnh",
+      "image2": "Sản phẩm 2 tốt hơn về ảnh"
+    }
+  }
+  

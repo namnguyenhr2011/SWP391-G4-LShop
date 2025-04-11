@@ -30,4 +30,6 @@ routes.put('/updateImage/:id', authorization.Authorization, controller.updateIma
 routes.post('/search', controller.searchProducts)
 routes.get('/getProductByCategory/:category', controller.getProductByCategory)
 
+routes.post('/compareProduct', controller.compareProducts)
+
 module.exports = routes;

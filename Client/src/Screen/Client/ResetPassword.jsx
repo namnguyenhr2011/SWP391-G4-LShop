@@ -32,6 +32,10 @@ const ResetPassword = () => {
         }
     }, [navigate, t]);
 
+    const validatePassword = (password) => {
+        return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+    };
+
     const handleResetPassword = async (e) => {
         e.preventDefault();
         try {
@@ -39,7 +43,18 @@ const ResetPassword = () => {
                 toast.error(t("Please enter both password fields."));
                 return;
             }
-
+            if (newPassword !== confirmPassword) {
+                toast.error(t("Passwords do not match"));
+                return;
+            }
+            if (!validatePassword(newPassword)) {
+                toast.error(t("Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character."));
+                return;
+            }
+            if (!validatePassword(confirmPassword)) {
+                toast.error(t("Password must be at least 8 characters, including 1 letter, 1 number, and 1 special character."));
+                return;
+            }
             const res = await userResetPassword(newPassword.trim(), confirmPassword.trim(), token);
 
             if (res && (res.code === 400 || res.code === 401 || res.code === 402)) {
