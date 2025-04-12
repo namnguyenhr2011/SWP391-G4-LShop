@@ -141,3 +141,9 @@ export const getSoldProductsData = async () => {
         return { soldThisMonth: 0, soldChartData: [] };
     }
 };
+
+
+export const compareProducts = async (productId1, productId2) => {
+    const response = await axios.post(`product/compareProduct`, { productId1, productId2 }, { withCredentials: true });
+    return response;
+};

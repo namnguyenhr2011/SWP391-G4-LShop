@@ -1,0 +1,21 @@
+.wheel-container {
+    transition: transform 0.3s ease;
+  }
+  
+  .wheel-container:hover {
+    transform: scale(1.02);
+  }
+  
+  canvas {
+    border-radius: 50%;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  button:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }

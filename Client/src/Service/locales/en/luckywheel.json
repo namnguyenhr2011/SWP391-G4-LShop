@@ -1,0 +1,20 @@
+{
+  "luckyWheel": "Lucky Wheel",
+  "spin": "Spin",
+  "spinning": "Spinning...",
+  "result": "Result",
+  "congratulations": "Congratulations",
+  "goodLuckNextTime": "Good luck next time",
+  "yourDiscounts": "Your Discounts",
+  "spinsLeft": "Spins Left ",
+  "discountCode": "Discount Code",
+  "discountValue": "Discount Value",
+  "validUntil": "Valid Until",
+  "error": "Error",
+  "noDiscounts": "No discounts available",
+  "errorFetchingDiscounts": "Failed to load discounts. Please try again later.",
+  "notEnoughWithdrawalNumber": "Not enough withdrawal attempts to spin",
+  "discountAssignedSuccessfully": "Discount assigned successfully!",
+  "errorAssigningDiscount": "Failed to assign discount",
+  "errorFetchingWithdrawalNumber": "Failed to load spin count"
+}

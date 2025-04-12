@@ -45,21 +45,11 @@ const Login = () => {
       if (res.code === 200) {
         toast.success(res.message);
         dispatch(doLogin({ _id: res.id, token: res.token, role: res.role }));
-        switch (res.role) {
-          case "user":
-            navigate("/");
-            break;
-          case "productManager":
-            navigate("/Productdashboard");
-            break;
-          case "admin":
-            navigate("/admin");
-            break;
-          case "sale":
-            navigate("/sale");
-            break;
-          default:
-            navigate("/");
+        if (res.role === "user") {
+          navigate("/");
+        }
+        else if (res.role != "user") {
+          toast.error("Vui lòng đăng nhập bằng trang Admin !!!");
         }
       }
     } catch (error) {

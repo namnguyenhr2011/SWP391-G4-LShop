@@ -51,6 +51,7 @@ import AdminDashboard from "./Screen/Admin/AdminDashboard";
 import UserManagement from "./Screen/Admin/UserManagement";
 import SaleManagement from "./Screen/Admin/SaleManagement";
 import OrderManagement from "./Screen/Admin/OrderManagement";
+import OrderManagementShiper from "./Screen/Shiper/OrderManagement";
 import ManagerProductManagement from "./Screen/Admin/ManagerProductManagement";
 import FeedbackManagement from "./Screen/Admin/FeedbackManagement";
 import BlogList from "./Screen/Admin/BlogList";
@@ -58,6 +59,8 @@ import AddBlog from "./Screen/Admin/AddBlog";
 import UpdateBlog from "./Screen/Admin/UpdateBlog";
 
 import AdsController from "./Screen/Admin/ads/AdsController";
+import AdminLogin from './Screen/Admin/AdminLogin'
+import ShiperLogin from './Screen/Admin/AdminLogin'
 
 //sale
 import SaleScreen from "./Screen/Sale/SaleScreen";
@@ -68,6 +71,19 @@ import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
 import SaleProductCard from "./Component/SaleProductCard";
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 import SearchProduct from "./Screen/Client/product/searchProduct";
+
+import LuckyWheel from "./Screen/discount/luckWheel";
+import CompareProducts from "./Screen/Client/product/compareProducts";
+
+import DiscountDashboard from "./Screen/Admin/discount/discountDashboard";
+import DiscountStatistics from "./Screen/Admin/discount/discountStatistics";
+import CreateDiscount from "./Screen/Admin/discount/createDiscount";
+import UpdateDiscount from "./Screen/Admin/discount/updateDiscount";
+import UserDiscount from "./Screen/Admin/discount/userDiscount";
+
+//Ship
+// import ShiperDashboard from "./Screen/Shiper/ShipperDashboard";
+import ShiperLayout from "./Screen/Shiper/ShiperLayout";
 
 const App = () => {
   const isDarkMode = useSelector((state) => state.user.darkMode);
@@ -126,6 +142,7 @@ const App = () => {
             <Route path="/addSubCategory" element={<AddSubCategory />} />
             <Route path="/viewCategory" element={<ViewCategory />} />
             {/* nam */}
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               path="/admin/*"
               element={
@@ -147,8 +164,14 @@ const App = () => {
               <Route path="add-blog" element={<AddBlog />} />
               <Route path="update-blog/:id" element={<UpdateBlog />} />
               <Route path="manage-ads" element={<AdsController />} />
+              {/* discount */}
+              <Route path="manage-discount" element={<DiscountDashboard />} />
+              <Route path="discountStatistics" element={<DiscountStatistics />} />
+              <Route path="createDiscount" element={<CreateDiscount />} />
+              <Route path="updateDiscount/:discountId" element={<UpdateDiscount />} />
+              <Route path="userDiscount" element={<UserDiscount />} />
             </Route>
-            
+
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogDetail />} />
             {/* tuan */}
@@ -165,6 +188,24 @@ const App = () => {
             <Route path="/products-sale" element={<SaleProductCard />} />;
             <Route path="/sale/dashboard" element={<SaleScreen />} />
             {/* end */}
+
+            {/* Ship */}
+            {/* <Route path="/shipper" element={<ShiperDashboard />} /> */}
+            <Route path="/shipper/login" element={<ShiperLogin />} />
+            <Route
+              path="/shipper/*"
+              element={
+                <ShiperProtectedRoute>
+                  <ShiperLayout />
+                </ShiperProtectedRoute>
+              }
+            >
+              <Route index element={<OrderManagementShiper />} />
+            </Route>
+
+
+            <Route path="/luckywheel" element={<LuckyWheel />} />
+            <Route path="/compare" element={<CompareProducts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
@@ -192,7 +233,20 @@ const AdminProtectedRoute = ({ children }) => {
   return children;
 };
 
+const ShiperProtectedRoute = ({ children }) => {
+  const user = useSelector((state) => state.user.user);
+
+  if (!user || user.role !== "shipper") {
+    return <NotFound />;
+  }
+
+  return children;
+};
+
 AdminProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+ShiperProtectedRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
