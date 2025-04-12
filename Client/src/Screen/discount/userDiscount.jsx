@@ -32,23 +32,28 @@ const UserDiscount = ({ refreshKey }) => {
             allDiscounts = response.discountId;
             setWithdrawalNumber(response.withdrawalNumber || 0);
           }
-        } else {
-          throw new Error('Invalid response format');
         }
 
         allDiscounts.sort((a, b) => new Date(a.endAt) - new Date(b.endAt));
         setDiscounts(allDiscounts);
       } catch (error) {
         console.error('Error fetching user discounts:', error);
-        toast.error(t('errorFetchingDiscounts'));
-        setError(t('errorFetchingDiscounts'));
+        // Check if the error is due to no discounts found
+        if (error.response?.status === 404) {
+          setDiscounts([]); // Set empty array instead of error
+        } else if (error.response?.status === 400) {
+          setDiscounts([]); // Handle expired discounts case
+        } else {
+          toast.error(t('errorFetchingDiscounts'));
+          setError(t('errorFetchingDiscounts'));
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchDiscounts();
-  }, [t, refreshKey]); // Refetch when refreshKey changes
+  }, [t, refreshKey]);
 
   const columns = [
     {
@@ -91,7 +96,10 @@ const UserDiscount = ({ refreshKey }) => {
           🎁 {t('yourDiscounts')}
         </Title>
         <Text style={{ textAlign: 'center', display: 'block', color: '#595959' }}>
-          {t('spinsLeft')}: <strong>{withdrawalNumber}</strong>
+          {withdrawalNumber === 0 || withdrawalNumber === null
+            ? t('noSpins')
+            : `${t('spinsLeft')}: `}
+          {withdrawalNumber > 0 && <strong>{withdrawalNumber}</strong>}
         </Text>
 
         {loading ? (
@@ -109,6 +117,7 @@ const UserDiscount = ({ refreshKey }) => {
         ) : discounts.length === 0 ? (
           <Alert
             message={t('noDiscounts')}
+            description={t('noDiscountsDescription')}
             type="info"
             showIcon
             style={{ borderRadius: 8 }}

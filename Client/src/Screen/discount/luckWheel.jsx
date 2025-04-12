@@ -136,7 +136,7 @@ const LuckyWheel = () => {
 
       let displayName = items[i].name;
       if (displayName.length > 12) {
-        displayName = displayName.substring(0, 12) + '...';
+        displayName = displayName.substring(0, 20);
       }
 
       ctx.fillStyle = '#ffffff';
@@ -213,8 +213,8 @@ const LuckyWheel = () => {
     setSpinning(false);
 
     try {
+      await assignDiscount(resultItem._id || null);
       if (resultItem._id) {
-        await assignDiscount(resultItem._id);
         toast.success(t('discountAssignedSuccessfully'), { autoClose: 3000 });
       } else {
         toast.info(t('goodLuckNextTime'), { autoClose: 3000 });
@@ -253,7 +253,7 @@ const LuckyWheel = () => {
   return (
     <>
       <Header />
-      <Container fluid className="py-5" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '100vh' }}>
+      <Container fluid className="py-5" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', minHeight: '80vh', marginTop: 50 }}>
         <Row justify="center" gutter={[24, 24]} className="align-items-stretch">
           <Col xs={24} md={12} lg={10}>
             <Card

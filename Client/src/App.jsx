@@ -66,7 +66,7 @@ import AddSaleScreen from "./Screen/Sale/AddSaleScreen";
 import UpdateSaleScreen from "./Screen/Sale/UpdateSale";
 import ProductList from "./Screen/Client/product/productList";
 import ProductSaleDetail from "./Screen/Client/product/productSaleDetail";
-import SaleProductCard from "./Component/SaleProductCard";
+
 import SaleOrderManagement from "./Screen/Sale/SaleOrderManagement";
 import SearchProduct from "./Screen/Client/product/searchProduct";
 
@@ -182,7 +182,7 @@ const App = () => {
             <Route path="/sale/update" element={<UpdateSaleScreen />} />
             <Route path="/sale/orders" element={<SaleOrderManagement />} />
             <Route path="/product-sale/:id" element={<ProductSaleDetail />} />;
-            <Route path="/products-sale" element={<SaleProductCard />} />;
+
             <Route path="/sale/dashboard" element={<SaleScreen />} />
             {/* end */}
 
@@ -192,6 +192,7 @@ const App = () => {
 
 
             <Route path="/luckywheel" element={<LuckyWheel />} />
+
             <Route path="/compare" element={<CompareProducts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
