@@ -6,6 +6,7 @@ import Header from '../../layout/Header';
 import AppFooter from '../../layout/Footer';
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { addWithdrawDiscount } from '../../../Service/Admin/DiscountServices';
 
 const ReturnQR = () => {
     const { t } = useTranslation("returnQR");
@@ -54,12 +55,46 @@ const ReturnQR = () => {
                         message: t('payment_success'),
                         description: `${t('transaction_no')}: ${transactionNo}`
                     });
+
+                    let withdrawalNumber = 0;
+                    if (amount >= 50000000) {
+                        withdrawalNumber = 3;
+                    } else if (amount >= 35000000) {
+                        withdrawalNumber = 2;
+                    } else if (amount >= 20000000) {
+                        withdrawalNumber = 1;
+                    }
+
+                    if (withdrawalNumber > 0) {
+                        try {
+                            const response = await addWithdrawDiscount(withdrawalNumber);
+                            if (response.status === 200) {
+                                notification.success({
+                                    message: t('withdrawal_success'),
+                                    description: `${t('withdrawal_number')}: ${withdrawalNumber}`
+                                });
+                            } else {
+                                notification.error({
+                                    message: t('withdrawal_failed'),
+                                    description: t('error_processing_withdrawal')
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error processing withdrawal:', error);
+                            notification.error({
+                                message: t('withdrawal_error'),
+                                description: t('error_processing_withdrawal')
+                            });
+                        }
+                    }
+
                 } else {
                     notification.error({
                         message: t('payment_failed'),
                         description: t('transaction_failed_or_cancelled')
                     });
                 }
+
             } catch (error) {
                 console.error('Error processing payment return:', error);
                 notification.error({
@@ -119,10 +154,10 @@ const ReturnQR = () => {
                                         variant="primary"
                                         onClick={() => navigate('/')}
                                         style={{
-                                            backgroundColor: isDarkMode ? '#007bff' : '#007bff', 
-                                            color: isDarkMode ? '#ffffff' : '#ffffff', 
-                                            border: isDarkMode ? '1px solid #007bff' : '1px solid #007bff', 
-                                            padding: '10px 20px', 
+                                            backgroundColor: isDarkMode ? '#007bff' : '#007bff',
+                                            color: isDarkMode ? '#ffffff' : '#ffffff',
+                                            border: isDarkMode ? '1px solid #007bff' : '1px solid #007bff',
+                                            padding: '10px 20px',
                                             borderRadius: '5px',
                                         }}
                                     >

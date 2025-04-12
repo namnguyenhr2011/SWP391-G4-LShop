@@ -102,24 +102,17 @@ module.exports.getDiscountByUser = async (req, res) => {
                 path: 'discountId'
             });
 
-        // Check if there are any discounts
         if (!discounts || discounts.length === 0) {
             return res.status(404).json({ message: 'No discounts found for this user!' });
         }
-
-        // Filter for active discounts
         const activeDiscounts = discounts.filter(discount =>
             discount.discountId && discount.discountId.some(d => d.isActive === true)
         );
-
-        // If no active discounts found but there are discounts
         if (activeDiscounts.length === 0) {
             return res.status(400).json({
                 message: 'Discounts have expired or are currently not in use!'
             });
         }
-
-        // Return only the discounts with at least one active discountId
         res.status(200).json(activeDiscounts);
     } catch (error) {
         res.status(500).json(error);
@@ -186,7 +179,6 @@ module.exports.updateDiscount = async (req, res) => {
             return res.status(401).json({ message: 'You are not authorized to update a discount!' });
         }
 
-        // Check total rate across all discounts excluding the current discount
         const totalRate = await Discount.aggregate([
             { $match: { _id: { $ne: discountId } } },
             { $group: { _id: null, totalRate: { $sum: "$rate" } } }
@@ -239,22 +231,17 @@ module.exports.toggleDiscountStatus = async (req, res) => {
             return res.status(401).json({ message: 'Token is missing or invalid!' });
         }
 
-        // Tìm người dùng từ token
         const user = await User.findOne({ token: token });
         if (!user || user.role !== 'admin') {
             return res.status(401).json({ message: 'You are not authorized to toggle a discount!' });
         }
-
-        // Tìm discount theo discountId
         const discount = await Discount.findById(discountId);
         if (!discount) {
             return res.status(404).json({ message: 'Discount not found!' });
         }
-
-        // Toggle trạng thái isActive
         const updatedDiscount = await Discount.findByIdAndUpdate(
             discountId,
-            { isActive: !discount.isActive }, // Thay đổi trạng thái isActive
+            { isActive: !discount.isActive }, 
             { new: true }
         );
 
@@ -309,19 +296,31 @@ module.exports.assignDiscount = async (req, res) => {
 
         let userDiscount = await UserDiscount.findOne({ userId: user._id });
 
-        if (userDiscount && userDiscount.withdrawalNumber <= 0) {
+        if (!userDiscount) {
+            userDiscount = new UserDiscount({
+                userId: user._id,
+                withdrawalNumber: 1, 
+                discountId: []
+            });
+        }
+
+        if (userDiscount.withdrawalNumber <= 0) {
             return res.status(400).json({
                 message: 'User cannot spin because withdrawalNumber is 0!'
             });
         }
 
-        if (!discountId || discountId === 'null') {
+        if (discountId === 'null' || !discountId) {
             userDiscount.withdrawalNumber -= 1;
             await userDiscount.save();
 
             return res.status(200).json({
                 message: 'No discount assigned (Good Luck Next Time)!',
-                userDiscount
+                userDiscount: {
+                    userId: userDiscount.userId,
+                    withdrawalNumber: userDiscount.withdrawalNumber,
+                    discountId: userDiscount.discountId
+                }
             });
         }
 
@@ -334,42 +333,18 @@ module.exports.assignDiscount = async (req, res) => {
             return res.status(400).json({ message: 'Discount is not active!' });
         }
 
-        if (userDiscount) {
-            const discountExists = userDiscount.discountId.some(
-                d => d.toString() === discountId
-            );
+        userDiscount.discountId.push(discount._id);
+        userDiscount.withdrawalNumber -= 1;
+        await userDiscount.save();
 
-            if (discountExists) {
-                userDiscount.withdrawalNumber -= 1; 
-                await userDiscount.save();
-
-                return res.status(200).json({
-                    message: 'Discount already assigned to user, withdrawal number updated!',
-                    userDiscount
-                });
-            } else {
-                userDiscount.discountId.push(discount._id);
-                userDiscount.withdrawalNumber -= 1; 
-                await userDiscount.save();
-
-                return res.status(200).json({
-                    message: 'Discount assigned to user successfully!',
-                    userDiscount
-                });
+        return res.status(200).json({
+            message: 'Discount assigned to user successfully!',
+            userDiscount: {
+                userId: userDiscount.userId,
+                withdrawalNumber: userDiscount.withdrawalNumber,
+                discountId: userDiscount.discountId
             }
-        } else {
-            userDiscount = new UserDiscount({
-                userId: user._id,
-                withdrawalNumber: 0, 
-                discountId: [discount._id]
-            });
-            await userDiscount.save();
-
-            return res.status(200).json({
-                message: 'Discount assigned to user successfully!',
-                userDiscount
-            });
-        }
+        });
 
     } catch (error) {
         console.error('Error in assignDiscount:', error);
@@ -495,10 +470,190 @@ module.exports.getRecentDiscounts = async (req, res) => {
     }
 };
 
-module.exports.getUserAssignedStats = async (req, res) => {
+
+module.exports.getDiscountUsageStats = async (req, res) => {
     try {
         const { days, months, years } = req.body;
+        let filterDate = new Date();
+        if (days) {
+            filterDate.setDate(filterDate.getDate() - parseInt(days));
+        } else if (months) {
+            filterDate.setMonth(filterDate.getMonth() - parseInt(months));
+        } else if (years) {
+            filterDate.setFullYear(filterDate.getFullYear() - parseInt(years));
+        } else {
+            filterDate = null; 
+        }
 
+        const matchStage = filterDate ? { createdAt: { $gte: filterDate } } : {};
+
+        const usageStats = await UserDiscount.aggregate([
+            { $match: matchStage },
+            { $unwind: '$discountId' },
+            {
+                $group: {
+                    _id: '$discountId',
+                    totalAssignments: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'discounts',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'discountDetails'
+                }
+            },
+            { $unwind: '$discountDetails' },
+            {
+                $project: {
+                    discountId: '$_id',
+                    code: '$discountDetails.code',
+                    discountType: '$discountDetails.discountType',
+                    discountValue: '$discountDetails.discountValue',
+                    totalAssignments: 1,
+                    isActive: '$discountDetails.isActive'
+                }
+            }
+        ]);
+
+        if (usageStats.length === 0) {
+            return res.status(404).json({ message: 'No discount usage found.' });
+        }
+
+        res.status(200).json({
+            message: 'Discount usage statistics retrieved successfully.',
+            total: usageStats.length,
+            data: usageStats
+        });
+    } catch (error) {
+        console.error('Error fetching discount usage stats:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
+
+module.exports.getActiveDiscountsOverview = async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const activeDiscounts = await Discount.find({
+            isActive: true,
+            endAt: { $gte: currentDate }
+        }).select('code discountType discountValue rate startAt endAt');
+
+        if (activeDiscounts.length === 0) {
+            return res.status(404).json({ message: 'No active discounts found.' });
+        }
+
+        const formattedDiscounts = activeDiscounts.map(discount => ({
+            discountId: discount._id,
+            code: discount.code,
+            discountType: discount.discountType,
+            discountValue: discount.discountValue,
+            rate: discount.rate,
+            startAt: discount.startAt,
+            endAt: discount.endAt,
+            daysRemaining: Math.ceil((discount.endAt - currentDate) / (1000 * 60 * 60 * 24))
+        }));
+
+        res.status(200).json({
+            message: 'Active discounts retrieved successfully.',
+            total: activeDiscounts.length,
+            data: formattedDiscounts
+        });
+    } catch (error) {
+        console.error('Error fetching active discounts:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
+module.exports.getUserDiscountActivity = async (req, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token is missing or invalid!' });
+        }
+
+        const user = await User.findOne({ token: token });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found!' });
+        }
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'You are not authorized to view this data!' });
+        }
+
+        const userActivity = await UserDiscount.aggregate([
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            { $unwind: '$userDetails' },
+            {
+                $lookup: {
+                    from: 'discounts',
+                    localField: 'discountId',
+                    foreignField: '_id',
+                    as: 'discountDetails'
+                }
+            },
+            {
+                $project: {
+                    userId: '$userId',
+                    username: '$userDetails.username',
+                    email: '$userDetails.email',
+                    totalDiscounts: { $size: '$discountId' },
+                    activeDiscounts: {
+                        $filter: {
+                            input: '$discountDetails',
+                            as: 'discount',
+                            cond: { $and: [{ $eq: ['$$discount.isActive', true] }, { $gte: ['$$discount.endAt', new Date()] }] }
+                        }
+                    },
+                    expiredDiscounts: {
+                        $filter: {
+                            input: '$discountDetails',
+                            as: 'discount',
+                            cond: { $or: [{ $eq: ['$$discount.isActive', false] }, { $lt: ['$$discount.endAt', new Date()] }] }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    userId: 1,
+                    username: 1,
+                    email: 1,
+                    totalDiscounts: 1,
+                    activeDiscountCount: { $size: '$activeDiscounts' },
+                    expiredDiscountCount: { $size: '$expiredDiscounts' }
+                }
+            }
+        ]);
+
+        if (userActivity.length === 0) {
+            return res.status(404).json({ message: 'No user discount activity found.' });
+        }
+
+        res.status(200).json({
+            message: 'User discount activity retrieved successfully.',
+            total: userActivity.length,
+            data: userActivity
+        });
+    } catch (error) {
+        console.error('Error fetching user discount activity:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
+module.exports.getExpiredDiscountsReport = async (req, res) => {
+    try {
+        const { days, months, years } = req.body;
         let filterDate = new Date();
 
         if (days) {
@@ -508,46 +663,111 @@ module.exports.getUserAssignedStats = async (req, res) => {
         } else if (years) {
             filterDate.setFullYear(filterDate.getFullYear() - parseInt(years));
         } else {
-            return res.status(400).json({ message: "Please provide days, months, or years to filter." });
+            return res.status(400).json({ message: 'Please provide days, months, or years to filter.' });
         }
 
-        const assignedStats = await UserDiscount.aggregate([
+        const expiredDiscounts = await Discount.find({
+            endAt: { $lte: new Date() },
+            createdAt: { $gte: filterDate }
+        });
+
+        const expiredWithUsage = await Promise.all(expiredDiscounts.map(async (discount) => {
+            const usageCount = await UserDiscount.countDocuments({ discountId: { $in: [discount._id] } });
+            return {
+                discountId: discount._id,
+                code: discount.code,
+                discountType: discount.discountType,
+                discountValue: discount.discountValue,
+                rate: discount.rate,
+                endAt: discount.endAt,
+                usageCount
+            };
+        }));
+
+        if (expiredWithUsage.length === 0) {
+            return res.status(404).json({ message: 'No expired discounts found in the given time period.' });
+        }
+
+        res.status(200).json({
+            message: 'Expired discounts report retrieved successfully.',
+            total: expiredWithUsage.length,
+            data: expiredWithUsage
+        });
+    } catch (error) {
+        console.error('Error fetching expired discounts:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
+
+module.exports.getDiscountTypeDistribution = async (req, res) => {
+    try {
+        const distribution = await Discount.aggregate([
             {
-                $match: {
-                    createdAt: { $gte: filterDate }
+                $group: {
+                    _id: '$discountType',
+                    totalDiscounts: { $sum: 1 },
+                    activeDiscounts: {
+                        $sum: { $cond: [{ $and: [{ $eq: ['$isActive', true] }, { $gte: ['$endAt', new Date()] }] }, 1, 0] }
+                    }
                 }
             },
             {
-                $group: {
-                    _id: "$discountId",
-                    totalUsers: { $sum: 1 }
+                $project: {
+                    discountType: '$_id',
+                    totalDiscounts: 1,
+                    activeDiscounts: 1,
+                    _id: 0
                 }
             }
         ]);
 
-        const fullStats = await Promise.all(assignedStats.map(async (item) => {
-            const discount = await Discount.findById(item._id);
-            return {
-                discountId: item._id,
-                discountCode: discount ? discount.code : "N/A",
-                totalUsers: item.totalUsers
-            };
+        const usageByType = await UserDiscount.aggregate([
+            { $unwind: '$discountId' },
+            {
+                $lookup: {
+                    from: 'discounts',
+                    localField: 'discountId',
+                    foreignField: '_id',
+                    as: 'discountDetails'
+                }
+            },
+            { $unwind: '$discountDetails' },
+            {
+                $group: {
+                    _id: '$discountDetails.discountType',
+                    totalAssignments: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    discountType: '$_id',
+                    totalAssignments: 1,
+                    _id: 0
+                }
+            }
+        ]);
+
+        // Merge distribution and usage data
+        const result = distribution.map(type => ({
+            discountType: type.discountType,
+            totalDiscounts: type.totalDiscounts,
+            activeDiscounts: type.activeDiscounts,
+            totalAssignments: usageByType.find(u => u.discountType === type.discountType)?.totalAssignments || 0
         }));
 
-        if (fullStats.length === 0) {
-            return res.status(404).json({ message: "No assigned discounts found in the given time period." });
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'No discount types found.' });
         }
 
         res.status(200).json({
-            message: "User-discount assignment stats retrieved successfully.",
-            filteredFrom: filterDate,
-            total: fullStats.length,
-            data: fullStats
+            message: 'Discount type distribution retrieved successfully.',
+            total: result.length,
+            data: result
         });
-
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        console.error('Error fetching discount type distribution:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
 
@@ -566,7 +786,6 @@ module.exports.addWithdrawalNumber = async (req, res) => {
 
         const { withdrawalNumber } = req.body;
 
-        // Kiểm tra withdrawalNumber có hợp lệ không
         if (!withdrawalNumber || typeof withdrawalNumber !== 'number') {
             return res.status(400).json({ message: 'Invalid withdrawalNumber value!' });
         }
@@ -574,18 +793,16 @@ module.exports.addWithdrawalNumber = async (req, res) => {
         let userDiscount = await UserDiscount.findOne({ userId: user._id });
 
         if (userDiscount) {
-            // Nếu đã tồn tại, tăng withdrawalNumber
             userDiscount = await UserDiscount.findOneAndUpdate(
                 { userId: user._id },
                 { $inc: { withdrawalNumber: withdrawalNumber } },
                 { new: true }
             );
         } else {
-            // Nếu chưa tồn tại, tạo mới với withdrawalNumber được cung cấp
             userDiscount = new UserDiscount({
                 userId: user._id,
                 withdrawalNumber: withdrawalNumber,
-                discountId: [] // Khởi tạo mảng discountId rỗng
+                discountId: []
             });
             await userDiscount.save();
         }
@@ -597,5 +814,19 @@ module.exports.addWithdrawalNumber = async (req, res) => {
             message: 'Server error',
             error: error.message
         });
+    }
+};
+
+// controller.js
+module.exports.getAllUserHaveDiscount = async (req, res) => {
+    try {
+        const usersWithDiscount = await UserDiscount.find({})
+            .populate('userId')      
+            .populate('discountId'); 
+
+        res.status(200).json(usersWithDiscount);
+    } catch (error) {
+        console.error('Error fetching users with discounts:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };

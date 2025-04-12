@@ -20,8 +20,8 @@ const CompareProduct = ({ products, loading, isDarkMode, onCompare }) => {
         size="large"
         style={{
           display: "block",
-          margin: "50px auto",
-          color: isDarkMode ? "#e6edf3" : "#1c1e21",
+          margin: "100px auto",
+          color: isDarkMode ? "#a6cdf6" : "#1890ff",
         }}
       />
     );
@@ -50,7 +50,6 @@ const CompareProduct = ({ products, loading, isDarkMode, onCompare }) => {
         },
       })
     );
-
     toast.success(t("addedToCart"));
   };
 
@@ -107,21 +106,16 @@ const CompareProduct = ({ products, loading, isDarkMode, onCompare }) => {
               color: themeStyles.textColor,
             }}
             onClick={() => handleProductClick(product._id)}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.03)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <Title
-              level={5}
+              level={4}
               style={{
-                marginBottom: "8px",
+                marginBottom: "12px",
                 color: themeStyles.textColor,
-                whiteSpace: "nowrap",
+                fontWeight: 600,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                maxWidth: "100%",
-                display: "block",
+                whiteSpace: "nowrap",
               }}
             >
               {product.name}
@@ -129,49 +123,66 @@ const CompareProduct = ({ products, loading, isDarkMode, onCompare }) => {
             <Text
               strong
               style={{
-                fontSize: "16px",
+                fontSize: "18px",
                 color: themeStyles.priceColor,
+                display: "block",
+                marginBottom: "16px",
               }}
             >
               {product.price.toLocaleString()} {t("currency")}
             </Text>
             <div
               style={{
-                marginTop: "12px",
                 display: "flex",
+                gap: "12px",
                 justifyContent: "center",
-                gap: "10px",
+                flexWrap: "wrap",
               }}
             >
               <Button
                 type="primary"
+                size="large"
                 onClick={(e) => handleAddToCart(product, e)}
                 style={{
-                  backgroundColor: themeStyles.buttonBg,
-                  borderColor: themeStyles.buttonBg,
-                  color: "#fff",
-                  transition: "all 0.3s",
+                  background: themeStyles.buttonPrimaryBg,
+                  borderColor: themeStyles.buttonPrimaryBg,
+                  borderRadius: "8px",
+                  padding: "0 24px",
+                  height: "40px",
+                  fontWeight: 500,
+                  transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    themeStyles.buttonHoverBg;
-                  e.currentTarget.style.borderColor = themeStyles.buttonHoverBg;
+                  e.currentTarget.style.background = themeStyles.buttonPrimaryHoverBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonPrimaryHoverBg;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = themeStyles.buttonBg;
-                  e.currentTarget.style.borderColor = themeStyles.buttonBg;
+                  e.currentTarget.style.background = themeStyles.buttonPrimaryBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonPrimaryBg;
                 }}
               >
                 {t("addToCart")}
               </Button>
               <Button
-                type="default"
+                size="large"
                 onClick={(e) => handleCompareClick(product._id, e)}
                 style={{
-                  backgroundColor: themeStyles.buttonBg,
-                  borderColor: themeStyles.buttonBg,
-                  color: "#fff",
-                  transition: "all 0.3s",
+                  background: themeStyles.buttonSecondaryBg,
+                  borderColor: themeStyles.buttonSecondaryBg,
+                  color: isDarkMode ? "#e6edf3" : "#2d3436",
+                  borderRadius: "8px",
+                  padding: "0 24px",
+                  height: "40px",
+                  fontWeight: 500,
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = themeStyles.buttonSecondaryHoverBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonSecondaryHoverBg;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = themeStyles.buttonSecondaryBg;
+                  e.currentTarget.style.borderColor = themeStyles.buttonSecondaryBg;
                 }}
               >
                 {t("compare")}
@@ -199,4 +210,3 @@ CompareProduct.propTypes = {
 };
 
 export default CompareProduct;
-
