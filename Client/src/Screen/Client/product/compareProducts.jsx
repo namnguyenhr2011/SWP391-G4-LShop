@@ -193,10 +193,10 @@ const CompareProducts = () => {
         </Card>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "16px", marginTop: "24px" }}>
           <Button type="primary" onClick={() => navigate(`/product/${product1Id}`)} size="large">
-            {t("viewProduct1")}
+            {comparisonData.product1.name}
           </Button>
           <Button type="primary" onClick={() => navigate(`/product/${product2Id}`)} size="large">
-            {t("viewProduct2")}
+            {comparisonData.product2.name}
           </Button>
           <Button onClick={() => navigate("/")} size="large">
             {t("back")}
