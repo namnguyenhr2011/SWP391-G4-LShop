@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     address: String,
     avatar: {
         type: String,
-        default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVva9csN-zOiY2wG9CXNuAI1VRsFunaiD3nQ&s" 
+        default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVva9csN-zOiY2wG9CXNuAI1VRsFunaiD3nQ&s"
     },
     token: {
         default: randomString.generateString(20),
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'user', 'productManager', 'sale'],
+        enum: ['admin', 'user', 'productManager', 'sale', 'shipper'],
         default: 'user'
     },
     deletedAt: Date

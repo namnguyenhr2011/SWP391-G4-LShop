@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
-import { Radio, Input, Divider, List, Typography, Select } from "antd";
+import { Radio, Input, Divider, List, Typography, Select, Tag } from "antd";
+
 import {
   ShoppingOutlined,
   CreditCardOutlined,
@@ -21,9 +22,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import { getDiscountByUser, unassignDiscount } from "../../../Service/Admin/DiscountServices";
 
 const { TextArea } = Input;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Option } = Select;
 
 const CheckoutPage = () => {
@@ -33,15 +35,16 @@ const CheckoutPage = () => {
   const token = useSelector((state) => state.user?.user?.token) || "";
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [discounts, setDiscounts] = useState([]);
+  const [selectedDiscount, setSelectedDiscount] = useState(null); // Track selected discount
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!token) return;
-
       try {
         const userData = await userProfile(token);
         setProfile(userData.user);
-
         setFormData((prev) => ({
           ...prev,
           address: userData?.user?.address || "",
@@ -55,8 +58,30 @@ const CheckoutPage = () => {
   }, [token]);
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Cuộn lên đầu trang khi component mount
+    window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      setLoading(true);
+      try {
+        const response = await getDiscountByUser();
+        const now = new Date();
+        const allDiscounts = response.flatMap((user) => user.discountId || []);
+        const activeDiscounts = allDiscounts.filter((d) => {
+          const start = new Date(d.startAt);
+          const end = new Date(d.endAt);
+          return d.isActive && now >= start && now <= end;
+        });
+        setDiscounts(activeDiscounts);
+      } catch (error) {
+        toast.error("Lỗi khi lấy mã giảm giá:" + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDiscounts();
+  }, [t]);
 
   const { _id: userId } = useSelector((state) => state.user?.user) || {};
   const cartItems = useSelector((state) => state.cart.items[userId] || []);
@@ -69,9 +94,16 @@ const CheckoutPage = () => {
     0
   );
 
+  // Calculate discounted price
+  const discountAmount = selectedDiscount
+    ? (totalAmount * selectedDiscount.discountValue) / 100
+    : 0;
+  const finalAmount = totalAmount - discountAmount;
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VND";
   };
+
   const [formData, setFormData] = useState({
     paymentMethod: "",
     address: "",
@@ -101,7 +133,7 @@ const CheckoutPage = () => {
       <Container className="py-5 text-center">
         <h2>Giỏ hàng trống</h2>
         <p>Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
-        <Button onClick={navigate("/")} />
+        <Button onClick={() => navigate("/")} />
       </Container>
     );
   }
@@ -122,6 +154,11 @@ const CheckoutPage = () => {
       ...formData,
       bankCode: value,
     });
+  };
+
+  const handleDiscountChange = (value) => {
+    const discount = discounts.find((d) => d._id === value);
+    setSelectedDiscount(discount || null);
   };
 
   const handleSubmit = async (e) => {
@@ -155,10 +192,7 @@ const CheckoutPage = () => {
           quantity: item.quantity || 1,
           price: item.price || 0,
         })),
-        totalAmount: cartItems.reduce(
-          (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
-          0
-        ),
+        totalAmount: finalAmount,
         paymentMethod: formData.paymentMethod || "COD",
         paymentStatus: "Pending",
         address: formData.address,
@@ -169,9 +203,14 @@ const CheckoutPage = () => {
       const createOrderResponse = await createOrder(finalOrderData);
       const orderId = createOrderResponse.order._id;
 
+
+      if (selectedDiscount) {
+        await unassignDiscount(selectedDiscount._id);
+      }
+
       if (formData.paymentMethod === "Bank Transfer") {
         const vnpayData = {
-          amount: totalAmount,
+          amount: finalAmount,
           bankCode: formData.bankCode,
           language: "vn",
           orderId: orderId,
@@ -188,6 +227,7 @@ const CheckoutPage = () => {
           return;
         }
       }
+
       toast.success("Đặt hàng thành công!");
       dispatch(clearCart({ userId }));
       navigate("/");
@@ -252,23 +292,23 @@ const CheckoutPage = () => {
                               style={{
                                 position: "relative",
                                 width: "80px",
-                                height: "80px", // Cố định chiều cao
-                                backgroundColor: "white", // Thêm background trắng
-                                borderRadius: "8px", // Bo góc để đồng bộ với ảnh
-                                display: "flex", // Sử dụng flex để căn giữa
-                                alignItems: "center", // Căn giữa theo chiều dọc
-                                justifyContent: "center", // Căn giữa theo chiều ngang
-                                padding: "4px", // Thêm padding để tạo khoảng cách
+                                height: "80px",
+                                backgroundColor: "white",
+                                borderRadius: "8px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "4px",
                               }}
                             >
                               <img
                                 src={item.image}
                                 alt={item.name}
                                 style={{
-                                  maxWidth: "90%", // Đảm bảo ảnh không vượt quá 90% chiều rộng
-                                  maxHeight: "100%", // Đảm bảo ảnh không vượt quá chiều cao của div
+                                  maxWidth: "90%",
+                                  maxHeight: "100%",
                                   borderRadius: "8px",
-                                  objectFit: "contain", // Giữ tỷ lệ ảnh, không bị méo
+                                  objectFit: "contain",
                                 }}
                               />
                               {item.isSale && (
@@ -292,7 +332,6 @@ const CheckoutPage = () => {
                             </div>
                           </Col>
 
-                          {/* Thông tin sản phẩm */}
                           <Col flex="auto" style={{ overflow: "hidden" }}>
                             <Text
                               strong
@@ -304,52 +343,84 @@ const CheckoutPage = () => {
                             </Text>
                             <br />
                             {item.isSale ? (
-                              <>
-                                <Text
-                                  delete
-                                  style={{ color: "#999", marginRight: "10px" }}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "4px",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
+                                  }}
                                 >
-                                  {formatPrice(item.originalPrice)}
-                                </Text>
-                                <Text strong style={{ color: "#ff4d4f" }}>
-                                  {formatPrice(item.price)}
-                                </Text>
-                                <br />
-                                <Text type="success">
-                                  {t("Discount")}:{" "}
-                                  {formatPrice(item.originalPrice - item.price)}{" "}
-                                  (
+                                  <Text
+                                    delete
+                                    style={{
+                                      fontSize: "14px",
+                                      color: isDarkMode ? "#8b949e" : "#6b7280",
+                                    }}
+                                  >
+                                    {formatPrice(item.originalPrice)}
+                                  </Text>
+                                  <Text
+                                    strong
+                                    style={{
+                                      fontSize: "16px",
+                                      color: "#ff4d4f",
+                                    }}
+                                  >
+                                    {formatPrice(item.price)}
+                                  </Text>
+                                </div>
+                                <Text
+                                  style={{
+                                    fontSize: "14px",
+                                    color: isDarkMode ? "#2ecc71" : "#16a34a",
+                                  }}
+                                >
+                                  {t("Saved")}: {formatPrice(item.originalPrice - item.price)} (
                                   {Math.round(
-                                    ((item.originalPrice - item.price) /
-                                      item.originalPrice) *
-                                      100
+                                    ((item.originalPrice - item.price) / item.originalPrice) * 100
                                   )}
                                   %)
                                 </Text>
-                                <br />
                                 <Text
                                   style={{
-                                    color: isDarkMode ? "#e6edf3" : "#000000",
+                                    fontSize: "15px",
+                                    color: isDarkMode ? "#e6edf3" : "#1c2526",
                                   }}
                                 >
-                                  {formatPrice(item.price)} x {item.quantity} =
-                                  <strong>
-                                    {" "}
+                                  {t("Quantity")}: {item.quantity} × {formatPrice(item.price)} ={" "}
+                                  <Text
+                                    strong
+                                    style={{
+                                      color: isDarkMode ? "#ffffff" : "#000000",
+                                    }}
+                                  >
                                     {formatPrice(item.price * item.quantity)}
-                                  </strong>
+                                  </Text>
                                 </Text>
-                              </>
+                              </div>
                             ) : (
                               <Text
                                 style={{
-                                  color: isDarkMode ? "#e6edf3" : "#000000",
+                                  fontSize: "15px",
+                                  color: isDarkMode ? "#e6edf3" : "#1c2526",
                                 }}
                               >
-                                {formatPrice(item.price)} x {item.quantity} =
-                                <strong>
-                                  {" "}
+                                {t("Quantity")}: {item.quantity} × {formatPrice(item.price)} ={" "}
+                                <Text
+                                  strong
+                                  style={{
+                                    color: isDarkMode ? "#ffffff" : "#000000",
+                                  }}
+                                >
                                   {formatPrice(item.price * item.quantity)}
-                                </strong>
+                                </Text>
                               </Text>
                             )}
                           </Col>
@@ -358,35 +429,63 @@ const CheckoutPage = () => {
                     )}
                   />
                   <Divider />
-                  <div className="d-flex justify-content-between">
-                    {totalOriginalPrice > totalAmount ? (
-                      <>
-                        <Text
-                          delete
-                          style={{ color: "#999", marginRight: "10px" }}
-                        >
-                          {t("Original total")}:{" "}
-                          {formatPrice(totalOriginalPrice)}
-                        </Text>
-                        <Text strong style={{ color: "#ff4d4f" }}>
-                          {t("Total")}: {formatPrice(totalAmount)}
-                        </Text>
-                        <Text type="success">
-                          {t("You saved")}:{" "}
-                          {formatPrice(totalOriginalPrice - totalAmount)}
-                          {` (${Math.round(
-                            ((totalOriginalPrice - totalAmount) /
-                              totalOriginalPrice) *
-                              100
-                          )}%)`}
-                        </Text>
-                      </>
-                    ) : (
-                      <h5 style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
-                        {t("Total")}: {formatPrice(totalAmount)}
-                      </h5>
-                    )}
-                  </div>
+                  <Card className="mb-3 shadow-sm rounded-4 p-3">
+                    <Container fluid>
+                      <Row>
+                        <Col xs={12} md={8}>
+                          {totalOriginalPrice > totalAmount && (
+                            <Text
+                              delete
+                              style={{ color: "#999", fontSize: "16px" }}
+                            >
+                              {t("Original total")}: {formatPrice(totalOriginalPrice)}
+                            </Text>
+                          )}
+
+                          {selectedDiscount && (
+                            <>
+                              <Text style={{ display: "block", fontSize: "16px", marginTop: 8 }}>
+                                <Tag color="green">{t("Discount Applied")}</Tag>: {selectedDiscount.discountValue}% (-{formatPrice(discountAmount)})
+                              </Text>
+                              <Text strong style={{ fontSize: "18px", color: "#ff4d4f", display: "block", marginTop: 8 }}>
+                                {t("Final Total")}: {formatPrice(finalAmount)}
+                              </Text>
+                            </>
+                          )}
+
+                          {!selectedDiscount && totalOriginalPrice > totalAmount && (
+                            <Text strong style={{ fontSize: "18px", color: "#ff4d4f", display: "block", marginTop: 8 }}>
+                              {t("Total")}: {formatPrice(totalAmount)}
+                            </Text>
+                          )}
+
+                          {(totalOriginalPrice > finalAmount || selectedDiscount) && (
+                            <Text type="success" style={{ display: "block", marginTop: 8 }}>
+                              {t("You saved")}:{" "}
+                              {formatPrice(
+                                totalOriginalPrice -
+                                finalAmount +
+                                (selectedDiscount ? discountAmount : 0)
+                              )}{" "}
+                              ({Math.round(
+                                ((totalOriginalPrice -
+                                  finalAmount +
+                                  (selectedDiscount ? discountAmount : 0)) /
+                                  totalOriginalPrice) *
+                                100
+                              )}%)
+                            </Text>
+                          )}
+                        </Col>
+
+                        <Col xs={12} md={4} className="d-flex align-items-center justify-content-md-end justify-content-start mt-3 mt-md-0">
+                          <Title level={5} style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}>
+                            {t("Total")}: {formatPrice(totalAmount)}
+                          </Title>
+                        </Col>
+                      </Row>
+                    </Container>
+                  </Card>
                 </Card.Body>
               </Card>
             </Col>
@@ -426,6 +525,29 @@ const CheckoutPage = () => {
                         disabled
                         style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
                       />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label
+                        style={{ color: isDarkMode ? "#e6edf3" : "#000000" }}
+                      >
+                        <FireOutlined /> {t("Select Discount")}
+                      </Form.Label>
+                      <Select
+                        style={{ width: "100%" }}
+                        placeholder={t("Choose a discount")}
+                        onChange={handleDiscountChange}
+                        value={selectedDiscount?._id || undefined}
+                        allowClear
+                      >
+                        {discounts.map((discount) => (
+                          <Option key={discount._id} value={discount._id}>
+                            {discount.discountValue}% -{" "}
+                            {new Date(discount.startAt).toLocaleDateString()} to{" "}
+                            {new Date(discount.endAt).toLocaleDateString()}
+                          </Option>
+                        ))}
+                      </Select>
                     </Form.Group>
 
                     <Form.Group className="mb-3">

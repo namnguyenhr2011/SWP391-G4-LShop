@@ -20,8 +20,15 @@ routes.delete('/unassignDiscount/:discountId', authorization.Authorization, cont
 routes.get('/userDiscounts', authorization.Authorization, controller.getAllUserDiscount);
 
 routes.get('/getRecentDiscounts', controller.getRecentDiscounts);
-routes.get('/getRecentUserDiscounts', controller.getUserAssignedStats);
+
 routes.post('/addWithdrawalNumber', authorization.Authorization, controller.addWithdrawalNumber);
 
+routes.get('/getAllUseHaveDiscount', controller.getAllUserHaveDiscount);
+
+routes.get("/getUserDiscountActivity", authorization.Authorization, controller.getUserDiscountActivity);
+routes.get("/getActiveDiscountsOverview", controller.getActiveDiscountsOverview);
+routes.post('/getDiscountUsageStats', controller.getDiscountUsageStats);
+routes.get('/getExpiredDiscountsReport', controller.getExpiredDiscountsReport);
+routes.get('/getDiscountTypeDistribution', controller.getDiscountTypeDistribution);
 
 module.exports = routes;

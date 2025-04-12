@@ -1,10 +1,11 @@
 {
-    "Profile": "Hồ Sơ",
-    "Your Order": "Đơn Hàng Của Bạn",
-    "DarkMode": "Chế Độ Tối",
-    "Logout": "Đăng Xuất",
-    "English": "Tiếng Anh",
-    "Vietnamese": "Tiếng Việt",
-    "login": "Đăng Nhập"
-  }
-  
+  "Profile": "Hồ Sơ",
+  "Your Order": "Đơn Hàng Của Bạn",
+  "DarkMode": "Chế Độ Tối",
+  "Logout": "Đăng Xuất",
+  "English": "Tiếng Anh",
+  "Vietnamese": "Tiếng Việt",
+  "login": "Đăng Nhập",
+  "Order": "Mã Đơn Hàng",
+  "Discount": "Mã giảm giá của bạn"
+}

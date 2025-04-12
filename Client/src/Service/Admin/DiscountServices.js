@@ -35,7 +35,7 @@ export const assignDiscount = async (discountId) => {
 }
 
 export const unassignDiscount = async (discountId) => {
-    const response = await axios.put(`discount/unassignDiscount/${discountId}`, { withCredentials: true });
+    const response = await axios.delete(`discount/unassignDiscount/${discountId}`, { withCredentials: true });
     return response.data;
 }
 
@@ -48,3 +48,43 @@ export const getDiscountByUser = async () => {
     const response = await axios.get(`discount/getDiscountByUser`, { withCredentials: true });
     return response.data;
 }
+
+export const addWithdrawDiscount = async (withdrawalNumber) => {
+    const response = await axios.post(`discount/addWithdrawalNumber`, { withdrawalNumber }, { withCredentials: true });
+    return response;
+}
+
+export const getAllUserHaveDiscount = async () => {
+    const response = await axios.get(`discount/getAllUseHaveDiscount`, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getUserDiscountActivity = async () => {
+    const response = await axios.get(`discount/getUserDiscountActivity`, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getActiveDiscountsOverview = async () => {
+    const response = await axios.get(`discount/getActiveDiscountsOverview`, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getDiscountUsageStats = async (data) => {
+    const response = await axios.post(`discount/getDiscountUsageStats`, data, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getExpiredDiscountsReport = async (params = {}) => {
+    const response = await axios.post(`discount/getExpiredDiscountsReport`, params, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getDiscountTypeDistribution = async () => {
+    const response = await axios.get(`discount/getDiscountTypeDistribution`, { withCredentials: true });
+    return response.data;
+  };
+  
+  export const getRecentDiscounts = async (data) => {
+    const response = await axios.post(`discount/getRecentDiscounts`, data, { withCredentials: true });
+    return response.data;
+  };

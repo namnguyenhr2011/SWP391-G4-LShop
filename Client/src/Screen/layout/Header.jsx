@@ -28,7 +28,7 @@ import {
 import ButtonAntd from "../../Component/Button";
 import InputSearch from "../../component/InputSearch";
 import { doLogout, doDarkMode } from "../../store/reducer/userReducer";
-import {toast} from "react-toastify"
+import { toast } from "react-toastify"
 
 
 const DEFAULT_LOGO = "/L.png";
@@ -106,8 +106,16 @@ const Header = () => {
         icon={<OrderedListOutlined />}
         onClick={handleOrder}
       >
-        Your Order
+        {t("Order")}
       </Menu.Item>
+
+      <Menu.Item
+        key="discount"
+        icon={<ShoppingCartOutlined />}
+        onClick={() => navigate("/luckywheel")}>
+        {t("Discount")}
+      </Menu.Item>
+
       <Menu.Item key="darkmode">
         <Space>
           {isDarkMode ? <MoonOutlined /> : <SunOutlined />}

@@ -16,5 +16,7 @@
   "notEnoughWithdrawalNumber": "Not enough withdrawal attempts to spin",
   "discountAssignedSuccessfully": "Discount assigned successfully!",
   "errorAssigningDiscount": "Failed to assign discount",
-  "errorFetchingWithdrawalNumber": "Failed to load spin count"
+  "errorFetchingWithdrawalNumber": "Failed to load spin count",
+  "noDiscountsDescription": "You currently have no active discounts available.",
+  "noSpins": "You currently have no spins left."
 }
